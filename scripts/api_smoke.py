@@ -1,8 +1,6 @@
-import requests
-import threading
-import time
-import uvicorn
+import requests, threading, time, uvicorn
 from app.main import app
+
 
 def run():
     uvicorn.run(app, host="127.0.0.1", port=9001)

@@ -7,6 +7,12 @@ jobs:
       matrix:
         os: [windows-latest, ubuntu-latest]
         python-version: ['3.10','3.11']
+    defaults:
+      run:
+        shell: bash
+        working-directory: .
+    env:
+      PYTHONPATH: ${{ github.workspace }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

@@ -19,13 +19,4 @@ jobs:
         env:
           BLUEPRINT_FAKE: "1"
       - name: API smoke
-        run: |
-          python - << 'PY'
-          import requests, threading, time, uvicorn
-          from app.main import app
-          def run():
-              uvicorn.run(app, host="127.0.0.1", port=9001)
-          th=threading.Thread(target=run, daemon=True); th.start()
-          time.sleep(2)
-          print(requests.get("http://127.0.0.1:9001/health", timeout=5).json())
-          PY
+        run: python scripts/api_smoke.py

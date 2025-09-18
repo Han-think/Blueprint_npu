@@ -1,8 +1,10 @@
 .venv/
-pycache/
+__pycache__/
 *.pyc
-.ov_cache/
-exports/
+.env
 models/
-checkpoints/
-*.zip
+!models/.keep
+.dist/
+.cache/
+*.xml
+*.bin

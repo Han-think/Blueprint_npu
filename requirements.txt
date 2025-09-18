@@ -1,0 +1,11 @@
+fastapi==0.111.0
+uvicorn==0.30.0
+pydantic==2.7.0
+numpy==1.26.4
+PyYAML==6.0.2
+requests==2.32.3
+huggingface_hub==0.25.2
+
+# (로컬 실추론 시)
+openvino==2025.1.0
+optimum-intel>=1.20.0

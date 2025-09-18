@@ -1,0 +1,32 @@
+name: CI (smoke)
+on: [push, pull_request]
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONUNBUFFERED: "1"
+      ALLOW_FAKE_GEN: "1" # OV 없이도 동작
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: |
+          python -m pip install -U pip
+          pip install -r requirements.txt
+      - name: Launch API
+        run: |
+          python -m uvicorn src.api.server:app --host 127.0.0.1 --port 9100 &
+          echo $! > .uv.pid
+          sleep 4
+      - name: Health
+        run: curl -sSf http://127.0.0.1:9100/health
+      - name: Generate
+        run: |
+          curl -sSf -H "Content-Type: application/json" \
+            --data '{"seed":0,"n":4,"bounds":{"Pc":[5000000,8000000],"throat_D":[0.03,0.05],"area_ratio":[6,15]}}' \
+            http://127.0.0.1:9100/v1/generate | tee out.json
+      - name: Stop
+        if: always()
+        run: kill $(cat .uv.pid) || true

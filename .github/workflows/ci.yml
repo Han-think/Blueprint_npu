@@ -6,7 +6,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest]
-        python-version: ['3.10', '3.11']
+        python-version: ['3.10','3.11']
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -20,25 +20,12 @@ jobs:
           BLUEPRINT_FAKE: "1"
       - name: API smoke
         run: |
-          python - <<'PY'
-          import threading
-          import time
-
-          import requests
-          import uvicorn
-
+          python - << 'PY'
+          import requests, threading, time, uvicorn
           from app.main import app
-
-
-          def serve() -> None:
-              uvicorn.run(app, host="127.0.0.1", port=9001, log_level="error")
-
-
-          thread = threading.Thread(target=serve, daemon=True)
-          thread.start()
+          def run():
+              uvicorn.run(app, host="127.0.0.1", port=9001)
+          th=threading.Thread(target=run, daemon=True); th.start()
           time.sleep(2)
-          resp = requests.get("http://127.0.0.1:9001/health", timeout=5)
-          print(resp.json())
+          print(requests.get("http://127.0.0.1:9001/health", timeout=5).json())
           PY
-        env:
-          BLUEPRINT_FAKE: "1"

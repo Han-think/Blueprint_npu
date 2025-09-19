@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import json
 import math
+from pathlib import Path
 from typing import Dict, List
 
 from .physics import (
@@ -16,6 +18,21 @@ from .physics import (
 from .thermal import bartz_flux_proxy, regen_dp_proxy
 
 
+def _calibration() -> tuple[float, float, float]:
+    path = Path("data/cea_calib.json")
+    if path.is_file():
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            return (
+                float(data.get("q_bartz_scale", 1.0)),
+                float(data.get("dp_regen_scale", 1.0)),
+                float(data.get("isp_scale", 1.0)),
+            )
+        except Exception:
+            return 1.0, 1.0, 1.0
+    return 1.0, 1.0, 1.0
+
+
 def evaluate_batch(designs: List[Dict[str, float]], pa_kpa: float = 101.325) -> List[Dict[str, float]]:
     """Evaluate a batch of rocket designs using lightweight proxy models."""
 
@@ -25,6 +42,7 @@ def evaluate_batch(designs: List[Dict[str, float]], pa_kpa: float = 101.325) -> 
     dp_regen_max = 2.5e6
     results: List[Dict[str, float]] = []
     ambient_pa = pa_kpa * 1e3
+    k_q, k_dp, k_isp = _calibration()
 
     for design in designs:
         chamber_pressure = design["Pc_MPa"] * 1e6
@@ -55,12 +73,14 @@ def evaluate_batch(designs: List[Dict[str, float]], pa_kpa: float = 101.325) -> 
         cf_eff = cf * spike_penalty * film_penalty
 
         thrust = cf_eff * chamber_pressure * throat_area
-        isp = isp_from_cf(cf_eff, chamber_pressure, throat_area, mass_flow_total)
+        isp = isp_from_cf(cf_eff, chamber_pressure, throat_area, mass_flow_total) * k_isp
 
-        heat_flux_proxy = bartz_flux_proxy(Pc=chamber_pressure, rt_m=throat_radius, Tc=chamber_temp)
+        heat_flux_proxy = (
+            bartz_flux_proxy(Pc=chamber_pressure, rt_m=throat_radius, Tc=chamber_temp) * k_q
+        )
         channel_area = channel_count * (math.pi * (channel_diameter**2) / 4.0)
         coolant_velocity = (mass_flow_coolant / rho_cool) / max(channel_area, 1e-8)
-        dp_regen = regen_dp_proxy(mass_flow_coolant, channel_area)
+        dp_regen = regen_dp_proxy(mass_flow_coolant, channel_area) * k_dp
 
         ok = (
             heat_flux_proxy <= q_max

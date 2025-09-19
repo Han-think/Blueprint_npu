@@ -1,31 +1,37 @@
 import argparse
-import glob
-import os
+from pathlib import Path
 from typing import Optional
 
-from huggingface_hub import snapshot_download
 import yaml
+from huggingface_hub import snapshot_download
 
 
-def _first_match(root: str, pattern: str) -> Optional[str]:
-    cands = glob.glob(os.path.join(root, "**", pattern), recursive=True)
-    if cands:
-        return cands[0]
-    any_xml = glob.glob(os.path.join(root, "**", "*.xml"), recursive=True)
-    return any_xml[0] if any_xml else None
+def _first_match(root: Path, pattern: str) -> Optional[str]:
+    """Return the first file that matches ``pattern`` under ``root``."""
+
+    matches = list(root.rglob(pattern))
+    if matches:
+        return str(matches[0])
+    fallback = list(root.rglob("*.xml"))
+    return str(fallback[0]) if fallback else None
 
 
 def main(profile: str) -> None:
-    cfg = yaml.safe_load(open(profile, "r", encoding="utf-8"))
+    with open(profile, "r", encoding="utf-8") as handle:
+        cfg = yaml.safe_load(handle)
+
     repo = cfg.get("hf_repo")
     target = cfg.get("local_dir")
     if not repo or not target:
         raise SystemExit("profile must include hf_repo and local_dir")
-    os.makedirs(target, exist_ok=True)
-    print(f"[download] {repo} -> {target}")
-    snapshot_download(repo_id=repo, local_dir=target)
+
+    target_path = Path(target)
+    target_path.mkdir(parents=True, exist_ok=True)
+    print(f"[download] {repo} -> {target_path}")
+    snapshot_download(repo_id=repo, local_dir=str(target_path))
+
     hint = cfg.get("xml_hint", "openvino_model.xml")
-    xml = _first_match(target, hint)
+    xml = _first_match(target_path, hint)
     print("OV_XML_PATH=", xml if xml else "(not found)")
 
 

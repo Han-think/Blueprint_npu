@@ -1,10 +1,9 @@
 .venv/
 __pycache__/
 *.pyc
-.env
+.uv.pid
+.ov_cache/
+exports/
 models/
-.dist/
-.cache/
-*.xml
-*.bin
-data/experiments/
+checkpoints/
+*.zip

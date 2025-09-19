@@ -1,8 +1,0 @@
-{
-  "version": "0.1.0",
-  "rocket": {
-    "min_wall_mm": 1.2,
-    "min_web_mm": 0.8,
-    "r_mid_scale": 1.4
-  }
-}

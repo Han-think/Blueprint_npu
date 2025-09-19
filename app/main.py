@@ -1,10 +1,13 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 import os
-from typing import List, Any, Optional
+from typing import Any, List, Optional
+
+from app.ratelimit import RateLimitMiddleware
 from blueprint.pipeline import Pipeline
 
 app = FastAPI(title="Blueprint Model API")
+app.add_middleware(RateLimitMiddleware, rate_per_sec=20.0, burst=40)
 pipe = Pipeline(
     fake=os.getenv("BLUEPRINT_FAKE","0")=="1",
     device=os.getenv("BLUEPRINT_DEVICE") or None

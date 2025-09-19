@@ -16,6 +16,7 @@ exports/
 models/
 checkpoints/
 data/experiments/
+artifacts/
 *.xml
 *.bin
 .DS_Store

@@ -1,3 +1,4 @@
+ codex/initialize-npu-inference-template-v1n7c2
 # Virtual env & caches
 .venv/
 __pycache__/
@@ -33,3 +34,30 @@ data/experiments/
 
 # OS/editor
 .DS_Store
+
+.venv/
+__pycache__/
+*.pyc
+codex/initialize-npu-inference-template-ys4nnv
+
+codex/initialize-npu-inference-template-gw57mq
+main
+.env
+models/
+.dist/
+.cache/
+*.xml
+*.bin
+data/experiments/
+codex/initialize-npu-inference-template-ys4nnv
+
+
+.uv.pid
+.ov_cache/
+exports/
+models/
+checkpoints/
+*.zip
+main
+main
+ main

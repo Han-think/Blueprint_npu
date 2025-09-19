@@ -1,6 +1,7 @@
 .venv/
 __pycache__/
 *.pyc
+codex/initialize-npu-inference-template-gw57mq
 .env
 models/
 .dist/
@@ -8,3 +9,11 @@ models/
 *.xml
 *.bin
 data/experiments/
+=======
+.uv.pid
+.ov_cache/
+exports/
+models/
+checkpoints/
+*.zip
+main

@@ -17,16 +17,20 @@ class OVRunner:
 
     def __init__(self) -> None:
         self.device = os.environ.get("OV_DEVICE", "AUTO")
+        os.environ.setdefault("OV_CACHE_DIR", ".ov_cache")
+
         self.model_dir = self._resolve_model_dir()
         self.xml = self._resolve_xml_path(self.model_dir)
 
         self.genai_model = None
         self.core = None
         self.compiled = None
+        self.genai_config = None
 
         allow_fake = os.environ.get("ALLOW_FAKE_GEN", "0") == "1"
         xml_exists = bool(self.xml and os.path.exists(self.xml))
         self.fake = allow_fake or not xml_exists
+        self.mode = "fake"
 
         if not self.fake and xml_exists:
             self._try_init_models()
@@ -84,6 +88,7 @@ class OVRunner:
 
                 self.genai_model = TextGenerationModel(model_dir, device_name=self.device)
                 self.genai_config = GenerationConfig()
+                self.mode = "genai"
                 return
             except Exception:
                 self.genai_model = None
@@ -95,22 +100,26 @@ class OVRunner:
             self.core = ov.Core()
             model = self.core.read_model(self.xml)
             self.compiled = self.core.compile_model(model, self.device)
+            self.mode = "runtime"
         except Exception:
             self.compiled = None
             self.core = None
             self.fake = True
+            self.mode = "fake"
 
     # ------------------------------------------------------------------
     # Public API
     def health(self) -> dict:
         if self.fake:
+            status = "ok" if os.environ.get("ALLOW_FAKE_GEN", "0") == "1" else "degraded"
             return {
-                "status": "ok",
+                "status": status,
                 "model": "fake",
                 "device": self.device,
                 "xml": self.xml or "",
+                "mode": "fake",
             }
-        info = {"status": "ok", "device": self.device, "xml": self.xml or ""}
+        info = {"status": "ok", "device": self.device, "xml": self.xml or "", "mode": self.mode}
         try:
             import openvino as ov
 
@@ -118,7 +127,6 @@ class OVRunner:
         except Exception as exc:  # pragma: no cover - defensive
             info["status"] = "degraded"
             info["error"] = str(exc)
-        info["mode"] = "genai" if self.genai_model else "runtime"
         return info
 
     def generate(self, prompt: str, max_new_tokens: int = 64) -> str:
@@ -127,7 +135,7 @@ class OVRunner:
 
         if self.genai_model is not None:
             try:
-                config = getattr(self, "genai_config", None)
+                config = self.genai_config
                 if config is None:
                     from openvino_genai import GenerationConfig
 
@@ -138,7 +146,17 @@ class OVRunner:
                     return outputs[0]
                 return str(outputs)
             except Exception:
-                return f"[OV:{self.device}] {prompt} ... ({max_new_tokens})"
+                return self._runtime_generate(prompt, max_new_tokens)
 
         # Compiled-model fallback – tokenizer integration is model specific.
+        return self._runtime_generate(prompt, max_new_tokens)
+
+    def _runtime_generate(self, prompt: str, max_new_tokens: int) -> str:
+        """Best-effort text if only the compiled model is available.
+
+        Without task-specific tokenisers we cannot decode logits into text, so we
+        surface a deterministic stub that still indicates the request completed
+        on the OpenVINO runtime.
+        """
+
         return f"[OV:{self.device}] {prompt} ... ({max_new_tokens})"

@@ -18,7 +18,7 @@ OpenVINO IR 자산을 프로파일 기반으로 다운로드한 뒤 FastAPI 서�
    - `optimum-intel` 의 OpenVINO 익스포터를 래핑합니다. `--task text-generation-with-past` 를 우선 시도하고 실패하면 기본 `text-generation` 작업으로 재시도합니다.
 
 3. **서버 실행**
-   - PowerShell: `scripts/run.ps1`
+   - PowerShell: `scripts/run.ps1` (기본적으로 `ALLOW_FAKE_GEN=1`을 설정하여 모델이 없어도 스모크 응답을 돌려줍니다.)
    - 수동 실행 예시
      ```bash
      export ALLOW_FAKE_GEN=1      # 모델 없이도 동작 확인 (선택)

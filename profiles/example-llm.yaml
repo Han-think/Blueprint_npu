@@ -1,7 +1,0 @@
-task: "text-generation"
-device: "AUTO"         # NPU|AUTO|CPU
-weight_format: "fp16"  # fp16/int4 등
-hf_repo: "OpenVINO/Phi-4-mini-instruct-int4-ov"
-local_dir: "models/phi4mini_ov"
-# 필요 시 setup_model.py 가 출력하는 OV_XML_PATH 를 OV_MODEL_DIR 로 옮겨 사용한다.
-xml_hint: "openvino_model.xml"   # 폴더 내 힌트 파일명

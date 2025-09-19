@@ -1,3 +1,33 @@
+codex/initialize-npu-inference-template-gw57mq
+name: ci
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+        python-version: ['3.10','3.11']
+    defaults:
+      run:
+        shell: bash
+        working-directory: .
+    env:
+      PYTHONPATH: ${{ github.workspace }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m pip install -U pip
+      - run: pip install -r requirements.txt
+      - name: pytest (FAKE)
+        run: pytest -q
+        env:
+          BLUEPRINT_FAKE: "1"
+      - name: API smoke
+        run: python scripts/api_smoke.py
+
 name: CI (smoke)
 on: [push, pull_request]
 jobs:
@@ -29,3 +59,4 @@ jobs:
       - name: Stop
         if: always()
         run: kill $(cat .uv.pid) || true
+main

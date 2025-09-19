@@ -1,3 +1,24 @@
+ codex/initialize-npu-inference-template-v1n7c2
+from __future__ import annotations
+
+from typing import List
+
+from fastapi import Depends, FastAPI
+from pydantic import BaseModel
+
+from app.security import require_api_key
+
+app = FastAPI(title="Mission API")
+
+
+class MissionLeg(BaseModel):
+    type: str
+    duration_s: float
+
+
+class MissionRequest(BaseModel):
+    legs: List[MissionLeg]
+
 """Mission analysis API providing simple fighter leg summaries."""
 
 from __future__ import annotations
@@ -50,10 +71,19 @@ class MissionReq(BaseModel):
 
 
 app = FastAPI(title="Mission API")
+ main
 
 
 @app.get("/mission/health")
 def health() -> dict[str, str]:
+ codex/initialize-npu-inference-template-v1n7c2
+    return {"status": "ok"}
+
+
+@app.post("/mission/run")
+def run_mission(req: MissionRequest, _: None = Depends(require_api_key)) -> dict[str, int]:
+    return {"legs": len(req.legs)}
+
     """Return readiness state."""
 
     return {"status": "ok"}
@@ -109,3 +139,4 @@ def fighter(req: MissionReq, _: None = Depends(require_api_key)) -> dict[str, ob
         "fuel_final_kg": fuel_remaining,
     }
     return {"legs": legs, "summary": summary}
+ main

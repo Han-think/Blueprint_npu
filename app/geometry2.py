@@ -1,3 +1,8 @@
+ codex/initialize-npu-inference-template-v1n7c2
+from __future__ import annotations
+
+from fastapi import FastAPI
+
 """Extended geometry API providing channelized nozzle export."""
 
 from __future__ import annotations
@@ -7,9 +12,15 @@ from fastapi import FastAPI, Response
 from geometry.export_stl import write_ascii_stl
 from geometry.nozzle_channels import straight_channels
 from geometry.rocket_geom import nozzle_profile, revolve_to_triangles
+ main
 
 app = FastAPI(title="Geometry2 API")
 
+
+ codex/initialize-npu-inference-template-v1n7c2
+@app.get("/geometry2/health")
+def health() -> dict[str, str]:
+    return {"status": "ok"}
 
 @app.get("/geom2/health")
 def health() -> dict[str, str]:
@@ -35,3 +46,4 @@ def nozzle_channels(
     write_ascii_stl(path, "nozzle_channels", triangles)
     data = open(path, "rb").read()
     return Response(content=data, media_type="model/stl")
+ main

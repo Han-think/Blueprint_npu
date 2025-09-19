@@ -1,3 +1,40 @@
+ codex/initialize-npu-inference-template-v1n7c2
+# Virtual env & caches
+.venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+
+# Bytecode
+*.pyc
+
+# Env
+.env
+.uv.pid
+
+# Caches
+.cache/
+.ov_cache/
+
+# Build & dist
+dist/
+build/
+.dist/
+exports/
+*.zip
+
+# Models & data
+models/
+checkpoints/
+data/experiments/
+
+# Artifacts
+*.xml
+*.bin
+
+# OS/editor
+.DS_Store
+
 .venv/
 __pycache__/
 *.pyc
@@ -23,3 +60,4 @@ checkpoints/
 *.zip
 main
 main
+ main

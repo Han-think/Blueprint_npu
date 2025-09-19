@@ -1,3 +1,8 @@
+ codex/initialize-npu-inference-template-v1n7c2
+from __future__ import annotations
+
+from fastapi import Depends, FastAPI
+
 """Rocket ascent integration API."""
 
 from __future__ import annotations
@@ -6,9 +11,17 @@ import math
 from typing import Optional
 
 from fastapi import Depends, FastAPI, HTTPException
+ main
 from pydantic import BaseModel
 
 from app.security import require_api_key
+
+ codex/initialize-npu-inference-template-v1n7c2
+app = FastAPI(title="Ascent API")
+
+
+class AscentRequest(BaseModel):
+    mass_kg: float = 1000.0
 
 G0 = 9.80665
 R_AIR = 287.0
@@ -36,12 +49,18 @@ class AscentReq(BaseModel):
 
 
 app = FastAPI(title="Ascent API")
+ main
 
 
 @app.get("/ascent/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
 
+
+ codex/initialize-npu-inference-template-v1n7c2
+@app.post("/ascent/run")
+def run(_: AscentRequest, __: None = Depends(require_api_key)) -> dict[str, float]:
+    return {"max_altitude_m": 100.0}
 
 @app.post("/ascent/rocket")
 def rocket(req: AscentReq, _: None = Depends(require_api_key)) -> dict[str, object]:
@@ -110,3 +129,4 @@ def rocket(req: AscentReq, _: None = Depends(require_api_key)) -> dict[str, obje
         payload = dry_mass + payload
 
     return {"traj": trajectory[-200:], "final": {"h_m": altitude, "v_m_s": velocity}}
+ main

@@ -1,6 +1,0 @@
-{
-  "note": "Scale factors to align proxies to CEA/bench data",
-  "q_bartz_scale": 1.0,
-  "dp_regen_scale": 1.0,
-  "isp_scale": 1.0
-}

@@ -1,7 +1,8 @@
-"""Evaluation utilities for rocket design candidates."""
+"""Evaluation utilities for rocket design candidates with thermal proxies."""
 
 from __future__ import annotations
 
+import math
 from typing import Dict, List
 
 from .physics import (
@@ -12,6 +13,7 @@ from .physics import (
     pressure_ratio_from_mach,
     thrust_coefficient,
 )
+from .thermal import bartz_flux_proxy, regen_dp_proxy
 
 
 def evaluate_batch(designs: List[Dict[str, float]], pa_kpa: float = 101.325) -> List[Dict[str, float]]:
@@ -20,6 +22,7 @@ def evaluate_batch(designs: List[Dict[str, float]], pa_kpa: float = 101.325) -> 
     q_max = 12.0e6
     rho_cool = 900.0
     v_cool_min, v_cool_max = 5.0, 40.0
+    dp_regen_max = 2.5e6
     results: List[Dict[str, float]] = []
     ambient_pa = pa_kpa * 1e3
 
@@ -54,19 +57,21 @@ def evaluate_batch(designs: List[Dict[str, float]], pa_kpa: float = 101.325) -> 
         thrust = cf_eff * chamber_pressure * throat_area
         isp = isp_from_cf(cf_eff, chamber_pressure, throat_area, mass_flow_total)
 
-        heat_flux_proxy = 0.07 * (chamber_pressure ** 0.8) * (throat_radius ** -0.2)
-        channel_area = channel_count * (3.14159 * (channel_diameter**2) / 4.0)
+        heat_flux_proxy = bartz_flux_proxy(Pc=chamber_pressure, rt_m=throat_radius, Tc=chamber_temp)
+        channel_area = channel_count * (math.pi * (channel_diameter**2) / 4.0)
         coolant_velocity = (mass_flow_coolant / rho_cool) / max(channel_area, 1e-8)
+        dp_regen = regen_dp_proxy(mass_flow_coolant, channel_area)
 
         ok = (
             heat_flux_proxy <= q_max
             and v_cool_min <= coolant_velocity <= v_cool_max
+            and dp_regen <= dp_regen_max
             and 0.0 <= film <= 0.2
             and 0.04 <= coolant_fraction <= 0.25
             and (film + coolant_fraction) < 0.3
         )
 
-        score = isp - 1e-6 * heat_flux_proxy
+        score = isp - 1e-6 * heat_flux_proxy - 1e-7 * dp_regen
         results.append(
             {
                 "ok": bool(ok),
@@ -76,11 +81,11 @@ def evaluate_batch(designs: List[Dict[str, float]], pa_kpa: float = 101.325) -> 
                 "mdot_kg_s": float(mass_flow_total),
                 "Me": float(exit_mach),
                 "Pe_over_Pc": float(pe_over_pc),
-                "q_W_m2": float(heat_flux_proxy),
+                "q_bartz_W_m2": float(heat_flux_proxy),
+                "dp_regen_Pa": float(dp_regen),
                 "v_cool_m_s": float(coolant_velocity),
                 "design": design,
             }
         )
 
     return results
-

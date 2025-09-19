@@ -1,20 +1,22 @@
+from __future__ import annotations
+
 from fastapi.testclient import TestClient
 
-from src.api.server import app
+from app.main import app
 
 
-def test_health():
+def test_health() -> None:
     client = TestClient(app)
-    res = client.get("/health")
-    assert res.status_code == 200
-    body = res.json()
-    assert "status" in body
+    resp = client.get("/health")
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body.get("status") == "ok"
 
 
-def test_infer_fake():
+def test_generate_predict_evaluate() -> None:
     client = TestClient(app)
-    res = client.post("/v1/infer", json={"prompt": "ping", "max_new_tokens": 4})
-    assert res.status_code == 200
-    body = res.json()
-    assert "result" in body
-    assert "elapsed_ms" in body
+    designs = client.post("/generate", json={"count": 4}).json()["designs"]
+    preds = client.post("/predict", json={"designs": designs}).json()["y"]
+    metrics = client.post("/evaluate", json={"designs": designs}).json()["metrics"]
+    assert len(preds) == 4
+    assert len(metrics) == 4

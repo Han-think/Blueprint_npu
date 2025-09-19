@@ -1,9 +1,21 @@
+# Virtual env & caches
 .venv/
 __pycache__/
+.pytest_cache/
+.mypy_cache/
 *.pyc
+.env
 .uv.pid
+.cache/
 .ov_cache/
+dist/
+build/
+.dist/
 exports/
+*.zip
 models/
 checkpoints/
-*.zip
+data/experiments/
+*.xml
+*.bin
+.DS_Store

@@ -9,8 +9,12 @@ class Surrogate:
         self.device_hint = device
         self.device_selected = "FAKE" if fake else "CPU"
         self.compiled = None
+        self.lin_model = False
+        self._lin_w: Optional[np.ndarray] = None
+        self._lin_deg: int = 1
         if not fake:
             self._try_load_openvino()
+        self._load_npz_fallback()
 
     def _try_load_openvino(self):
         xml = Path("models/surrogate.xml")
@@ -32,8 +36,41 @@ class Surrogate:
             self.compiled = None
             self.device_selected = "CPU"
 
+    def _load_npz_fallback(self) -> None:
+        if self.fake or self.compiled is not None:
+            return
+        npz_path = Path("models/surrogate.npz")
+        if not npz_path.exists():
+            return
+        try:
+            data = np.load(npz_path)
+            self._lin_w = data["w"]
+            self._lin_deg = int(data["deg"])
+            self.lin_model = True
+            self.device_selected = "NPZ"
+        except Exception:
+            self.lin_model = False
+            self._lin_w = None
+            self._lin_deg = 1
+
+    def _poly_features(self, X: np.ndarray) -> np.ndarray:
+        n, d = X.shape
+        feats = [np.ones((n, 1)), X]
+        if self._lin_deg >= 2:
+            feats.append(X ** 2)
+            for i in range(d):
+                for j in range(i + 1, d):
+                    feats.append(X[:, i : i + 1] * X[:, j : j + 1])
+        if self._lin_deg >= 3:
+            feats.append(X ** 3)
+        return np.hstack(feats)
+
     def predict(self, designs: list[list[float]]) -> list[float]:
         X = np.asarray(designs, dtype=float)
+        if self.lin_model and self._lin_w is not None:
+            Phi = self._poly_features(X)
+            y = Phi.dot(self._lin_w)
+            return np.asarray(y).ravel().astype(float).tolist()
         if self.fake or self.compiled is None:
             y = 1.0 - np.sum(X * X, axis=1)  # 더미: -||x||^2 + 1
             return y.tolist()

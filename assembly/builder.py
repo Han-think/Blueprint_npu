@@ -11,6 +11,22 @@ from rocket.pipeline import RocketPipeline
 G0 = 9.80665
 
 
+def _stage_losses(F_N: float, Isp_s: float, prop_mass_kg: float, m0_kg: float, twr: float) -> Dict[str, float]:
+    """Estimate simple gravity and drag losses for a stage burn."""
+
+    mdot = F_N / max(Isp_s * G0, 1e-6)
+    burn_time = prop_mass_kg / max(mdot, 1e-6)
+    k_g = max(0.15, min(0.35, 0.5 / (max(twr, 1.05) - 1.0 + 1e-3)))
+    loss_g = G0 * burn_time * k_g
+    loss_d = 40.0 * burn_time / max(twr, 1.2)
+    return {
+        "t_burn_s": burn_time,
+        "loss_g": loss_g,
+        "loss_d": loss_d,
+        "loss_total": loss_g + loss_d,
+    }
+
+
 def _pick_best_rocket(samples: int, topk: int) -> Dict[str, Any]:
     """Return the highest-Isp rocket candidate from the proxy pipeline."""
 
@@ -43,6 +59,7 @@ def build_rocket_assembly(cfg: Optional[Dict[str, Any]]) -> Optional[Dict[str, A
         return {
             "stages": [],
             "total_dV_m_s": 0.0,
+            "total_dV_eff_m_s": 0.0,
             "min_TWR": math.inf,
             "payload_final_kg": payload_mass,
         }
@@ -50,6 +67,7 @@ def build_rocket_assembly(cfg: Optional[Dict[str, Any]]) -> Optional[Dict[str, A
     stages: List[Dict[str, Any]] = []
     running_payload = payload_mass
     total_delta_v = 0.0
+    total_delta_v_eff = 0.0
     min_twr = math.inf
 
     for stage_cfg in stages_cfg:
@@ -65,7 +83,11 @@ def build_rocket_assembly(cfg: Optional[Dict[str, Any]]) -> Optional[Dict[str, A
         delta_v = isp * G0 * math.log(mass_ratio)
         twr = thrust / max(m0 * G0, 1e-6)
 
+        losses = _stage_losses(F_N=thrust, Isp_s=isp, prop_mass_kg=prop_mass, m0_kg=m0, twr=twr)
+        delta_v_eff = max(delta_v - losses["loss_total"], 0.0)
+
         total_delta_v += delta_v
+        total_delta_v_eff += delta_v_eff
         min_twr = min(min_twr, twr)
 
         stages.append(
@@ -79,6 +101,10 @@ def build_rocket_assembly(cfg: Optional[Dict[str, Any]]) -> Optional[Dict[str, A
                 "dry_mass_kg": dry_mass,
                 "payload_in_kg": running_payload,
                 "dV_m_s": delta_v,
+                "dV_eff_m_s": delta_v_eff,
+                "loss_g_m_s": losses["loss_g"],
+                "loss_d_m_s": losses["loss_d"],
+                "burn_time_s": losses["t_burn_s"],
                 "TWR": twr,
                 "engine": best,
             }
@@ -89,6 +115,7 @@ def build_rocket_assembly(cfg: Optional[Dict[str, Any]]) -> Optional[Dict[str, A
     return {
         "stages": stages,
         "total_dV_m_s": total_delta_v,
+        "total_dV_eff_m_s": total_delta_v_eff,
         "min_TWR": min_twr,
         "payload_final_kg": running_payload,
     }
@@ -156,7 +183,9 @@ def build_hybrid_summary(
 
     return {
         "note": "independent subsystems summary",
-        "rocket_total_dV_m_s": float(rocket_result.get("total_dV_m_s", 0.0)),
+        "rocket_total_dV_m_s": float(
+            rocket_result.get("total_dV_eff_m_s", rocket_result.get("total_dV_m_s", 0.0))
+        ),
         "fighter_TWR": float(pencil_result.get("TWR", 0.0)),
         "fighter_endurance_s_proxy": float(pencil_result.get("endurance_s_proxy", 0.0)),
     }

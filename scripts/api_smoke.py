@@ -1,8 +1,12 @@
+codex/initialize-npu-inference-template-ys4nnv
 import threading
 import time
 
 import requests
 import uvicorn
+
+import requests, threading, time, uvicorn
+main
 from app.main import app
 
 

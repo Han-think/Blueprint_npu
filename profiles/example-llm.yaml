@@ -1,0 +1,6 @@
+task: "text-generation"
+device: "AUTO"         # NPU|AUTO|CPU
+weight_format: "fp16"  # fp16/int4 등
+hf_repo: "OpenVINO/Phi-4-mini-instruct-int4-ov"
+local_dir: "models/phi4mini_ov"
+xml_hint: "openvino_model.xml"   # 폴더 내 힌트 파일명

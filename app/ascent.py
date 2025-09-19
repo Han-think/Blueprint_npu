@@ -8,6 +8,7 @@ from fastapi import Depends, FastAPI
 from __future__ import annotations
 
 import math
+
 from typing import Optional
 
 from fastapi import Depends, FastAPI, HTTPException

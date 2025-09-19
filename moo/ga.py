@@ -1,5 +1,6 @@
 from typing import Callable, Dict, List, Sequence
 import random
+
 from moo.pareto import pareto_front
 
 def nsga_lite(pop: List[Dict], obj: Callable[[Dict], Sequence[float]], minimize: Sequence[bool], rng: random.Random, gens: int = 10, pc: float = 0.9, pm: float = 0.2):

@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import argparse
+
 import json
+
 
 from pencil.pipeline import PencilPipeline
 from proof.daq import read_measurement

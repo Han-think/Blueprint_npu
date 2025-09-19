@@ -3,10 +3,15 @@
 from __future__ import annotations
 
 import json
+
 import os
+
 import random
+
 import time
+
 import datetime as dt
+
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -48,6 +53,7 @@ def _summarize(pairs: List[tuple[float, float]]) -> Dict[str, float]:
         return {"rmse": float("nan"), "corr": float("nan")}
 
     import numpy as np
+
 
     data = np.asarray(pairs, dtype=float)
     rmse = float(np.sqrt(np.mean((data[:, 0] - data[:, 1]) ** 2)))

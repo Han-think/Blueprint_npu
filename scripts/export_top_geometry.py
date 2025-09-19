@@ -1,5 +1,7 @@
 import argparse
+
 import json
+
 from pathlib import Path
 
 from geometry.export_stl import write_ascii_stl

@@ -6,6 +6,7 @@ from typing import List, Sequence, Tuple
 import numpy as np
 
 
+
 class Optimizer:
     def select_topk(
         self, designs: Sequence[Sequence[float]], scores: Sequence[float], k: int
@@ -16,6 +17,7 @@ class Optimizer:
         return [([float(v) for v in designs[i]], float(scores[i])) for i in idx]
 
 import numpy as np
+
 
 class Optimizer:
     def select_topk(self, designs: list[list[float]], scores: list[float], k: int):

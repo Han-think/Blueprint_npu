@@ -24,6 +24,7 @@ class MissionRequest(BaseModel):
 from __future__ import annotations
 
 import math
+
 from typing import List
 
 from fastapi import Depends, FastAPI, HTTPException

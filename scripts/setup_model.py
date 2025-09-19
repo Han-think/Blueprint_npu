@@ -1,9 +1,11 @@
 import argparse, os, glob
+
 from huggingface_hub import snapshot_download
 
 
 def main(p):
     import yaml
+
 
     cfg = yaml.safe_load(open(p, "r", encoding="utf-8"))
     os.makedirs(cfg["local_dir"], exist_ok=True)

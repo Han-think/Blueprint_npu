@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+
 from typing import Tuple
 
 G0: float = 9.80665

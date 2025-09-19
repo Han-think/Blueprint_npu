@@ -6,6 +6,7 @@ from typing import Any, Dict
 
 import yaml
 
+
 _DEFAULT_CONFIG: Dict[str, Any] = {
     "design_space": [
         {"name": "x0", "low": -1.0, "high": 1.0},
@@ -23,6 +24,7 @@ def load_config() -> Dict[str, Any]:
     return _DEFAULT_CONFIG.copy()
 
 import yaml
+
 from pathlib import Path
 
 _DEFAULT = {

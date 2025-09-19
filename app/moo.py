@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from typing import Optional
 import random
 
+
 from moo.pareto import pareto_front
 from moo.ga import nsga_lite
 from rocket.generator import sample as rocket_sample_rand

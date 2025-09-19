@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import glob
+
 import os
+
 
 
 class OVRunner:
@@ -11,6 +13,7 @@ class OVRunner:
         self.fake = os.environ.get("ALLOW_FAKE_GEN") == "1" or not os.path.exists(self.xml)
         if not self.fake:
             import openvino as ov
+
 
             self.core = ov.Core()
             self.compiled = self.core.compile_model(self.core.read_model(self.xml), self.device)
@@ -23,6 +26,7 @@ class OVRunner:
     def health(self):
         try:
             import openvino as ov
+
 
             devs = ov.Core().available_devices
             return {"status": "ok", "devices": devs, "model": ("fake" if self.fake else self.xml)}

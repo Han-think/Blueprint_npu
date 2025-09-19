@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+
 from typing import Any, Dict, List, Optional
 
 from .config import load_config
@@ -12,6 +13,7 @@ from .surrogate import Surrogate
 
 
 import os
+
 from typing import Optional, Any
 from .config import load_config
 from .generator import Generator

@@ -5,6 +5,7 @@ from __future__ import annotations
 import math
 
 
+
 G0 = 9.80665
 
 

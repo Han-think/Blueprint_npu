@@ -1,4 +1,5 @@
 import random
+
 from typing import Dict, List
 
 BOUNDS = {

@@ -3,11 +3,13 @@ from __future__ import annotations
 
 import os
 
+
 """Simple API key guard for optional request authentication."""
 
 from __future__ import annotations
 
 import os
+
 
  main
 from fastapi import Header, HTTPException

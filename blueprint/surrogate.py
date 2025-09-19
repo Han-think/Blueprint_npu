@@ -8,7 +8,9 @@ import numpy as np
 
 
 
+
 import numpy as np
+
 from pathlib import Path
 from typing import Optional
 
@@ -129,6 +131,7 @@ codex/initialize-npu-inference-template-ys4nnv
         try:
             import onnxruntime as ort
 
+
             providers = ["CPUExecutionProvider"]
             self.onnx_sess = ort.InferenceSession(str(onnxf), providers=providers)
             self._onnx_input = self.onnx_sess.get_inputs()[0].name
@@ -140,6 +143,7 @@ codex/initialize-npu-inference-template-ys4nnv
     def _try_load_npz(self) -> None:
         try:
             import numpy as _np
+
         except Exception:
             return
         npz = Path("models/surrogate.npz")

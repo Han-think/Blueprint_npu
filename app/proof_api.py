@@ -34,7 +34,7 @@ class RunReq(BaseModel):
 
 
 def _now_id() -> str:
-    return dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H-%M-%S")
+    return dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H-%M-%S")
 
 
 def _exp_dir(run_id: str) -> Path:
@@ -102,7 +102,7 @@ def run_demo(req: RunReq):
                 "run_id": run_id,
                 "design_id": idx,
                 "meas": measurement,
-                "ts": dt.datetime.now(dt.UTC).isoformat().replace("+00:00", "Z"),
+                "ts": dt.datetime.now(dt.timezone.utc).isoformat().replace("+00:00", "Z"),
             }
         )
 

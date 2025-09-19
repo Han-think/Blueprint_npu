@@ -1,6 +1,16 @@
+codex/initialize-npu-inference-template-ys4nnv
+import sys
+from pathlib import Path
+
+from fastapi.testclient import TestClient
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
+
 import os, sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from fastapi.testclient import TestClient
+main
 from app.main import app
 
 def test_health():

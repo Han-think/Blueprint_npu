@@ -1,7 +1,10 @@
 .venv/
 __pycache__/
 *.pyc
+codex/initialize-npu-inference-template-ys4nnv
+
 codex/initialize-npu-inference-template-gw57mq
+main
 .env
 models/
 .dist/
@@ -9,11 +12,14 @@ models/
 *.xml
 *.bin
 data/experiments/
-=======
+codex/initialize-npu-inference-template-ys4nnv
+
+
 .uv.pid
 .ov_cache/
 exports/
 models/
 checkpoints/
 *.zip
+main
 main

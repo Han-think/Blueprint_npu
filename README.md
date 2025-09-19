@@ -1,4 +1,7 @@
+codex/initialize-npu-inference-template-ys4nnv
+
 codex/initialize-npu-inference-template-gw57mq
+main
 # Blueprint Model — NPU Inference Template
 
 목표: 설계 샘플 생성 → surrogate 예측 → 제약 검증 → 간단 최적화.
@@ -20,6 +23,8 @@ Env:
   BLUEPRINT_DEVICE=NPU|GPU|CPU
   BLUEPRINT_TOPK=16
   BLUEPRINT_SAMPLES=256
+codex/initialize-npu-inference-template-ys4nnv
+
 
 # NPU Inference Template (OpenVINO)
 Profile로 설정 → 모델 다운로드/Export(선택) → FastAPI 서버 → /health, /v1/infer.
@@ -31,4 +36,5 @@ Profile로 설정 → 모델 다운로드/Export(선택) → FastAPI 서버 → 
   - OV_DEVICE: NPU|AUTO|CPU
   - ALLOW_FAKE_GEN=1 → 모델 없을 때 스모크용 가짜 응답
 - Swagger: http://127.0.0.1:9100/docs
+main
 main

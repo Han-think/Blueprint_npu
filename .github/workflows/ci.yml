@@ -1,4 +1,7 @@
+codex/initialize-npu-inference-template-ys4nnv
+
 codex/initialize-npu-inference-template-gw57mq
+main
 name: ci
 on: [push, pull_request]
 jobs:
@@ -21,10 +24,20 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: python -m pip install -U pip
       - run: pip install -r requirements.txt
+codex/initialize-npu-inference-template-ys4nnv
+      - run: pip install ruff mypy
+
+main
       - name: pytest (FAKE)
         run: pytest -q
         env:
           BLUEPRINT_FAKE: "1"
+codex/initialize-npu-inference-template-ys4nnv
+      - run: ruff check .
+      - run: mypy --version && mypy app/security.py app/mission.py app/ascent.py app/geometry2.py scripts/index_experiments.py proof/index_db.py
+      - name: API smoke
+        run: python scripts/api_smoke.py
+
       - name: API smoke
         run: python scripts/api_smoke.py
 
@@ -59,4 +72,5 @@ jobs:
       - name: Stop
         if: always()
         run: kill $(cat .uv.pid) || true
+main
 main

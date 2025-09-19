@@ -3,6 +3,8 @@ import statistics as stats
 import sys
 from pathlib import Path
 
+codex/initialize-npu-inference-template-ys4nnv
+
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
@@ -12,6 +14,7 @@ from rocket.sampling import sample_lhs as rocket_sample_lhs
 from pencil.generator import sample as pencil_sample_rand
 from pencil.sampling import sample_lhs as pencil_sample_lhs
 
+main
 
 def _summary(rows, keys):
     summary = {}
@@ -25,7 +28,20 @@ def _summary(rows, keys):
     return summary
 
 
+codex/initialize-npu-inference-template-ys4nnv
+def main() -> None:
+    ROOT = Path(__file__).resolve().parent.parent
+    if str(ROOT) not in sys.path:
+        sys.path.insert(0, str(ROOT))
+
+    from rocket.generator import sample as rocket_sample_rand
+    from rocket.sampling import sample_lhs as rocket_sample_lhs
+    from pencil.generator import sample as pencil_sample_rand
+    from pencil.sampling import sample_lhs as pencil_sample_lhs
+
+
 if __name__ == "__main__":
+main
     units = json.loads(Path("data/schema_units.json").read_text(encoding="utf-8"))
     rocket_rand = rocket_sample_rand(100)
     rocket_lhs = rocket_sample_lhs(100, seed=42)
@@ -40,3 +56,10 @@ if __name__ == "__main__":
         "pencil_lhs": _summary(pencil_lhs, units["pencil"].keys()),
     }
     print(json.dumps(report, ensure_ascii=False, indent=2))
+codex/initialize-npu-inference-template-ys4nnv
+
+
+if __name__ == "__main__":
+    main()
+
+main

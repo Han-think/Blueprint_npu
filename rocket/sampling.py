@@ -1,5 +1,9 @@
 import random
+codex/initialize-npu-inference-template-ys4nnv
+from typing import Dict, List
+
 from typing import Dict, List, Tuple
+main
 
 BOUNDS = {
     "Pc_MPa":     (3.0, 15.0),

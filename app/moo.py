@@ -12,7 +12,20 @@ from pencil.generator import sample as pencil_sample_rand
 from pencil.sampling import sample_lhs as pencil_sample_lhs
 from pencil.evaluator import evaluate_batch as pencil_eval
 
+codex/initialize-npu-inference-template-ys4nnv
+try:
+    from app.middleware import SimpleLogger
+
+    _WITH_MIDDLEWARE = True
+except Exception:
+    _WITH_MIDDLEWARE = False
+
 app = FastAPI(title="MOO API")
+if _WITH_MIDDLEWARE:
+    app.add_middleware(SimpleLogger)
+
+app = FastAPI(title="MOO API")
+main
 
 
 class RocketRequest(BaseModel):

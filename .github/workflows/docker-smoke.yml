@@ -30,26 +30,23 @@ jobs:
       - name: Build image
         run: docker build -t "$IMAGE" .
 
-      - name: Run API
-        run: |
-          docker run -d --rm --name api -p 9100:9100 \
-            -e ALLOW_FAKE_GEN=1 \
-            "$IMAGE"
+      - name: Run ui
+        run: docker run -d --rm --name ui -p 9030:9030 -e BLUEPRINT_FAKE=1 "$IMAGE"
 
-      - name: Wait for health
+      - name: Wait and ping
         run: |
           for i in {1..60}; do
-            curl -sf http://127.0.0.1:9100/health && exit 0
+            curl -sf http://127.0.0.1:9030/ui/health && exit 0
             sleep 1
           done
-          echo "API not ready"; exit 1
+          echo "ui not ready"; exit 1
 
-      - name: Smoke infer
-        run: |
-          curl -sSf -H "Content-Type: application/json" \
-            --data '{"prompt":"ping","max_new_tokens":4}' \
-            http://127.0.0.1:9100/v1/infer | tee out.json
+      - name: Generate artifacts
+        run: curl -sf -X POST http://127.0.0.1:9030/ui/generate
+
+      - name: Manifest
+        run: curl -sf http://127.0.0.1:9030/ui/manifest | tee manifest.json
 
       - name: Stop
         if: always()
-        run: docker rm -f api || true
+        run: docker rm -f ui || true

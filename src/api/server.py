@@ -1,16 +1,5 @@
 from __future__ import annotations
 
- codex/initialize-npu-inference-template-iprk80
-import time
-
-import base64
-
-import time
-
-
- main
-from fastapi import FastAPI
-from pydantic import BaseModel, Field
 
 from src.infer.ov_model import OVRunner
 

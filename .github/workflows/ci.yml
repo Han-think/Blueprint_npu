@@ -1,62 +1,4 @@
- codex/initialize-npu-inference-template-iprk80
 
-codex/initialize-npu-inference-template-v1n7c2
-
-codex/initialize-npu-inference-template-ys4nnv
-
-codex/initialize-npu-inference-template-gw57mq
-main
- main
-name: ci
-on: [push, pull_request]
-jobs:
-  test:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [windows-latest, ubuntu-latest]
-        python-version: ['3.10','3.11']
-    defaults:
-      run:
-        shell: bash
-        working-directory: .
-    env:
-      PYTHONPATH: ${{ github.workspace }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - run: python -m pip install -U pip
-      - run: pip install -r requirements.txt
- codex/initialize-npu-inference-template-v1n7c2
-      - run: pip install ruff mypy pytest-cov
-      - name: pytest (FAKE)
-        run: pytest -q --maxfail=1 --disable-warnings
-        env:
-          BLUEPRINT_FAKE: "1"
-
-codex/initialize-npu-inference-template-ys4nnv
-      - run: pip install ruff mypy
-
-main
-      - name: pytest (FAKE)
-        run: pytest -q
-        env:
-          BLUEPRINT_FAKE: "1"
-codex/initialize-npu-inference-template-ys4nnv
- main
-      - run: ruff check .
-      - run: mypy --version && mypy app/security.py app/mission.py app/ascent.py app/geometry2.py scripts/index_experiments.py proof/index_db.py
-      - name: API smoke
-        run: python scripts/api_smoke.py
- codex/initialize-npu-inference-template-v1n7c2
-
-
-      - name: API smoke
-        run: python scripts/api_smoke.py
-
- main
 name: CI (smoke)
 on: [push, pull_request]
 jobs:
@@ -88,9 +30,4 @@ jobs:
       - name: Stop
         if: always()
         run: kill $(cat .uv.pid) || true
- codex/initialize-npu-inference-template-iprk80
 
-main
-main
- main
- main

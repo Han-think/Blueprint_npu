@@ -1,26 +1,4 @@
- codex/initialize-npu-inference-template-iprk80
 
- codex/initialize-npu-inference-template-v1n7c2
-
-codex/initialize-npu-inference-template-ys4nnv
-
-codex/initialize-npu-inference-template-gw57mq
-main
- main
-fastapi>=0.115
-uvicorn>=0.30
-pydantic>=2.9
-numpy>=2.0
-pyyaml>=6.0
-httpx>=0.27
-pytest>=8.3
-requests>=2.32
- codex/initialize-npu-inference-template-v1n7c2
-
-codex/initialize-npu-inference-template-ys4nnv
-
-
- main
 fastapi==0.111.0
 uvicorn==0.30.0
 pydantic==2.7.0
@@ -30,11 +8,3 @@ huggingface_hub==0.25.2
 requests==2.32.3
 orjson==3.11.2
 ujson==5.10.0
- codex/initialize-npu-inference-template-iprk80
-PyYAML==6.0.2
-
-pyyaml==6.0.2
-main
-main
- main
- main

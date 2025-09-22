@@ -1,3 +1,8 @@
+ codex/initialize-npu-inference-template-iprk80
+# NPU Inference Template (OpenVINO)
+
+Profile로 설정 → 모델 다운로드/Export(선택) → FastAPI 서버 → `/health`, `/v1/infer`.
+
 # Blueprint Model — NPU Inference Template
 
 목표: 설계 샘플 생성 → 서러게이트 예측 → 제약 검증 → 간단 최적화.  
@@ -31,12 +36,19 @@ BLUEPRINT_SAMPLES=256
 ## NPU Inference Template (OpenVINO) — 별도 서버(선택)
 
 Profile 설정 → 모델 다운로드/Export(선택) → FastAPI 서버 → `/health`, `/v1/infer`.
+ main
 
 - 로컬(NPU): `scripts/run.ps1`
 - 모델 세팅: `scripts/setup_model.py --profile profiles/example-llm.yaml`
 - OV Export(선택): `python -m src.export.export_ov --ckpt checkpoints/epoch1 --out exports/gpt_ov`
 - 환경변수:
   - `OV_XML_PATH`: OpenVINO IR xml 경로
+ codex/initialize-npu-inference-template-iprk80
+  - `OV_DEVICE`: `NPU`\|`AUTO`\|`CPU`
+  - `ALLOW_FAKE_GEN=1` → 모델 없을 때 스모크용 가짜 응답
+- Swagger: <http://127.0.0.1:9100/docs>
+
   - `OV_DEVICE`: `NPU|AUTO|CPU`
   - `ALLOW_FAKE_GEN=1` → 모델 없을 때 스모크용 가짜 응답
 - Swagger: http://127.0.0.1:9100/docs
+ main

@@ -1,3 +1,15 @@
+ codex/initialize-npu-inference-template-iprk80
+import argparse
+import glob
+import os
+from huggingface_hub import snapshot_download
+
+
+def main(profile_path: str) -> None:
+    import yaml
+
+    cfg = yaml.safe_load(open(profile_path, "r", encoding="utf-8"))
+
 import argparse, os, glob
 
 from huggingface_hub import snapshot_download
@@ -8,6 +20,7 @@ def main(p):
 
 
     cfg = yaml.safe_load(open(p, "r", encoding="utf-8"))
+ main
     os.makedirs(cfg["local_dir"], exist_ok=True)
     snapshot_download(repo_id=cfg["hf_repo"], local_dir=cfg["local_dir"])
     # 찾아서 OV_XML_PATH 힌트 출력
@@ -21,5 +34,10 @@ def main(p):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--profile", required=True)
+ codex/initialize-npu-inference-template-iprk80
+    args = ap.parse_args()
+    main(args.profile)
+
     a = ap.parse_args()
     main(a.profile)
+ main

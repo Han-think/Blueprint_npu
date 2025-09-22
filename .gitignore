@@ -1,3 +1,8 @@
+ codex/initialize-npu-inference-template-iprk80
+.venv/
+__pycache__/
+*.pyc
+
  codex/initialize-npu-inference-template-v1n7c2
 # Virtual env & caches
 .venv/
@@ -52,12 +57,16 @@ data/experiments/
 codex/initialize-npu-inference-template-ys4nnv
 
 
+ main
 .uv.pid
 .ov_cache/
 exports/
 models/
 checkpoints/
 *.zip
+ codex/initialize-npu-inference-template-iprk80
+
 main
 main
+ main
  main

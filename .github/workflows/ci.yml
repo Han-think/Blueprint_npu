@@ -1,3 +1,5 @@
+ codex/initialize-npu-inference-template-iprk80
+
 codex/initialize-npu-inference-template-v1n7c2
 
 codex/initialize-npu-inference-template-ys4nnv
@@ -54,6 +56,7 @@ codex/initialize-npu-inference-template-ys4nnv
       - name: API smoke
         run: python scripts/api_smoke.py
 
+ main
 name: CI (smoke)
 on: [push, pull_request]
 jobs:
@@ -85,6 +88,9 @@ jobs:
       - name: Stop
         if: always()
         run: kill $(cat .uv.pid) || true
+ codex/initialize-npu-inference-template-iprk80
+
 main
 main
+ main
  main

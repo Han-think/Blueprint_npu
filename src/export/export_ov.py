@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+ codex/initialize-npu-inference-template-iprk80
 import glob
 import os
 import subprocess
@@ -25,6 +26,36 @@ def _find(out: str) -> str | None:
 
 
 def main(ckpt: str, out: str) -> None:
+
+
+import glob
+
+import os
+
+import subprocess
+
+import sys
+
+
+
+def _run(cmd):
+    print("Running:", " ".join(cmd), flush=True)
+    p = subprocess.run(cmd, text=True, capture_output=True)
+    print(p.stdout)
+    print(p.stderr)
+    if p.returncode != 0:
+        raise SystemExit(p.returncode)
+
+
+def _find(out):
+    xs = glob.glob(os.path.join(out, "*.xml")) or glob.glob(
+        os.path.join(out, "**", "*.xml"), recursive=True
+    )
+    return xs[0] if xs else None
+
+
+def main(ckpt: str, out: str):
+ main
     os.makedirs(out, exist_ok=True)
     cmd = [
         sys.executable,
@@ -51,6 +82,7 @@ def main(ckpt: str, out: str) -> None:
         if not xml:
             raise RuntimeError("No XML produced")
         print("OK:", xml)
+ codex/initialize-npu-inference-template-iprk80
     except SystemExit:
         raise
     except Exception as exc:
@@ -64,3 +96,18 @@ if __name__ == "__main__":
     parser.add_argument("--out", required=True)
     args = parser.parse_args()
     main(args.ckpt, args.out)
+
+    except SystemExit as e:
+        raise e
+    except Exception as e:
+        print("Export failed:", e)
+        raise SystemExit(1)
+
+
+if __name__ == "__main__":
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--ckpt", required=True)
+    ap.add_argument("--out", required=True)
+    a = ap.parse_args()
+    main(a.ckpt, a.out)
+ main

@@ -1,7 +1,11 @@
 $ErrorActionPreference="Stop"
 if (!(Get-Command python -ErrorAction SilentlyContinue)) { throw "Python 필요" }
 python -m venv .venv
+ codex/initialize-npu-inference-template-iprk80
 .\.venv\Scripts\Activate.ps1
+
+\.\.venv\Scripts\Activate.ps1
+ main
 python -m pip install -U pip
 pip install -r requirements.txt
 if (-not $env:OV_DEVICE) { $env:OV_DEVICE="AUTO" }

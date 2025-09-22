@@ -1,3 +1,4 @@
+
 name: CI (smoke)
 on: [push, pull_request]
 jobs:
@@ -29,3 +30,4 @@ jobs:
       - name: Stop
         if: always()
         run: kill $(cat .uv.pid) || true
+

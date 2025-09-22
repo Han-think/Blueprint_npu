@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+
 import glob
 import os
 import subprocess
@@ -25,6 +26,7 @@ def _find(out: str) -> str | None:
 
 
 def main(ckpt: str, out: str) -> None:
+
     os.makedirs(out, exist_ok=True)
     cmd = [
         sys.executable,
@@ -51,6 +53,7 @@ def main(ckpt: str, out: str) -> None:
         if not xml:
             raise RuntimeError("No XML produced")
         print("OK:", xml)
+
     except SystemExit:
         raise
     except Exception as exc:
@@ -64,3 +67,4 @@ if __name__ == "__main__":
     parser.add_argument("--out", required=True)
     args = parser.parse_args()
     main(args.ckpt, args.out)
+

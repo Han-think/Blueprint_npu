@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import os, time, base64
-from fastapi import FastAPI
-from pydantic import BaseModel, Field
+
 from src.infer.ov_model import OVRunner
 
 app = FastAPI(title="npu-infer-template", version="0.1.0")

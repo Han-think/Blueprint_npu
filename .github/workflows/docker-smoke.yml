@@ -5,24 +5,28 @@ on:
 jobs:
   build-and-smoke:
     runs-on: ubuntu-latest
+    env:
+      ALLOW_FAKE_GEN: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
       - name: Build image
         run: docker build -t blueprint-npu:ci .
-      - name: Run ui
-        run: docker run -d --rm -p 9030:9030 --name ui -e BLUEPRINT_FAKE=1 blueprint-npu:ci
-      - name: Wait and ping
+      - name: Run inference API
+        run: docker run -d --rm -p 9100:9100 --name infer \
+               -e ALLOW_FAKE_GEN=$ALLOW_FAKE_GEN blueprint-npu:ci
+      - name: Wait for health
         run: |
           for i in {1..30}; do
-            curl -sf http://127.0.0.1:9030/ui/health && exit 0
+            curl -sf http://127.0.0.1:9100/health && exit 0
             sleep 1
           done
-          echo "ui not ready"; exit 1
-      - name: Generate artifacts
-        run: curl -sf -X POST http://127.0.0.1:9030/ui/generate
-      - name: List manifest
-        run: curl -sf http://127.0.0.1:9030/ui/manifest | tee manifest.json
+          echo "api not ready"; exit 1
+      - name: Infer
+        run: |
+          curl -sSf -H "Content-Type: application/json" \
+            --data '{"prompt":"ping","max_new_tokens":8}' \
+            http://127.0.0.1:9100/v1/infer | tee infer.json
       - name: Stop
         if: always()
-        run: docker rm -f ui || true
+        run: docker rm -f infer || true

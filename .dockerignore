@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.pyc
+.dist/
+build/
+exports/
+models/
+checkpoints/
+*.zip
+*.bin
+*.xml
+.pytest_cache/
+.mypy_cache/
+.ov_cache/
+.cache/
+data/experiments/

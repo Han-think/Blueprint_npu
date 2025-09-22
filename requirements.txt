@@ -1,0 +1,9 @@
+fastapi==0.111.0
+uvicorn==0.30.0
+pydantic==2.7.0
+openvino==2025.1.0
+openvino-genai==2025.1.0.0
+huggingface_hub==0.25.2
+requests==2.32.3
+orjson==3.11.2
+ujson==5.10.0

@@ -1,0 +1,55 @@
+name: docker-smoke
+on:
+  push:
+  pull_request:
+jobs:
+  build-and-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Define IMAGE
+        run: |
+          IMAGE_REPO_RAW="blueprint-npu"
+          IMAGE_REPO="$(echo "$IMAGE_REPO_RAW" | tr '[:upper:]' '[:lower:]')"
+          IMAGE_TAG="ci"
+          IMAGE="${IMAGE_REPO}:${IMAGE_TAG}"
+          echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
+
+      - name: Validate IMAGE
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Using IMAGE=$IMAGE"
+          if [[ ! "$IMAGE" =~ ^([a-z0-9]+([._-][a-z0-9]+)*/)*[a-z0-9]+([._-][a-z0-9]+)*:[A-Za-z0-9._-]+$ ]]; then
+            echo "Invalid Docker image ref: $IMAGE"
+            exit 1
+          fi
+
+      - name: Build image
+        run: docker build -t "$IMAGE" .
+
+      - name: Run API
+        run: |
+          docker run -d --rm --name api -p 9100:9100 \
+            -e ALLOW_FAKE_GEN=1 \
+            "$IMAGE"
+
+      - name: Wait for health
+        run: |
+          for i in {1..60}; do
+            curl -sf http://127.0.0.1:9100/health && exit 0
+            sleep 1
+          done
+          echo "API not ready"; exit 1
+
+      - name: Smoke infer
+        run: |
+          curl -sSf -H "Content-Type: application/json" \
+            --data '{"prompt":"ping","max_new_tokens":4}' \
+            http://127.0.0.1:9100/v1/infer | tee out.json
+
+      - name: Stop
+        if: always()
+        run: docker rm -f api || true

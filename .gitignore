@@ -1,0 +1,9 @@
+.venv/
+pycache/
+*.pyc
+.uv.pid
+.ov_cache/
+exports/
+models/
+checkpoints/
+*.zip

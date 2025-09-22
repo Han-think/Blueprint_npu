@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+.git
+.gitignore
+.ov_cache/
+exports/
+models/
+checkpoints/
+*.zip
+.DS_Store

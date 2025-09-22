@@ -1,7 +1,0 @@
-design_space:
-  - {name: x0, low: -1.0, high: 1.0}
-  - {name: x1, low: -1.0, high: 1.0}
-  - {name: x2, low: -1.0, high: 1.0}
-constraints:
-  max_abs: 0.9
-  sum_limit: 2.0

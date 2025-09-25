@@ -1,5 +1,5 @@
 ﻿from __future__ import annotations
-from fastapi import APIRouter, Body
+from fastapi import APIRouter, Body, Query
 from fastapi.responses import JSONResponse, FileResponse
 from pathlib import Path
 import struct, json, re, datetime
@@ -23,7 +23,7 @@ def read_ascii_stl(p: Path):
     return pos,nrm
 
 def pack_glb(meshes):
-    buffers=[]; bufferViews=[]; accessors=[]; nodes=[]; gltf_meshes=[]; bin_blob=b""
+    bufferViews=[]; accessors=[]; gltf_meshes=[]; nodes=[]; bin_blob=b""
     for m in meshes:
         start=len(bin_blob); pf=[c for v in m["positions"] for c in v]
         bin_blob += struct.pack("<%sf"%len(pf), *pf)
@@ -55,104 +55,51 @@ def _last_run(stage):
     c=[d for d in RUNS.iterdir() if d.is_dir() and pat.search(d.name)]
     return sorted(c)[-1] if c else None
 
-@api.post("/cad/saturn_stage_assembly")
-def saturn_stage_assembly(body:dict=Body(None), mode:str="interior"):
-    b=body or {}
-    stage=str(b.get("stage","S-IC")).upper()
-    explode=float(b.get("explode_mm", 0.0))
-    run=_last_run(stage)
-    if not run: return JSONResponse({"ok":False,"reason":"no_stl_run"}, status_code=400)
-
-    parts=[]
-    def add(name, tr=(0,0,0)):
-        p=run/name
-        if p.exists():
-            pos,nrm=read_ascii_stl(p); parts.append({"name":name,"positions":pos,"normals":nrm,"translation":tr})
-
-    if stage=="S-IC":
-        L=42100.0; l_lox=L*0.42
-        add("SIC_shell.stl")
-        if mode!="outer":
-            for n,tr in [
-                ("SIC_LOX_tank.stl",(0,0,explode)),
-                ("SIC_Intertank_ring.stl",(0,0,2*explode)),
-                ("SIC_RP1_tank.stl",(0,0,3*explode)),
-                ("SIC_Thrust_ring.stl",(0,0,4*explode)),
-                ("SIC_Thrust_beam_0.stl",(0,0,4*explode)),
-                ("SIC_Thrust_beam_1.stl",(0,0,4*explode)),
-                ("SIC_Engine_mount_ring.stl",(0,0,4*explode)),
-                ("SIC_LOX_pipe_vert.stl",(0,0,3*explode)),
-                ("SIC_LOX_elbow.stl",(0,0,3*explode)),
-                ("SIC_Fin_rect.stl",(0,0,0)),
-            ]: add(n,tr)
-        # 엔진 파츠 묶음 5기
-        engine_files=[p.name for p in run.iterdir() if p.suffix.lower()==".stl" and p.name.startswith("F1_")]
-        offs=[(-2500,0,-3000),(2500,0,-3000),(0,0,-3000),(-1250,-2165,-3000),(1250,2165,-3000)]
-        for (dx,dy,dz) in offs:
-            for ef in engine_files: add(ef,(dx,dy,dz-5*explode))
-
-    elif stage=="S-II":
-        add("SII_shell.stl")
-        if mode!="outer":
-            for n,tr in [
-                ("SII_LOX_tank.stl",(0,0,explode)),
-                ("SII_CB_up.stl",(0,0,2*explode)),
-                ("SII_CB_dn.stl",(0,0,2*explode)),
-                ("SII_CB_insul.stl",(0,0,2*explode)),
-                ("SII_LH2_tank.stl",(0,0,3*explode)),
-            ]: add(n,tr)
-        engine_files=[p.name for p in run.iterdir() if p.suffix.lower()==".stl" and p.name.startswith("J2_")]
-        offs=[(-1800,0,-2200),(1800,0,-2200),(0,0,-2200),(-900,-1550,-2200),(900,1550,-2200)]
-        for (dx,dy,dz) in offs:
-            for ef in engine_files: add(ef,(dx,dy,dz-4*explode))
-
-    else:
-        add("SIVB_shell.stl")
-        if mode!="outer":
-            for n,tr in [
-                ("SIVB_LOX_tank.stl",(0,0,explode)),
-                ("SIVB_LH2_tank.stl",(0,0,2*explode)),
-                ("SIVB_LH2_baffle_0.stl",(0,0,2.5*explode)),
-                ("SIVB_LH2_baffle_1.stl",(0,0,3*explode)),
-                ("SIVB_IU_ring.stl",(0,0,4*explode)),
-            ]: add(n,tr)
-        engine_files=[p.name for p in run.iterdir() if p.suffix.lower()==".stl" and p.name.startswith("J2_")]
-        for ef in engine_files: add(ef,(0,0,-2200-3*explode))
-
-    glb=pack_glb(parts)
-    out=run/"stage_assembly.glb"; out.write_bytes(glb)
-    rel=str(out.relative_to(DATA)).replace("\\","/")
-    return {"ok":True,"glb_rel":rel}
+def _add(parts, run, name, tr=(0,0,0)):
+    p=run/name
+    if p.exists():
+        pos,nrm=read_ascii_stl(p); parts.append({"name":name,"positions":pos,"normals":nrm,"translation":tr})
 
 @api.get("/cad/saturn_stack_assembly")
-def saturn_stack_assembly():
-    def last(stage):
-        import re
-        pat=re.compile(rf"run-.*-{stage}$")
-        c=[d for d in RUNS.iterdir() if d.is_dir() and pat.search(d.name)]
-        return sorted(c)[-1] if c else None
-    r1,last1 = last("S-IC"), "SIC_shell.stl"
-    r2,last2 = last("S-II"), "SII_shell.stl"
-    r3,last3 = last("S-IVB"), "SIVB_shell.stl"
+def saturn_stack_assembly(mode: str = Query("outer", enum=["outer","full"])):
+    r1=_last_run("S-IC"); r2=_last_run("S-II"); r3=_last_run("S-IVB")
     if not all([r1,r2,r3]): return JSONResponse({"ok":False,"reason":"missing_runs"}, status_code=400)
-    L1,L2,L3 = 42100, 24900, 17800; GAP=1200
+    L1,L2,L3 = 42100,24900,17800; GAP=1200
     z1=0; z2=L1+GAP; z3=L1+GAP+L2+GAP
     parts=[]
-    for run,name,z in ((r1,last1,z1),(r2,last2,z2),(r3,last3,z3)):
-        p=run/name
-        if p.exists():
-            pos,nrm=read_ascii_stl(p)
-            parts.append({"name":name,"positions":pos,"normals":nrm,"translation":(0,0,z)})
+    # S-IC
+    if r1:
+        _add(parts,r1,"SIC_shell.stl",(0,0,z1))
+        if mode!="outer":
+            for n in ["SIC_LOX_tank.stl","SIC_Intertank_ring.stl","SIC_RP1_tank.stl","SIC_Thrust_ring.stl",
+                      "SIC_Thrust_beam_0.stl","SIC_Thrust_beam_1.stl","SIC_Engine_mount_ring.stl",
+                      "SIC_LOX_pipe_vert.stl","SIC_LOX_elbow.stl","SIC_Fin_rect.stl"]:
+                _add(parts,r1,n,(0,0,z1))
+            # F-1 파츠 복제 배치
+            engine_files=[p.name for p in r1.iterdir() if p.suffix.lower()==".stl" and p.name.startswith("F1_")]
+            offs=[(-2500,0,-3000),(2500,0,-3000),(0,0,-3000),(-1250,-2165,-3000),(1250,2165,-3000)]
+            for (dx,dy,dz) in offs:
+                for ef in engine_files: _add(parts,r1,ef,(dx,dy,z1+dz))
+    # S-II
+    if r2:
+        _add(parts,r2,"SII_shell.stl",(0,0,z2))
+        if mode!="outer":
+            for n in ["SII_LOX_tank.stl","SII_CB_up.stl","SII_CB_dn.stl","SII_CB_insul.stl","SII_LH2_tank.stl"]:
+                _add(parts,r2,n,(0,0,z2))
+            engine_files=[p.name for p in r2.iterdir() if p.suffix.lower()==".stl" and p.name.startswith("J2_")]
+            offs=[(-1800,0,-2200),(1800,0,-2200),(0,0,-2200),(-900,-1550,-2200),(900,1550,-2200)]
+            for (dx,dy,dz) in offs:
+                for ef in engine_files: _add(parts,r2,ef,(dx,dy,z2+dz))
+    # S-IVB
+    if r3:
+        _add(parts,r3,"SIVB_shell.stl",(0,0,z3))
+        if mode!="outer":
+            for n in ["SIVB_LOX_tank.stl","SIVB_LH2_tank.stl","SIVB_LH2_baffle_0.stl","SIVB_LH2_baffle_1.stl","SIVB_IU_ring.stl"]:
+                _add(parts,r3,n,(0,0,z3))
+            engine_files=[p.name for p in r3.iterdir() if p.suffix.lower()==".stl" and p.name.startswith("J2_")]
+            for ef in engine_files: _add(parts,r3,ef,(0,0,z3-2200))
     glb=pack_glb(parts)
-    out = RUNS/f"run-{datetime.datetime.now():%Y%m%d-%H%M%S}-STACK/stack_assembly.glb"
+    out = RUNS/f"run-{datetime.datetime.now():%Y%m%d-%H%M%S}-STACK/stack_full.glb" if mode=="full" else RUNS/f"run-{datetime.datetime.now():%Y%m%d-%H%M%S}-STACK/stack_assembly.glb"
     out.parent.mkdir(parents=True, exist_ok=True); out.write_bytes(glb)
     rel=str(out.relative_to(DATA)).replace("\\","/")
-    return {"ok":True,"glb_rel":rel}
-
-@api.get("/files/{rel_path:path}")
-def send_file(rel_path:str):
-    base=(ROOT/"data").resolve(); full=(base/rel_path).resolve()
-    if not str(full).startswith(str(base)) or not full.exists():
-        from fastapi import HTTPException
-        raise HTTPException(status_code=404, detail="not_found")
-    return FileResponse(str(full))
+    return {"ok":True,"glb_rel":rel,"mode":mode}

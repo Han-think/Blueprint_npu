@@ -19,3 +19,7 @@ def _try_include(mod: str):
 # 필요한 라우터들
 for _m in ["j58_v23","j58_plate","j58_blueprint","j58_ai","saturn_s1c","saturn_stack"]:
     _try_include(_m)
+
+# auto-add: saturn_detail
+_try_include("saturn_detail", "api")
+

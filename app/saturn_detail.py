@@ -184,5 +184,6 @@ def saturn_stack_detail(
 
     out = OUT / f"saturn_stack_detail_{datetime.now():%Y%m%d-%H%M%S}.svg"
     out.write_text("\n".join(ln), encoding="utf-8")
-    rel = str(out.relative_to(ROOT)).replace("\\","/")
+    rel = str(out.relative_to(ROOT/"data")).replace("\\","/")
     return {"ok": True, "svg_rel": rel}
+

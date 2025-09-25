@@ -1,25 +1,27 @@
-﻿from fastapi import FastAPI
-from importlib import import_module
+﻿from fastapi import FastAPI, APIRouter
 
 app = FastAPI()
 
-@app.get("/wb/health")
-def _h(): 
-    return {"ok": True}
+# /wb/health
+wb = APIRouter(prefix="/wb")
+@wb.get("/health")
+def _h(): return {"ok": True}
+app.include_router(wb)
 
-def _try_include(mod: str):
+def _try_include(mod, attr="api"):
     try:
-        m = import_module(f"app.{mod}")
-        api = getattr(m, "api")
+        m = __import__(f"app.{mod}", fromlist=[attr])
+        api = getattr(m, attr)
         app.include_router(api)
         print(f"loaded: {mod}")
     except Exception as e:
-        print(f"warn: {mod} router not loaded:", e)
+        print(f"warn: router not loaded: {mod}", e)
 
 # 필요한 라우터들
-for _m in ["j58_v23","j58_plate","j58_blueprint","j58_ai","saturn_s1c","saturn_stack"]:
-    _try_include(_m)
-
-# auto-add: saturn_detail
-_try_include("saturn_detail", "api")
-
+_try_include("j58_v23")
+_try_include("j58_plate")
+_try_include("j58_blueprint")
+_try_include("j58_ai")
+_try_include("saturn_s1c")
+_try_include("saturn_stack")
+_try_include("saturn_detail")

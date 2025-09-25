@@ -1,0 +1,82 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='980' height='1245' viewBox='0 0 980 1245'>
+<rect width='100%' height='100%' fill='#0c1e35'/>
+<rect x='16' y='16' width='948' height='1213' fill='none' stroke='#274a79' stroke-width='2'/>
+<text x='28' y='40' fill='#fff' font-size='14' text-anchor='start'>SATURN V — Vertical Stack (Detailed Educational Blueprint)</text>
+<text x='28' y='58' fill='#9fd3ff' font-size='11' text-anchor='start'>Scale 12.0 mm/m</text>
+<rect x='220' y='70' width='121' height='10' fill='none' stroke='#caa9ff' stroke-width='1.2' stroke-dasharray='6 4'/>
+<text x='353' y='84' fill='#caa9ff' font-size='12' text-anchor='start'>INSTRUMENT UNIT</text>
+<rect x='241' y='96' width='79' height='213' fill='none' stroke='#fff' stroke-width='1.6'/>
+<path d='M 247 118 A 16 16 0 0 1 263 102 L 298 102 A 16 16 0 0 1 314 118 L 314 135.536 A 16 16 0 0 1 298 151.536 L 263 151.536 A 16 16 0 0 1 247 135.536 Z' fill='none' stroke='#9fd3ff' stroke-width='1.3'/>
+<text x='231' y='112' fill='11' font-size='#9fd3ff' text-anchor='end'>LOX</text>
+<polygon points='251,154 310,154 280,169' fill='none' stroke='#89ffa8' stroke-width='1.2'/>
+<path d='M 247 187 A 18 18 0 0 1 265 169 L 296 169 A 18 18 0 0 1 314 187 L 314 274.384 A 18 18 0 0 1 296 292.384 L 265 292.384 A 18 18 0 0 1 247 274.384 Z' fill='none' stroke='#b6ffb6' stroke-width='1.3'/>
+<text x='330' y='293' fill='11' font-size='#b6ffb6' text-anchor='start'>LH2</text>
+<path d='M 280.5 316.0 L 269.5 340.0 L 291.5 340.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1' opacity='0.9'/>
+<text x='280.5' y='352' fill='#9cd0ff' font-size='11' text-anchor='middle'>J-2 x1</text>
+<rect x='220' y='310' width='121' height='10' fill='none' stroke='#89ffa8' stroke-width='1.2' stroke-dasharray='8 4'/>
+<text x='353' y='322' fill='#89ffa8' font-size='11' text-anchor='start'>INTERSTAGE (S-IVB/S-II)</text>
+<path d='M 200 314.0 L 195.0 326.0 L 205.0 326.0 Z' fill='#aa8844' stroke='#ffd39f' stroke-width='1' opacity='0.9'/>
+<path d='M 361 314.0 L 356.0 326.0 L 366.0 326.0 Z' fill='#aa8844' stroke='#ffd39f' stroke-width='1' opacity='0.9'/>
+<rect x='220' y='325' width='121' height='298' fill='none' stroke='#fff' stroke-width='1.6'/>
+<path d='M 226 353 A 22 22 0 0 1 248 331 L 313 331 A 22 22 0 0 1 335 353 L 335 368.736 A 22 22 0 0 1 313 390.736 L 248 390.736 A 22 22 0 0 1 226 368.736 Z' fill='none' stroke='#9fd3ff' stroke-width='1.3'/>
+<text x='210' y='341' fill='11' font-size='#9fd3ff' text-anchor='end'>LOX (common bulkhead)</text>
+<polygon points='230,394 331,394 280.5,415' fill='none' stroke='#89ffa8' stroke-width='1.2'/>
+<path d='M 226 439 A 24 24 0 0 1 250 415 L 311 415 A 24 24 0 0 1 335 439 L 335 579.124 A 24 24 0 0 1 311 603.124 L 250 603.124 A 24 24 0 0 1 226 579.124 Z' fill='none' stroke='#b6ffb6' stroke-width='1.3'/>
+<text x='353' y='603' fill='11' font-size='#b6ffb6' text-anchor='start'>LH2</text>
+<path d='M 200.5 631.0 L 190.5 653.0 L 210.5 653.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1' opacity='0.9'/>
+<path d='M 240.5 631.0 L 230.5 653.0 L 250.5 653.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1' opacity='0.9'/>
+<path d='M 280.5 631.0 L 270.5 653.0 L 290.5 653.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1' opacity='0.9'/>
+<path d='M 320.5 631.0 L 310.5 653.0 L 330.5 653.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1' opacity='0.9'/>
+<path d='M 360.5 631.0 L 350.5 653.0 L 370.5 653.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1' opacity='0.9'/>
+<text x='280.5' y='664' fill='#9cd0ff' font-size='11' text-anchor='middle'>J-2 x5</text>
+<rect x='220' y='624' width='121' height='10' fill='none' stroke='#89ffa8' stroke-width='1.2' stroke-dasharray='8 4'/>
+<text x='353' y='636' fill='#89ffa8' font-size='11' text-anchor='start'>INTERSTAGE (S-II/S-IC)</text>
+<path d='M 200 628.0 L 195.0 640.0 L 205.0 640.0 Z' fill='#aa8844' stroke='#ffd39f' stroke-width='1' opacity='0.9'/>
+<path d='M 361 628.0 L 356.0 640.0 L 366.0 640.0 Z' fill='#aa8844' stroke='#ffd39f' stroke-width='1' opacity='0.9'/>
+<rect x='220' y='640' width='121' height='505' fill='none' stroke='#fff' stroke-width='1.8'/>
+<path d='M 226 672 A 26 26 0 0 1 252 646 L 309 646 A 26 26 0 0 1 335 672 L 335 826.184 A 26 26 0 0 1 309 852.184 L 252 852.184 A 26 26 0 0 1 226 826.184 Z' fill='none' stroke='#9fd3ff' stroke-width='1.3'/>
+<text x='210' y='656' fill='11' font-size='#9fd3ff' text-anchor='end'>LOX</text>
+<rect x='224' y='852' width='113' height='10' fill='none' stroke='#89ffa8' stroke-width='1.2' stroke-dasharray='8 4'/>
+<text x='353' y='866' fill='#89ffa8' font-size='11' text-anchor='start'>INTERTANK</text>
+<path d='M 226 890 A 28 28 0 0 1 254 862 L 307 862 A 28 28 0 0 1 335 890 L 335 1104.2160000000001 A 28 28 0 0 1 307 1132.2160000000001 L 254 1132.2160000000001 A 28 28 0 0 1 226 1104.2160000000001 Z' fill='none' stroke='#ffd39f' stroke-width='1.3'/>
+<text x='210' y='878' fill='11' font-size='#ffd39f' text-anchor='end'>RP-1</text>
+<path d='M 180.5 1152.0 L 168.5 1178.0 L 192.5 1178.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1' opacity='0.9'/>
+<path d='M 230.5 1152.0 L 218.5 1178.0 L 242.5 1178.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1' opacity='0.9'/>
+<path d='M 280.5 1152.0 L 268.5 1178.0 L 292.5 1178.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1' opacity='0.9'/>
+<path d='M 330.5 1152.0 L 318.5 1178.0 L 342.5 1178.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1' opacity='0.9'/>
+<path d='M 380.5 1152.0 L 368.5 1178.0 L 392.5 1178.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1' opacity='0.9'/>
+<text x='280.5' y='1189' fill='#9cd0ff' font-size='11' text-anchor='middle'>F-1 x5</text>
+<path d='M 333 660 C 353 660 313 1125 333 1125' stroke='#9fd3ff' stroke-width='2' fill='none'/>
+<path d='M 228 882 C 248 882 208 1129 228 1129' stroke='#ffd39f' stroke-width='2' fill='none'/>
+<path d='M 335 349 C 355 349 315 618 335 618' stroke='#9fd3ff' stroke-width='2' fill='none'/>
+<path d='M 226 475 C 246 475 206 636 226 636' stroke='#b6ffb6' stroke-width='2' fill='none'/>
+<line x1='196' y1='70' x2='196' y2='80' stroke='white' stroke-width='1'/>
+<line x1='190' y1='70' x2='202' y2='70' stroke='white' stroke-width='1'/>
+<line x1='190' y1='80' x2='202' y2='80' stroke='white' stroke-width='1'/>
+<text x='188' y='75' fill='white' font-size='12' text-anchor='end' dominant-baseline='middle'>IU 0.9 m</text>
+<line x1='176' y1='96' x2='176' y2='310' stroke='white' stroke-width='1'/>
+<line x1='170' y1='96' x2='182' y2='96' stroke='white' stroke-width='1'/>
+<line x1='170' y1='310' x2='182' y2='310' stroke='white' stroke-width='1'/>
+<text x='168' y='203' fill='white' font-size='12' text-anchor='end' dominant-baseline='middle'>S-IVB 17.8 m</text>
+<line x1='156' y1='325' x2='156' y2='624' stroke='white' stroke-width='1'/>
+<line x1='150' y1='325' x2='162' y2='325' stroke='white' stroke-width='1'/>
+<line x1='150' y1='624' x2='162' y2='624' stroke='white' stroke-width='1'/>
+<text x='148' y='474' fill='white' font-size='12' text-anchor='end' dominant-baseline='middle'>S-II 24.9 m</text>
+<line x1='136' y1='640' x2='136' y2='1145' stroke='white' stroke-width='1'/>
+<line x1='130' y1='640' x2='142' y2='640' stroke='white' stroke-width='1'/>
+<line x1='130' y1='1145' x2='142' y2='1145' stroke='white' stroke-width='1'/>
+<text x='128' y='892' fill='white' font-size='12' text-anchor='end' dominant-baseline='middle'>S-IC 42.1 m</text>
+<line x1='220' y1='1189' x2='341' y2='1189' stroke='white' stroke-width='1'/>
+<line x1='220' y1='1183' x2='220' y2='1195' stroke='white' stroke-width='1'/>
+<line x1='341' y1='1183' x2='341' y2='1195' stroke='white' stroke-width='1'/>
+<text x='280' y='1181' fill='white' font-size='12' text-anchor='middle'>D (S-IC/S-II) ≈ 10.10 m</text>
+<rect x='720' y='24' width='220' height='86' fill='none' stroke='#fff' stroke-width='1'/>
+<rect x='730' y='30' width='18' height='12' fill='none' stroke='#9fd3ff' stroke-width='2'/>
+<text x='756' y='40' fill='#fff' font-size='12' text-anchor='start'>LOX tank / line</text>
+<rect x='730' y='48' width='18' height='12' fill='none' stroke='#b6ffb6' stroke-width='2'/>
+<text x='756' y='58' fill='#fff' font-size='12' text-anchor='start'>LH2 / RP-1 tank</text>
+<rect x='730' y='66' width='18' height='12' fill='none' stroke='#89ffa8' stroke-width='2'/>
+<text x='756' y='76' fill='#fff' font-size='12' text-anchor='start'>Intertank/Interstage</text>
+<rect x='730' y='84' width='18' height='12' fill='none' stroke='#9cd0ff' stroke-width='2'/>
+<text x='756' y='94' fill='#fff' font-size='12' text-anchor='start'>Engine schematic</text>
+</svg>

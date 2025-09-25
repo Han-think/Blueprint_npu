@@ -1,139 +1,178 @@
 ﻿from __future__ import annotations
 from fastapi import APIRouter, Query
-from fastapi.responses import JSONResponse, FileResponse
-import os, math, json, datetime
+from fastapi.responses import FileResponse, JSONResponse
+import os, datetime, math, json
 
 api = APIRouter(prefix="/wb")
-BASE = os.path.abspath("data")
-RUNS = os.path.join("data","geometry","cad","saturn_s1c_runs")
-os.makedirs(RUNS, exist_ok=True)
 
-def _safe(rel:str):
-    full=os.path.abspath(os.path.join(BASE, rel.replace("/", os.sep)))
-    return full if full.startswith(BASE) else None
+DATA_ROOT = os.path.join("data","geometry","cad")
+RUNS_DIR  = os.path.join(DATA_ROOT, "saturn_stack_runs")
+os.makedirs(RUNS_DIR, exist_ok=True)
 
-def _emit_blueprint(out_dir:str, scale_mm_per_m=20.0, D_stage_m=10.1, L_stage_m=42.0):
-    # --- 스케일(mm) ---
-    sx = sy = 1.2  # mm→px
-    D = D_stage_m*scale_mm_per_m
-    L = L_stage_m*scale_mm_per_m
+def _box(x,y,w,h,stroke="#fff",sw=1.6,fill="none",dash=None):
+    d=f" stroke-dasharray='{dash}'" if dash else ""
+    return f"<rect x='{x}' y='{y}' width='{w}' height='{h}' fill='{fill}' stroke='{stroke}' stroke-width='{sw}'{d}/>"
 
-    # 구간 비율(교육용 단순화)
-    frac = dict(forward=0.04, lox=0.36, inter=0.05, rp1=0.35, thrust=0.08, aft=0.06)
-    # 정규화
-    s = sum(frac.values())
-    for k in frac: frac[k] /= s
+def _text(x,y,t,fs=12,fill="#fff",anc="start"):
+    return f"<text x='{x}' y='{y}' fill='{fill}' font-size='{fs}' text-anchor='{anc}'>{t}</text>"
 
-    z = 0.0
-    seg=[]
-    for k in ["forward","lox","inter","rp1","thrust","aft"]:
-        ln = L*frac[k]; seg.append((k, z, z+ln)); z += ln
+def _tri(cx,cy,w,h,stroke="#9cd0ff",fill="#1f6aa8",sw=1):
+    x1,y1=cx,cy-h/2; x2,y2=cx-w/2,cy+h/2; x3,y3=cx+w/2,cy+h/2
+    return f"<path d='M {x1} {y1} L {x2} {y2} L {x3} {y3} Z' fill='{fill}' stroke='{stroke}' stroke-width='{sw}' opacity='0.9'/>"
 
-    def X(mm): return int(80 + mm*sx)
-    def Y(mm): return int(80 + mm*sy)
-    H = int(80 + (D+80)*sy)
-    W = int(80 + (L+260)*sx)
+def _dim_h(x0,x1,y,label):
+    return "\n".join([
+      f"<line x1='{x0}' y1='{y}' x2='{x1}' y2='{y}' stroke='white' stroke-width='1'/>",
+      f"<line x1='{x0}' y1='{y-6}' x2='{x0}' y2='{y+6}' stroke='white' stroke-width='1'/>",
+      f"<line x1='{x1}' y1='{y-6}' x2='{x1}' y2='{y+6}' stroke='white' stroke-width='1'/>",
+      f"<text x='{(x0+x1)//2}' y='{y-8}' fill='white' font-size='12' text-anchor='middle'>{label}</text>"
+    ])
 
-    # 단면 윤곽 및 내부 요소
-    ox, oy = X(0), Y(D/2)
-    outer = dict(x0=X(0), y0=Y(0), x1=X(L), y1=Y(D))
+def _dim_v(x,y0,y1,label):
+    return "\n".join([
+      f"<line x1='{x}' y1='{y0}' x2='{x}' y2='{y1}' stroke='white' stroke-width='1'/>",
+      f"<line x1='{x-6}' y1='{y0}' x2='{x+6}' y2='{y0}' stroke='white' stroke-width='1'/>",
+      f"<line x1='{x-6}' y1='{y1}' x2='{x+6}' y2='{y1}' stroke='white' stroke-width='1'/>",
+      f"<text x='{x-8}' y='{(y0+y1)//2}' fill='white' font-size='12' text-anchor='end' dominant-baseline='middle'>{label}</text>"
+    ])
 
-    def capsule_path(z0,z1,rad):
-        # 라운드탱크(상/하 반원 + 몸통)
-        return f"M {X(z0)} {Y(D/2-rad)} A {int(rad*sy)} {int(rad*sy)} 0 0 1 {X(z0)} {Y(D/2+rad)} L {X(z1)} {Y(D/2+rad)} A {int(rad*sy)} {int(rad*sy)} 0 0 1 {X(z1)} {Y(D/2-rad)} Z"
+def _legend(x,y,items):
+    ln=[_box(x,y,260,18*len(items)+14,stroke="#fff",sw=1,fill="none")]
+    yy=y+16
+    for label, color in items:
+        ln.append(_box(x+10,yy-10,18,12,stroke=color,sw=2))
+        ln.append(_text(x+36,yy,label,12,"#fff"))
+        yy+=18
+    return "\n".join(ln)
 
-    # 엔진(5기) 단순화: 후미 스커트 내부에 벨 형상 아이콘
-    def engine_bell(cx, cy, h, w):
-        a=f"M {cx-w//2} {cy} L {cx} {cy+h} L {cx+w//2} {cy} Z"
-        return a
+def _emit_stack_svg(out_dir:str, scale_mm_per_m:float=10.0):
+    # 간단 정수 스펙(교육용): 실제 수치와 비율만 맞춤
+    D_stack  = 10.1      # 전단 공통 외경(m)
+    L_SIC    = 42.1      # 1단 길이(m)
+    L_SII    = 24.9      # 2단 길이(m)
+    L_SIVB   = 17.8      # 3단 길이(m)
+    L_IU     = 0.9       # 계측유닛 (상단 링)
+    GAP      = 1.2       # 스테이지 사이 시각 간격(m)
+
+    W = 900
+    H = int((L_SIC+L_SII+L_SIVB+L_IU+3*GAP)*scale_mm_per_m + 160)
+    ox,oy = 150, 60
+    body_w = int(D_stack*scale_mm_per_m)
+
+    def Y(z_from_top_m): return oy + int(z_from_top_m*scale_mm_per_m)
 
     ln=[]
     ln.append(f"<svg xmlns='http://www.w3.org/2000/svg' width='{W}' height='{H}' viewBox='0 0 {W} {H}'>")
     ln.append("<rect width='100%' height='100%' fill='#0c1e35'/>")
-    ln.append(f"<rect x='16' y='16' width='{W-32}' height='{H-32}' fill='none' stroke='#274a79' stroke-width='2'/>")
+    ln.append(_box(16,16,W-32,H-32,stroke='#274a79',sw=2))
 
-    # 중심선
-    ln.append(f"<line x1='{ox}' y1='{oy}' x2='{X(L)}' y2='{oy}' stroke='#6ea3e0' stroke-width='1' stroke-dasharray='6 4'/>")
+    # 상단부터 누적 배치
+    z=0.0
+    # IU
+    ln.append(_box(ox, Y(z), body_w, int(L_IU*scale_mm_per_m), stroke="#caa9ff", sw=1.2, dash="6 4"))
+    ln.append(_text(ox+body_w+12, Y(z)+14, "INSTRUMENT UNIT",12,"#caa9ff"))
+    z+=L_IU + GAP
 
-    # 외피
-    ln.append(f"<rect x='{outer['x0']}' y='{outer['y0']}' width='{outer['x1']-outer['x0']}' height='{outer['y1']-outer['y0']}' fill='none' stroke='white' stroke-width='1.8'/>")
+    # S-IVB (3단) — LH2 큰 탱크 + LOX 작은 탱크 + J-2 (1기)
+    h4=L_SIVB
+    ln.append(_box(ox, Y(z), body_w, int(h4*scale_mm_per_m), stroke="#ffffff", sw=1.6))
+    # 내부 탱크
+    h4_lox = 4.5; h4_lh2 = h4 - h4_lox - 1.2
+    ln.append(_box(ox+6, Y(z)+6, body_w-12, int(h4_lox*scale_mm_per_m)-6, stroke="#9fd3ff", sw=1.4)) # LOX
+    ln.append(_text(ox+10, Y(z)+18, "LOX",12,"#9fd3ff"))
+    ln.append(_box(ox+6, Y(z)+int((h4_lox+0.8)*scale_mm_per_m), body_w-12, int(h4_lh2*scale_mm_per_m)-6, stroke="#ffd39f", sw=1.4)) # LH2
+    ln.append(_text(ox+10, Y(z)+int((h4_lox+0.8)*scale_mm_per_m)+16, "LH2",12,"#ffd39f"))
+    # J-2 (1기)
+    eg_y = Y(z+h4)-18
+    ln.append(_tri(ox+body_w*0.5, eg_y, 28, 30))
+    ln.append(_text(ox+body_w+12, Y(z)+int(h4*scale_mm_per_m*0.5), "S-IVB — J-2 x1",12,"#9cd0ff"))
+    z+=h4 + GAP
 
-    # LOX/RP-1 탱크(캡슐)
-    zf, zt = [s for s in seg if s[0]=="lox"][0][1:]; zf1=[s for s in seg if s[0]=="lox"][0][2]
-    rf = D*0.40*0.5  # 반지름(여유)
-    ln.append(f"<path d='{capsule_path(zf, zf1, rf)}' fill='none' stroke='#9fd3ff' stroke-width='1.4'/>")
-    zf, zt = [s for s in seg if s[0]=="rp1"][0][1:]; zf1=[s for s in seg if s[0]=="rp1"][0][2]
-    rr = D*0.50*0.5
-    ln.append(f"<path d='{capsule_path(zf, zf1, rr)}' fill='none' stroke='#ffd39f' stroke-width='1.4'/>")
+    # S-II(2단) — LOX 위, LH2 아래, J-2 x5
+    h2=L_SII
+    ln.append(_box(ox, Y(z), body_w, int(h2*scale_mm_per_m), stroke="#ffffff", sw=1.6))
+    ln.append(_box(ox+6, Y(z)+6, body_w-12, int((h2*0.35)*scale_mm_per_m)-8, stroke="#9fd3ff", sw=1.4))  # LOX
+    ln.append(_text(ox+10, Y(z)+18, "LOX",12,"#9fd3ff"))
+    ln.append(_box(ox+6, Y(z)+int((h2*0.35+0.6)*scale_mm_per_m), body_w-12, int((h2*0.60)*scale_mm_per_m)-8, stroke="#ffd39f", sw=1.4)) # LH2
+    ln.append(_text(ox+10, Y(z)+int((h2*0.35+0.6)*scale_mm_per_m)+16, "LH2",12,"#ffd39f"))
+    # 엔진 5기
+    base = Y(z+h2)-20
+    for k in range(5):
+        cx = ox+body_w*(0.2+0.15*k)
+        ln.append(_tri(cx, base, 24, 26))
+    ln.append(_text(ox+body_w+12, Y(z)+int(h2*scale_mm_per_m*0.5), "S-II — J-2 x5",12,"#9cd0ff"))
+    z+=h2 + GAP
 
-    # 인터탱크/스커트/스로스트 구조(링)
-    def ring(z0,z1,label,color):
-        ln.append(f"<rect x='{X(z0)}' y='{Y(D*0.15)}' width='{X(z1)-X(z0)}' height='{int(D*0.70*sy)}' fill='none' stroke='{color}' stroke-width='1.2' stroke-dasharray='8 4'/>")
-        ln.append(f"<text x='{(X(z0)+X(z1))//2}' y='{Y(D*0.15)-10}' fill='{color}' font-size='12' text-anchor='middle'>{label}</text>")
+    # S-IC(1단) — LOX 위 / RP-1 아래 / F-1 x5
+    h1=L_SIC
+    ln.append(_box(ox, Y(z), body_w, int(h1*scale_mm_per_m), stroke="#ffffff", sw=1.8))
+    # 상부 LOX
+    ln.append(_box(ox+6, Y(z)+6, body_w-12, int((h1*0.42)*scale_mm_per_m)-8, stroke="#9fd3ff", sw=1.6))
+    ln.append(_text(ox+10, Y(z)+18, "LOX",12,"#9fd3ff"))
+    # 인터탱크 (점선)
+    it_y0 = Y(z)+int((h1*0.42)*scale_mm_per_m)
+    ln.append(_box(ox+4, it_y0, body_w-8, int(0.9*scale_mm_per_m), stroke="#89ffa8", sw=1.2, dash="8 4"))
+    ln.append(_text(ox+body_w+12, it_y0+12, "INTERTANK",12,"#89ffa8"))
+    # 하부 RP-1
+    ln.append(_box(ox+6, it_y0+int(0.9*scale_mm_per_m), body_w-12, int((h1*0.55)*scale_mm_per_m)-12, stroke="#ffd39f", sw=1.6))
+    ln.append(_text(ox+10, it_y0+int(0.9*scale_mm_per_m)+16, "RP-1",12,"#ffd39f"))
+    # F-1 x5
+    base = Y(z+h1)-22
+    for k in range(5):
+        cx = ox+body_w*(0.15+0.17*k)
+        ln.append(_tri(cx, base, 26, 28))
+    ln.append(_text(ox+body_w+12, Y(z)+int(h1*scale_mm_per_m*0.5), "S-IC — F-1 x5",12,"#9cd0ff"))
 
-    z0,z1=[s for s in seg if s[0]=="inter"][0][1:]
-    ring(z0,z1,"INTERTANK","#89ffa8")
-    z0,z1=[s for s in seg if s[0]=="thrust"][0][1:]
-    ring(z0,z1,"THRUST STRUCTURE","#f0ffa8")
-    z0,z1=[s for s in seg if s[0]=="forward"][0][1:]
-    ring(z0,z1,"FORWARD SKIRT","#caa9ff")
-    z0,z1=[s for s in seg if s[0]=="aft"][0][1:]
-    ring(z0,z1,"AFT SKIRT","#caa9ff")
+    # 좌측 치수선
+    ln.append(_dim_v(ox-20, Y(0), Y(L_IU), f"IU {L_IU:.1f} m"))
+    ln.append(_dim_v(ox-40, Y(L_IU+GAP), Y(L_IU+GAP+L_SIVB), f"S-IVB {L_SIVB:.1f} m"))
+    ln.append(_dim_v(ox-60, Y(L_IU+GAP+L_SIVB+GAP), Y(L_IU+GAP+L_SIVB+GAP+L_SII), f"S-II {L_SII:.1f} m"))
+    ln.append(_dim_v(ox-80, Y(L_IU+GAP+L_SIVB+GAP+L_SII+GAP), Y(L_IU+GAP+L_SIVB+GAP+L_SII+GAP+L_SIC), f"S-IC {L_SIC:.1f} m"))
+    # 하단 직경
+    ln.append(_dim_h(ox, ox+body_w, Y(L_IU+L_SIVB+L_SII+L_SIC+3*GAP)+40, f"D ≈ {D_stack:.2f} m  (scale {scale_mm_per_m:.1f} mm/m)"))
 
-    # 엔진 벨 5기(후미 쪽)
-    aft0,aft1=[s for s in seg if s[0]=="aft"][0][1:]
-    cz = X((aft0+aft1)*0.5)
-    base_y = Y(D*0.72)
-    h = int(D*0.18*sy); w=int(D*0.18*sx)
-    offs = int(D*0.18*sx)
-    bells=[
-        engine_bell(cz, base_y, h, w),
-        engine_bell(cz-offs, base_y-20, h, w),
-        engine_bell(cz+offs, base_y-20, h, w),
-        engine_bell(cz-offs, base_y+20, h, w),
-        engine_bell(cz+offs, base_y+20, h, w),
-    ]
-    ln.append(f"<path d='{' '.join(bells)}' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1' opacity='0.9'/>")
-    ln.append(f"<text x='{cz}' y='{base_y+h+16}' fill='#9cd0ff' font-size='12' text-anchor='middle'>F-1 ENGINE (SCHEMATIC x5)</text>")
+    # 범례
+    ln.append(_legend(W-290, 28, [
+        ("LOX tank", "#9fd3ff"),
+        ("LH2 / RP-1 tank", "#ffd39f"),
+        ("Intertank / interstage", "#89ffa8"),
+        ("Engine schematics", "#9cd0ff"),
+    ]))
 
-    # 치수
-    def dim_h(x0,x1,y,label):
-        ln.append(f"<line x1='{x0}' y1='{y}' x2='{x1}' y2='{y}' stroke='white' stroke-width='1'/>")
-        ln.append(f"<line x1='{x0}' y1='{y-6}' x2='{x0}' y2='{y+6}' stroke='white' stroke-width='1'/>")
-        ln.append(f"<line x1='{x1}' y1='{y-6}' x2='{x1}' y2='{y+6}' stroke='white' stroke-width='1'/>")
-        ln.append(f"<text x='{(x0+x1)//2}' y='{y-8}' fill='white' font-size='12' text-anchor='middle'>{label}</text>")
-    def dim_v(x,y0,y1,label):
-        ln.append(f"<line x1='{x}' y1='{y0}' x2='{x}' y2='{y1}' stroke='white' stroke-width='1'/>")
-        ln.append(f"<line x1='{x-6}' y1='{y0}' x2='{x+6}' y2='{y0}' stroke='white' stroke-width='1'/>")
-        ln.append(f"<line x1='{x-6}' y1='{y1}' x2='{x+6}' y2='{y1}' stroke='white' stroke-width='1'/>")
-        ln.append(f"<text x='{x-10}' y='{(y0+y1)//2}' fill='white' font-size='12' text-anchor='end' dominant-baseline='middle'>{label}</text>")
-    dim_h(X(0), X(L), Y(D)+50, f"L_stage ≈ {L_stage_m:.1f} m  (scale {scale_mm_per_m:.1f} mm/m)")
-    dim_v(X(-60), Y(0), Y(D), f"D_stage ≈ {D_stage_m:.2f} m")
-
-    # 레전드
-    ln += [
-      f"<rect x='{W-300}' y='{40}' width='260' height='110' fill='none' stroke='white' stroke-width='1'/>",
-      f"<text x='{W-290}' y='60'  fill='white' font-size='14'>SATURN V — S-IC (Educational Cutaway)</text>",
-      f"<text x='{W-290}' y='80'  fill='#9fd3ff' font-size='12'>LOX tank</text>",
-      f"<text x='{W-290}' y='98'  fill='#ffd39f' font-size='12'>RP-1 tank</text>",
-      f"<text x='{W-290}' y='116' fill='#89ffa8' font-size='12'>Intertank</text>",
-      f"<text x='{W-290}' y='134' fill='#f0ffa8' font-size='12'>Thrust structure</text>",
-      f"<text x='{W-290}' y='152' fill='#9cd0ff' font-size='12'>F-1 engine (schematic)</text>",
-    ]
-
+    # 타이틀
+    ln.append(_text(ox, 36, "SATURN V — VERTICAL STACK (Educational Blueprint)", 14, "#ffffff"))
     ln.append("</svg>")
-    out = os.path.join(out_dir, "saturn_s1c_blueprint.svg")
-    open(out, "w", encoding="utf-8").write("\n".join(ln))
-    return out
 
+    svg = "\n".join(ln)
+    os.makedirs(out_dir, exist_ok=True)
+    out_svg = os.path.join(out_dir, "saturn_stack.svg")
+    open(out_svg,"w",encoding="utf-8").write(svg)
+    return out_svg
+
+def _safe(rel:str):
+    base=os.path.abspath("data")
+    full=os.path.abspath(os.path.join(base,rel.replace("/",os.sep)))
+    return full if full.startswith(base) else None
+
+@api.get("/cad/saturn_stack_blueprint")
+def saturn_stack_blueprint(scale: float = Query(10.0, ge=4.0, le=24.0)):
+    run = "run-"+datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    out_dir = os.path.join(RUNS_DIR, run)
+    svg = _emit_stack_svg(out_dir, scale_mm_per_m=scale)
+    rel = os.path.relpath(svg, start=os.path.abspath("data")).replace("\\","/")
+    meta = {"ok": True, "svg_rel": rel, "run_dir": out_dir, "scale": scale}
+    open(os.path.join(out_dir,"meta.json"),"w",encoding="utf-8").write(json.dumps(meta,indent=2))
+    open(os.path.join(RUNS_DIR,"_last.json"),"w",encoding="utf-8").write(json.dumps(meta,indent=2))
+    return meta
+
+# 구버전 호환(있을 수 있는 호출)
 @api.get("/cad/saturn_s1c_blueprint")
-def saturn_s1c_blueprint(scale_mm_per_m: float = 20.0, D_stage_m: float = 10.1, L_stage_m: float = 42.0):
-    svg = _emit_blueprint(RUNS, scale_mm_per_m, D_stage_m, L_stage_m)
-    rel = os.path.relpath(svg, start=BASE).replace("\\","/")
-    return {"ok": True, "svg_rel": rel}
+def saturn_s1c_blueprint(scale: float = Query(10.0, ge=4.0, le=24.0)):
+    return saturn_stack_blueprint(scale=scale)
 
 @api.get("/files/{rel_path:path}")
-def send_file(rel_path: str):
+def send_file(rel_path:str):
     full=_safe(rel_path)
-    if not full or not os.path.exists(full): return JSONResponse({"ok":False,"reason":"not_found"}, status_code=404)
+    if not full or not os.path.exists(full):
+        return JSONResponse({"ok":False,"reason":"not_found","rel":rel_path}, status_code=404)
     return FileResponse(full)

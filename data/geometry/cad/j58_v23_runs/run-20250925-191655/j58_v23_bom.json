@@ -1,0 +1,339 @@
+{
+  "params": {
+    "L_total": 300.0,
+    "R_casing": 30.0,
+    "N_fan": 12,
+    "N_comp": 14,
+    "N_turb": 16,
+    "eps": 12.0,
+    "both_sides": true,
+    "twin_layout": true,
+    "engine_cc": 120.0,
+    "pylon_enable": false,
+    "ribs_enable": true,
+    "ribs_count": 6,
+    "base_enable": true,
+    "base_drop": 36.0,
+    "rail_w": 12.0,
+    "rail_h": 6.0,
+    "cradles_enable": true,
+    "motor_drop": 48.0,
+    "drive_z_frac": 0.18,
+    "pulley_r_engine": 8.0,
+    "pulley_r_motor": 10.0,
+    "belt_width": 6.0,
+    "belt_thick": 1.6
+  },
+  "parts": [
+    {
+      "name": "inlet_spike_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\inlet_spike_R.stl"
+    },
+    {
+      "name": "fan_rotor_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\fan_rotor_R.stl"
+    },
+    {
+      "name": "fan_stator_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\fan_stator_R.stl"
+    },
+    {
+      "name": "seat_fan_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\seat_fan_R.stl"
+    },
+    {
+      "name": "comp_rotor_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\comp_rotor_R.stl"
+    },
+    {
+      "name": "comp_stator_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\comp_stator_R.stl"
+    },
+    {
+      "name": "seat_comp_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\seat_comp_R.stl"
+    },
+    {
+      "name": "combustor_shell_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\combustor_shell_R.stl"
+    },
+    {
+      "name": "turb_rotor_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\turb_rotor_R.stl"
+    },
+    {
+      "name": "turb_stator_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\turb_stator_R.stl"
+    },
+    {
+      "name": "seat_turb_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\seat_turb_R.stl"
+    },
+    {
+      "name": "afterburner_shell_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\afterburner_shell_R.stl"
+    },
+    {
+      "name": "nozzle_cone_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\nozzle_cone_R.stl"
+    },
+    {
+      "name": "casing_front_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\casing_front_R.stl"
+    },
+    {
+      "name": "casing_mid_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\casing_mid_R.stl"
+    },
+    {
+      "name": "casing_aft_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\casing_aft_R.stl"
+    },
+    {
+      "name": "splice_front_mid_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\splice_front_mid_R.stl"
+    },
+    {
+      "name": "splice_mid_aft_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\splice_mid_aft_R.stl"
+    },
+    {
+      "name": "shaft_main_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\shaft_main_R.stl"
+    },
+    {
+      "name": "spacer_1_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\spacer_1_R.stl"
+    },
+    {
+      "name": "spacer_2_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\spacer_2_R.stl"
+    },
+    {
+      "name": "spacer_3_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\spacer_3_R.stl"
+    },
+    {
+      "name": "spacer_4_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\spacer_4_R.stl"
+    },
+    {
+      "name": "spacer_5_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\spacer_5_R.stl"
+    },
+    {
+      "name": "spacer_6_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\spacer_6_R.stl"
+    },
+    {
+      "name": "bearing_holder_L_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\bearing_holder_L_R.stl"
+    },
+    {
+      "name": "bearing_holder_R_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\bearing_holder_R_R.stl"
+    },
+    {
+      "name": "bearing_rail_L_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\bearing_rail_L_R.stl"
+    },
+    {
+      "name": "bearing_rail_R_R.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\bearing_rail_R_R.stl"
+    },
+    {
+      "name": "rib_1_R",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\rib_1_R.stl"
+    },
+    {
+      "name": "rib_2_R",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\rib_2_R.stl"
+    },
+    {
+      "name": "rib_3_R",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\rib_3_R.stl"
+    },
+    {
+      "name": "rib_4_R",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\rib_4_R.stl"
+    },
+    {
+      "name": "rib_5_R",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\rib_5_R.stl"
+    },
+    {
+      "name": "rib_6_R",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\rib_6_R.stl"
+    },
+    {
+      "name": "inlet_spike_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\inlet_spike_L.stl"
+    },
+    {
+      "name": "fan_rotor_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\fan_rotor_L.stl"
+    },
+    {
+      "name": "fan_stator_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\fan_stator_L.stl"
+    },
+    {
+      "name": "seat_fan_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\seat_fan_L.stl"
+    },
+    {
+      "name": "comp_rotor_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\comp_rotor_L.stl"
+    },
+    {
+      "name": "comp_stator_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\comp_stator_L.stl"
+    },
+    {
+      "name": "seat_comp_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\seat_comp_L.stl"
+    },
+    {
+      "name": "combustor_shell_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\combustor_shell_L.stl"
+    },
+    {
+      "name": "turb_rotor_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\turb_rotor_L.stl"
+    },
+    {
+      "name": "turb_stator_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\turb_stator_L.stl"
+    },
+    {
+      "name": "seat_turb_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\seat_turb_L.stl"
+    },
+    {
+      "name": "afterburner_shell_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\afterburner_shell_L.stl"
+    },
+    {
+      "name": "nozzle_cone_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\nozzle_cone_L.stl"
+    },
+    {
+      "name": "casing_front_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\casing_front_L.stl"
+    },
+    {
+      "name": "casing_mid_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\casing_mid_L.stl"
+    },
+    {
+      "name": "casing_aft_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\casing_aft_L.stl"
+    },
+    {
+      "name": "splice_front_mid_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\splice_front_mid_L.stl"
+    },
+    {
+      "name": "splice_mid_aft_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\splice_mid_aft_L.stl"
+    },
+    {
+      "name": "shaft_main_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\shaft_main_L.stl"
+    },
+    {
+      "name": "spacer_1_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\spacer_1_L.stl"
+    },
+    {
+      "name": "spacer_2_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\spacer_2_L.stl"
+    },
+    {
+      "name": "spacer_3_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\spacer_3_L.stl"
+    },
+    {
+      "name": "spacer_4_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\spacer_4_L.stl"
+    },
+    {
+      "name": "spacer_5_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\spacer_5_L.stl"
+    },
+    {
+      "name": "spacer_6_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\spacer_6_L.stl"
+    },
+    {
+      "name": "bearing_holder_L_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\bearing_holder_L_L.stl"
+    },
+    {
+      "name": "bearing_holder_R_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\bearing_holder_R_L.stl"
+    },
+    {
+      "name": "bearing_rail_L_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\bearing_rail_L_L.stl"
+    },
+    {
+      "name": "bearing_rail_R_L.stl",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\bearing_rail_R_L.stl"
+    },
+    {
+      "name": "rib_1_L",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\rib_1_L.stl"
+    },
+    {
+      "name": "rib_2_L",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\rib_2_L.stl"
+    },
+    {
+      "name": "rib_3_L",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\rib_3_L.stl"
+    },
+    {
+      "name": "rib_4_L",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\rib_4_L.stl"
+    },
+    {
+      "name": "rib_5_L",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\rib_5_L.stl"
+    },
+    {
+      "name": "rib_6_L",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\rib_6_L.stl"
+    },
+    {
+      "name": "base_frame",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\base_frame.stl"
+    },
+    {
+      "name": "starter_motor_130",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\starter_motor_130.stl"
+    },
+    {
+      "name": "pulley_motor",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\pulley_motor.stl"
+    },
+    {
+      "name": "pulley_engine_L",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\pulley_engine_L.stl"
+    },
+    {
+      "name": "pulley_engine_R",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\pulley_engine_R.stl"
+    },
+    {
+      "name": "belt_L_stub",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\belt_L_stub.stl"
+    },
+    {
+      "name": "belt_R_stub",
+      "path": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\belt_R_stub.stl"
+    }
+  ],
+  "glb": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655\\j58_v23_assembly.glb",
+  "out_dir": "data\\geometry\\cad\\j58_v23_runs\\run-20250925-191655"
+}

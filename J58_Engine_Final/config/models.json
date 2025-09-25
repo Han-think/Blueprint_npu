@@ -1,0 +1,8 @@
+﻿{
+    "name":  "min_midi_model",
+    "url":  "https://\u003cYOUR_HOST_OR_RELEASE\u003e/min_midi_model.zip",
+    "sha256":  "\u003cPUT_SHA256\u003e",
+    "save_as":  "min_midi_model.zip",
+    "unzip":  true,
+    "into":  "data/models/min_midi_model"
+}

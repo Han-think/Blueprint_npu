@@ -1,67 +1,101 @@
 ﻿from __future__ import annotations
-from fastapi import APIRouter
+from fastapi import APIRouter, Body
 from fastapi.responses import JSONResponse
-import os, math, datetime, json
+from pathlib import Path
+from datetime import datetime
+import math, json
 
 api = APIRouter(prefix="/wb", tags=["saturn"])
-RUNS = os.path.join("data","geometry","cad","saturn_cad_runs")
-os.makedirs(RUNS, exist_ok=True)
+ROOT = Path(__file__).resolve().parents[1]
+DATA = ROOT/"data"
+RUNS = DATA/"geometry/cad/saturn_cad_runs"
+RUNS.mkdir(parents=True, exist_ok=True)
 
-def _save_stl(path, tris):
-    with open(path,"w",encoding="utf-8") as f:
-        f.write(f"solid {os.path.basename(path)}\n")
-        for a,b,c in tris:
-            f.write("  facet normal 0 0 0\n    outer loop\n")
-            for v in (a,b,c): f.write(f"      vertex {v[0]:.6f} {v[1]:.6f} {v[2]:.6f}\n")
-            f.write("    endloop\n  endfacet\n")
-        f.write(f"endsolid {os.path.basename(path)}\n")
+def _tri_flat(v): return " ".join(f"{a:.6f}" for a in v)
+def write_ascii_stl(path:Path, verts, faces, name="part"):
+    with path.open("w", encoding="utf-8") as f:
+        f.write(f"solid {name}\n")
+        for (i,j,k) in faces:
+            a,b,c = verts[i], verts[j], verts[k]
+            # 평면 법선(대충)
+            ux,uy,uz = (b[0]-a[0], b[1]-a[1], b[2]-a[2])
+            vx,vy,vz = (c[0]-a[0], c[1]-a[1], c[2]-a[2])
+            nx,ny,nz = (uy*vz-uz*vy, uz*vx-ux*vz, ux*vy-uy*vx)
+            l=(nx*nx+ny*ny+nz*nz)**0.5 or 1.0
+            nx,ny,nz = nx/l,ny/l,nz/l
+            f.write(f" facet normal {nx:.6f} {ny:.6f} {nz:.6f}\n  outer loop\n")
+            f.write(f"   vertex {_tri_flat(a)}\n   vertex {_tri_flat(b)}\n   vertex {_tri_flat(c)}\n")
+            f.write("  endloop\n endfacet\n")
+        f.write(f"endsolid {name}\n")
 
-def _circle(r,z,n): return [(r*math.cos(2*math.pi*i/n), r*math.sin(2*math.pi*i/n), z) for i in range(n)]
-def _tube(r_out,r_in,h,n):
-    o0=_circle(r_out,0,n); o1=_circle(r_out,h,n); i0=_circle(r_in,0,n); i1=_circle(r_in,h,n); T=[]
-    for i in range(n):
-        j=(i+1)%n
-        T += [(o0[i],o0[j],o1[i]), (o1[i],o0[j],o1[j])]
-        T += [(i1[i],i0[j],i0[i]), (i1[j],i0[j],i1[i])]
-        T += [(o1[i],o1[j],i1[i]), (i1[i],o1[j],i1[j])]
-        T += [(o0[j],o0[i],i0[i]), (o0[j],i0[i],i0[j])]
-    return T
-def _cone(r_base,h,n):
-    base=_circle(r_base,0,n); apex=(0.0,0.0,h); T=[]
-    for i in range(n):
-        j=(i+1)%n
-        T += [(base[i], base[j], apex)]
-        T += [((0.0,0.0,0.0), base[j], base[i])]
-    return T
-def _emit(out_dir,name,tris):
-    os.makedirs(out_dir,exist_ok=True); p=os.path.join(out_dir,name); _save_stl(p,tris)
-    rel=os.path.relpath(p,start=os.path.abspath("data")).replace("\\","/")
-    return {"name":name,"rel":rel,"path":p}
+def tube(R_out, wall_t, H, seg=96):
+    R_in = max(R_out-wall_t, 1e-3)
+    verts=[]; faces=[]
+    for ring,(R,zoff) in enumerate(((R_out,0),(R_out,H),(R_in,H),(R_in,0))):
+        for s in range(seg):
+            ang=2*math.pi*s/seg
+            x=R*math.cos(ang); y=R*math.sin(ang); z=zoff
+            verts.append((x,y,z))
+    # 바깥원통
+    for s in range(seg):
+        a=s; b=(s+1)%seg
+        faces += [(a, b, seg+b), (a, seg+b, seg+a)]
+    # 안쪽원통(뒤집힌 법선)
+    off=2*seg
+    for s in range(seg):
+        a=off+s; b=off+(s+1)%seg
+        faces += [(a, off+seg+b, b), (a, off+seg+a, off+seg+b)]
+    # 위·아래 테두리 막기
+    top_o=seg; top_i=2*seg
+    for s in range(seg):
+        a=top_o+s; b=top_o+(s+1)%seg; c=top_i+(s+1)%seg; d=top_i+s
+        faces += [(a,b,c),(a,c,d)]
+    bot_o=0; bot_i=3*seg
+    for s in range(seg):
+        a=bot_o+s; b=bot_i+(s+1)%seg; c=bot_i+s; d=bot_o+(s+1)%seg
+        faces += [(a,b,c),(a,d,b)]
+    return verts,faces
+
+def cone(R, H, seg=64):
+    verts=[(0,0,0)]
+    for s in range(seg):
+        ang=2*math.pi*s/seg
+        verts.append((R*math.cos(ang), R*math.sin(ang), -H))
+    faces=[]
+    for s in range(1,seg+1):
+        a=0; b=s; c=1 if s==seg else s+1
+        faces.append((a,c,b))
+    return verts,faces
 
 @api.post("/cad/saturn_stage_build")
-def saturn_stage_build(body:dict|None=None):
-    b = body or {}
-    stage = str(b.get("stage","S-IC")).upper()   # S-IC / S-II / S-IVB
-    n      = int(b.get("segments", 96))
-    t_mm   = float(b.get("wall_t_mm", 2.0))
-    D_SIC, L_SIC = 10.1*1000, 42.1*1000
-    D_SII, L_SII = 10.1*1000, 24.9*1000
-    D_S4B, L_S4B = 6.60*1000, 17.8*1000
-    out = os.path.join(RUNS, f"run-{datetime.datetime.now():%Y%m%d-%H%M%S}-{stage.replace('/','_')}")
-    parts=[]
+def saturn_stage_build(body:dict=Body(None)):
+    p = body or {}
+    stage = str(p.get("stage","S-IC")).upper()
+    wall  = float(p.get("wall_t_mm",2.0))
+    seg   = int(p.get("segments",96))
+    # 근사(단위 mm)
+    D33=10100.0; D21=6600.0
+    L1,L2,L3 = 42100.0, 24900.0, 17800.0
+    if stage=="S-IC":  R,H = D33/2, L1
+    elif stage=="S-II": R,H = D33/2, L2
+    else:               R,H = D21/2, L3
+    run = RUNS/f"run-{datetime.now():%Y%m%d-%H%M%S}-{stage.replace('/','_')}"
+    run.mkdir(parents=True, exist_ok=True)
+
+    # Shell
+    v,f = tube(R, wall, H, seg)
+    shell = {"S-IC":"SIC_shell.stl","S-II":"SII_shell.stl","S-IVB":"SIVB_shell.stl"}[stage]
+    write_ascii_stl(run/shell, v, f, name=f"{stage}_shell")
+
+    # Engine placeholders
     if stage=="S-IC":
-        parts.append(_emit(out,"SIC_shell.stl", _tube(D_SIC/2, D_SIC/2 - t_mm, L_SIC, n)))
-        parts.append(_emit(out,"intertank_ring.stl", _tube(D_SIC/2, D_SIC/2 - t_mm, 900.0, n)))
-        parts.append(_emit(out,"F1_placeholder.stl", _cone(1850.0, 3000.0, n)))
-    elif stage=="S-II":
-        parts.append(_emit(out,"SII_shell.stl", _tube(D_SII/2, D_SII/2 - t_mm, L_SII, n)))
-        parts.append(_emit(out,"J2_placeholder.stl", _cone(1050.0, 2200.0, n)))
-    elif stage in ("S-IVB","SIVB","S-4B"):
-        parts.append(_emit(out,"SIVB_shell.stl", _tube(D_S4B/2, D_S4B/2 - t_mm, L_S4B, n)))
-        parts.append(_emit(out,"J2_placeholder.stl", _cone(1050.0, 2200.0, n)))
+        ev,ef = cone(1800, 3000)   # F-1 근사
+        write_ascii_stl(run/"F1_placeholder.stl", ev, ef, "F1")
     else:
-        return JSONResponse({"ok":False,"reason":"unknown_stage"}, status_code=400)
-    meta={"ok":True,"stage":stage,"parts":[{"name":p["name"],"rel":p["rel"]} for p in parts]}
-    with open(os.path.join(out,"meta.json"),"w",encoding="utf-8") as f: json.dump(meta,f,indent=2)
-    run_rel=os.path.relpath(out,start=os.path.abspath("data")).replace("\\","/")
-    return {"ok":True,"stage":stage,"run_rel":run_rel,"parts":parts}
+        ev,ef = cone(1050, 2100)   # J-2 근사
+        write_ascii_stl(run/"J2_placeholder.stl", ev, ef, "J2")
+
+    meta={"ok":True,"stage":stage,"run_rel":str(run.relative_to(DATA)).replace("\\","/"),
+          "parts":[x.name for x in run.iterdir() if x.suffix.lower()==".stl"]}
+    (run/"meta.json").write_text(json.dumps(meta,indent=2),encoding="utf-8")
+    return meta

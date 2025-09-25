@@ -1,0 +1,46 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='901' height='715' viewBox='0 0 901 715'>
+<rect width='100%' height='100%' fill='#0c1e35'/>
+<rect x='8' y='8' width='885' height='699' fill='none' stroke='#274a79' stroke-width='2'/>
+<text x='24' y='28' fill='#fff' font-size='14' text-anchor='start'>SATURN V — Horizontal Stage Overview (1→2→3)</text>
+<text x='24' y='46' fill='#9fd3ff' font-size='11' text-anchor='start'>Scale 12.0 mm/m</text>
+<line x1='34' y1='575' x2='889' y2='575' stroke='#cfd6e6' stroke-width='1'/>
+<rect x='40' y='69.79999999999995' width='121.19999999999999' height='505.20000000000005' fill='none' stroke='#fff' stroke-width='1.6'/>
+<path d='M 46 101.79999999999995 A 26 26 0 0 1 72 75.79999999999995 L 129.2 75.79999999999995 A 26 26 0 0 1 155.2 101.79999999999995 L 155.2 255.98399999999992 A 26 26 0 0 1 129.2 281.9839999999999 L 72 281.9839999999999 A 26 26 0 0 1 46 255.98399999999992 Z' fill='none' stroke='#9fd3ff' stroke-width='1.3'/>
+<rect x='44' y='281.9839999999999' width='113.19999999999999' height='10.8' fill='none' stroke='#89ffa8' stroke-width='1.2' stroke-dasharray='8 4'/>
+<path d='M 46 320.78399999999993 A 28 28 0 0 1 74 292.78399999999993 L 127.19999999999999 292.78399999999993 A 28 28 0 0 1 155.2 320.78399999999993 L 155.2 535.0 A 28 28 0 0 1 127.19999999999999 563.0 L 74 563.0 A 28 28 0 0 1 46 535.0 Z' fill='none' stroke='#ffd39f' stroke-width='1.3'/>
+<path d='M 58.18 581.0 L 49.18 601.0 L 67.18 601.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1'/>
+<path d='M 79.39 581.0 L 70.39 601.0 L 88.39 601.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1'/>
+<path d='M 100.6 581.0 L 91.6 601.0 L 109.6 601.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1'/>
+<path d='M 121.80999999999999 581.0 L 112.80999999999999 601.0 L 130.81 601.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1'/>
+<path d='M 143.01999999999998 581.0 L 134.01999999999998 601.0 L 152.01999999999998 601.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1'/>
+<text x='100.6' y='615' fill='#9cd0ff' font-size='11' text-anchor='middle'>F-1 ×5</text>
+<text x='100.6' y='633' fill='#9fd3ff' font-size='12' text-anchor='middle'>S-IC (1단)</text>
+<text x='100.6' y='647' fill='#9fd3ff' font-size='11' text-anchor='middle'>Ø33 ft</text>
+<rect x='271.2' y='276.20000000000005' width='121.19999999999999' height='298.79999999999995' fill='none' stroke='#fff' stroke-width='1.6'/>
+<path d='M 277.2 304.20000000000005 A 22 22 0 0 1 299.2 282.20000000000005 L 364.4 282.20000000000005 A 22 22 0 0 1 386.4 304.20000000000005 L 386.4 319.93600000000004 A 22 22 0 0 1 364.4 341.93600000000004 L 299.2 341.93600000000004 A 22 22 0 0 1 277.2 319.93600000000004 Z' fill='none' stroke='#9fd3ff' stroke-width='1.3'/>
+<polygon points='281.2,344.93600000000004 382.4,344.93600000000004 331.79999999999995,363.93600000000004' fill='none' stroke='#89ffa8' stroke-width='1.2'/>
+<path d='M 277.2 387.93600000000004 A 24 24 0 0 1 301.2 363.93600000000004 L 362.4 363.93600000000004 A 24 24 0 0 1 386.4 387.93600000000004 L 386.4 530.0600000000001 A 24 24 0 0 1 362.4 554.0600000000001 L 301.2 554.0600000000001 A 24 24 0 0 1 277.2 530.0600000000001 Z' fill='none' stroke='#b6ffb6' stroke-width='1.3'/>
+<path d='M 297.864 582.0 L 289.864 600.0 L 305.864 600.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1'/>
+<path d='M 314.83199999999994 582.0 L 306.83199999999994 600.0 L 322.83199999999994 600.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1'/>
+<path d='M 331.79999999999995 582.0 L 323.79999999999995 600.0 L 339.79999999999995 600.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1'/>
+<path d='M 348.768 582.0 L 340.768 600.0 L 356.768 600.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1'/>
+<path d='M 365.73599999999993 582.0 L 357.73599999999993 600.0 L 373.73599999999993 600.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1'/>
+<text x='331.79999999999995' y='615' fill='#9cd0ff' font-size='11' text-anchor='middle'>J-2 ×5</text>
+<text x='331.79999999999995' y='633' fill='#9fd3ff' font-size='12' text-anchor='middle'>S-II (2단)</text>
+<text x='331.79999999999995' y='647' fill='#9fd3ff' font-size='11' text-anchor='middle'>Ø33 ft</text>
+<rect x='502.4' y='361.4' width='79.19999999999999' height='213.60000000000002' fill='none' stroke='#fff' stroke-width='1.6'/>
+<path d='M 508.4 385.4 A 18 18 0 0 1 526.4 367.4 L 557.5999999999999 367.4 A 18 18 0 0 1 575.5999999999999 385.4 L 575.5999999999999 398.936 A 18 18 0 0 1 557.5999999999999 416.936 L 526.4 416.936 A 18 18 0 0 1 508.4 398.936 Z' fill='none' stroke='#9fd3ff' stroke-width='1.3'/>
+<polygon points='511.4,419.936 572.5999999999999,419.936 542.0,434.936' fill='none' stroke='#89ffa8' stroke-width='1.2'/>
+<path d='M 508.4 454.936 A 20 20 0 0 1 528.4 434.936 L 555.5999999999999 434.936 A 20 20 0 0 1 575.5999999999999 454.936 L 575.5999999999999 538.3199999999999 A 20 20 0 0 1 555.5999999999999 558.3199999999999 L 528.4 558.3199999999999 A 20 20 0 0 1 508.4 538.3199999999999 Z' fill='none' stroke='#b6ffb6' stroke-width='1.3'/>
+<path d='M 542.0 582.0 L 534.0 600.0 L 550.0 600.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1'/>
+<text x='542.0' y='615' fill='#9cd0ff' font-size='11' text-anchor='middle'>J-2 ×1</text>
+<text x='542.0' y='633' fill='#9fd3ff' font-size='12' text-anchor='middle'>S-IVB (3단)</text>
+<text x='542.0' y='647' fill='#9fd3ff' font-size='11' text-anchor='middle'>Ø21.7 ft</text>
+<rect x='671' y='24' width='206' height='74' fill='none' stroke='#fff' stroke-width='1'/>
+<rect x='685' y='36' width='16' height='10' fill='none' stroke='#9fd3ff' stroke-width='2'/>
+<text x='707' y='46' fill='#9fd3ff' font-size='11' text-anchor='start'>LOX tank/line</text>
+<rect x='685' y='54' width='16' height='10' fill='none' stroke='#b6ffb6' stroke-width='2'/>
+<text x='707' y='64' fill='#b6ffb6' font-size='11' text-anchor='start'>LH2 tank</text>
+<rect x='685' y='72' width='16' height='10' fill='none' stroke='#ffd39f' stroke-width='2'/>
+<text x='707' y='82' fill='#ffd39f' font-size='11' text-anchor='start'>RP-1 tank</text>
+</svg>

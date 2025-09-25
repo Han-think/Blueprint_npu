@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "stage": "S-IC",
+  "run_rel": "geometry/cad/saturn_cad_runs/run-20250925-174404-S-IC",
+  "parts": [
+    "F1_placeholder.stl",
+    "SIC_Fin_rect.stl",
+    "SIC_Intertank_ring.stl",
+    "SIC_LOX_tank.stl",
+    "SIC_RP1_tank.stl",
+    "SIC_shell.stl",
+    "SIC_Thrust_ring.stl"
+  ]
+}

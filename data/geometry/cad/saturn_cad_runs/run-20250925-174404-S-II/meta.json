@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "stage": "S-II",
+  "run_rel": "geometry/cad/saturn_cad_runs/run-20250925-174404-S-II",
+  "parts": [
+    "J2_placeholder.stl",
+    "SII_CommonBulkhead.stl",
+    "SII_LH2_tank.stl",
+    "SII_LOX_tank.stl",
+    "SII_shell.stl"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "ok": true,
+  "stage": "S-IVB",
+  "run_rel": "geometry/cad/saturn_cad_runs/run-20250925-174404-S-IVB",
+  "parts": [
+    "J2_placeholder.stl",
+    "SIVB_LH2_tank.stl",
+    "SIVB_LOX_tank.stl",
+    "SIVB_shell.stl"
+  ]
+}

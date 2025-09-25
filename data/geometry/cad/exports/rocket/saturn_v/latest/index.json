@@ -1,8 +1,8 @@
 ﻿{
     "ok":  true,
     "namespace":  "rocket/saturn_v",
-    "stamp":  "20250925-195847",
-    "created_utc":  "2025-09-25T10:58:48Z",
+    "stamp":  "20250925-200456",
+    "created_utc":  "2025-09-25T11:04:57Z",
     "runs":  {
                  "S-IC":  {
                               "run_dir":  "run-20250925-192149-S-IC",
@@ -27,7 +27,8 @@
                                             "SIC_Thrust_beam_0.stl",
                                             "SIC_Thrust_beam_1.stl",
                                             "SIC_Thrust_ring.stl"
-                                        ]
+                                        ],
+                              "glb":  "S-IC_named.glb"
                           },
                  "S-II":  {
                               "run_dir":  "run-20250925-192149-S-II",
@@ -44,13 +45,25 @@
                                             "SII_LH2_tank.stl",
                                             "SII_LOX_tank.stl",
                                             "SII_shell.stl"
-                                        ]
+                                        ],
+                              "glb":  "S-II_named.glb"
                           },
                  "S-IVB":  {
-                               "run_dir":  "data",
-                               "parts":  {
-
-                                         },
+                               "run_dir":  "run-20250925-192150-S-IVB",
+                               "parts":  [
+                                             "J2_chamber.stl",
+                                             "J2_film_band.stl",
+                                             "J2_gg_duct.stl",
+                                             "J2_injector.stl",
+                                             "J2_nozzle.stl",
+                                             "J2_turbopump.stl",
+                                             "SIVB_IU_ring.stl",
+                                             "SIVB_LH2_baffle_0.stl",
+                                             "SIVB_LH2_baffle_1.stl",
+                                             "SIVB_LH2_tank.stl",
+                                             "SIVB_LOX_tank.stl",
+                                             "SIVB_shell.stl"
+                                         ],
                                "glb":  "S-IVB_named.glb"
                            }
              }

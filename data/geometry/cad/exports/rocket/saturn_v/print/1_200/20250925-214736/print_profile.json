@@ -1,0 +1,18 @@
+﻿{
+    "ok":  true,
+    "namespace":  "rocket/saturn_v/print/1_200",
+    "stamp":  "20250925-214736",
+    "slicer_scale_factor":  0.005,
+    "target_ratio":  "1:200",
+    "tolerance_mm":  0.25,
+    "peg_print_mm":  {
+                         "d":  6,
+                         "len":  12
+                     },
+    "peg_count":  3,
+    "notes":  [
+                  "슬라이서 전체 스케일 0.5% 적용(1:200).",
+                  "커플러 PegRing=상단, ReceiverTriplet=하단.",
+                  "최소 벽두께 0.8mm, 인필 20~30%."
+              ]
+}

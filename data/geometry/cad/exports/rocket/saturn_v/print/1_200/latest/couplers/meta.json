@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "scale_ratio": 0.005,
+  "peg_d_print_mm": 6.0,
+  "peg_len_print_mm": 12.0,
+  "clearance_mm": 0.25,
+  "count": 3,
+  "segments": 96,
+  "out_rel": "geometry/cad/exports/rocket/saturn_v/print/1_200/20250925-214736/couplers_raw",
+  "files": [
+    "Coupler_SIC_to_SII_PegRing.stl",
+    "Coupler_SII_ReceiverTriplet.stl",
+    "Coupler_SII_to_SIVB_PegRing.stl",
+    "Coupler_SIVB_ReceiverTriplet.stl"
+  ]
+}

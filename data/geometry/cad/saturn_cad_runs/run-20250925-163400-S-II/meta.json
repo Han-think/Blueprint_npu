@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "stage": "S-II",
+  "parts": [
+    {
+      "name": "SII_shell.stl",
+      "rel": "geometry/cad/saturn_cad_runs/run-20250925-163400-S-II/SII_shell.stl"
+    },
+    {
+      "name": "J2_placeholder.stl",
+      "rel": "geometry/cad/saturn_cad_runs/run-20250925-163400-S-II/J2_placeholder.stl"
+    }
+  ]
+}

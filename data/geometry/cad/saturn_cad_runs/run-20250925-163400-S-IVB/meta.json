@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "stage": "S-IVB",
+  "parts": [
+    {
+      "name": "SIVB_shell.stl",
+      "rel": "geometry/cad/saturn_cad_runs/run-20250925-163400-S-IVB/SIVB_shell.stl"
+    },
+    {
+      "name": "J2_placeholder.stl",
+      "rel": "geometry/cad/saturn_cad_runs/run-20250925-163400-S-IVB/J2_placeholder.stl"
+    }
+  ]
+}

@@ -1,8 +1,8 @@
 ﻿{
     "ok":  true,
     "namespace":  "rocket/saturn_v",
-    "stamp":  "20250925-185111",
-    "created_utc":  "2025-09-25T09:51:12Z",
+    "stamp":  "20250925-190209",
+    "created_utc":  "2025-09-25T10:02:14Z",
     "runs":  {
                  "S-IC":  {
                               "run_dir":  "run-20250925-185104-S-IC",
@@ -67,8 +67,8 @@
                                "glb":  "S-IVB.glb"
                            },
                  "STACK":  {
-                               "run_dir":  "run-20250925-185111-STACK",
-                               "glb":  "STACK.glb"
+                               "run_dir":  "run-20250925-190213-STACK",
+                               "glb_full":  "STACK_FULL.glb"
                            }
              }
 }

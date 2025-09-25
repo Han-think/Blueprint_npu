@@ -2,18 +2,17 @@
     "ok":  true,
     "namespace":  "rocket/saturn_v/print/1_200",
     "stamp":  "20250925-213210",
-    "real_height_mm":  110640,
-    "target_scale":  0.005,
     "slicer_scale_factor":  0.005,
-    "target_height_mm":  553.2,
+    "target_ratio":  "1:200",
     "tolerance_mm":  0.25,
-    "peg_d_mm":  6,
-    "peg_len_mm":  12,
-    "socket_extra_mm":  0.25,
+    "peg_print_mm":  {
+                         "d":  6,
+                         "len":  12
+                     },
+    "peg_count":  3,
     "notes":  [
-                  "슬라이서에서 전체 스케일 0.5% 적용(1:200).",
-                  "부품 결합: 원통 페그 Ø6mm/길이12mm, 소켓 여유 +0.25mm.",
-                  "Z≤200mm로 잘라서 출력 권장: Shell/Skirt/Intertank/ThrustStruct 구간별.",
-                  "노즐은 3벽 두께, 인필 20~30%, 엔진페어링 지지대는 서포트 사용."
+                  "슬라이서 전체 스케일 0.5% 적용(1:200).",
+                  "커플러: PegRing은 상단 단계에, ReceiverTriplet은 하단 단계 림에 접착.",
+                  "최소 벽두께 0.8mm 이상, 인필 20~30%, 노즐/스커트는 서포트 권장."
               ]
 }

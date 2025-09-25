@@ -1,0 +1,18 @@
+{
+  "ok": true,
+  "stage": "S-IC",
+  "parts": [
+    {
+      "name": "SIC_shell.stl",
+      "rel": "geometry/cad/saturn_cad_runs/run-20250925-165012-S-IC/SIC_shell.stl"
+    },
+    {
+      "name": "intertank_ring.stl",
+      "rel": "geometry/cad/saturn_cad_runs/run-20250925-165012-S-IC/intertank_ring.stl"
+    },
+    {
+      "name": "F1_placeholder.stl",
+      "rel": "geometry/cad/saturn_cad_runs/run-20250925-165012-S-IC/F1_placeholder.stl"
+    }
+  ]
+}

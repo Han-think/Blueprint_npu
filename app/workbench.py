@@ -32,3 +32,6 @@ _try_include("saturn_cad", "api")
 _try_include("saturn_overview")
 _try_include("saturn_stage_cad")
 
+
+_try_include("saturn_assembly")
+

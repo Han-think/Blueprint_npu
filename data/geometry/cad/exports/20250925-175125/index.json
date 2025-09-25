@@ -1,0 +1,45 @@
+﻿{
+    "ok":  true,
+    "created_utc":  "2025-09-25T08:51:25Z",
+    "stamp":  "20250925-175125",
+    "runs":  {
+                 "S-IC":  {
+                              "run_dir":  "run-20250925-175123-S-IC",
+                              "parts":  [
+                                            "F1_placeholder.stl",
+                                            "SIC_Fin_rect.stl",
+                                            "SIC_Intertank_ring.stl",
+                                            "SIC_LOX_tank.stl",
+                                            "SIC_RP1_tank.stl",
+                                            "SIC_shell.stl",
+                                            "SIC_Thrust_ring.stl"
+                                        ],
+                              "glb":  "S-IC.glb"
+                          },
+                 "S-II":  {
+                              "run_dir":  "run-20250925-175124-S-II",
+                              "parts":  [
+                                            "J2_placeholder.stl",
+                                            "SII_CommonBulkhead.stl",
+                                            "SII_LH2_tank.stl",
+                                            "SII_LOX_tank.stl",
+                                            "SII_shell.stl"
+                                        ],
+                              "glb":  "S-II.glb"
+                          },
+                 "S-IVB":  {
+                               "run_dir":  "run-20250925-175124-S-IVB",
+                               "parts":  [
+                                             "J2_placeholder.stl",
+                                             "SIVB_LH2_tank.stl",
+                                             "SIVB_LOX_tank.stl",
+                                             "SIVB_shell.stl"
+                                         ],
+                               "glb":  "S-IVB.glb"
+                           },
+                 "STACK":  {
+                               "run_dir":  "run-20250925-175125-STACK",
+                               "glb":  "STACK.glb"
+                           }
+             }
+}

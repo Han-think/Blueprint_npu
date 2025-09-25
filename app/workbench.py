@@ -39,3 +39,6 @@ for m in _load_registry():
 if not routers:
     routers = ["j58_v23","j58_plate","j58_blueprint","j58_ai"]
 for r in routers: _include_router(r)
+
+_try_include("saturn_stack", "api")
+

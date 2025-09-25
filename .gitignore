@@ -1,7 +1,4 @@
+﻿
+!data/geometry/cad/exports/
 
-.uv.pid
-.ov_cache/
-exports/
-models/
-checkpoints/
-*.zip
+data/geometry/cad/saturn_cad_runs/

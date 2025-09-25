@@ -1,73 +1,9 @@
 ﻿{
     "ok":  true,
     "namespace":  "rocket/saturn_v",
-    "stamp":  "20250925-211335",
-    "created_utc":  "2025-09-25T12:13:42Z",
+    "stamp":  "20250925-212037",
+    "created_utc":  "2025-09-25T12:20:37Z",
     "runs":  {
-                 "S-IC":  {
-                              "run_dir":  "run-20250925-192149-S-IC",
-                              "parts":  [
-                                            "F1_chamber.stl",
-                                            "F1_film_band.stl",
-                                            "F1_gimbal_strut_0.stl",
-                                            "F1_gimbal_strut_1.stl",
-                                            "F1_gimbal_strut_2.stl",
-                                            "F1_gimbal_strut_3.stl",
-                                            "F1_heat_shield.stl",
-                                            "F1_injector.stl",
-                                            "F1_nozzle.stl",
-                                            "SIC_Engine_mount_ring.stl",
-                                            "SIC_Fin_rect.stl",
-                                            "SIC_Intertank_ring.stl",
-                                            "SIC_LOX_elbow.stl",
-                                            "SIC_LOX_pipe_vert.stl",
-                                            "SIC_LOX_tank.stl",
-                                            "SIC_RP1_tank.stl",
-                                            "SIC_shell.stl",
-                                            "SIC_Thrust_beam_0.stl",
-                                            "SIC_Thrust_beam_1.stl",
-                                            "SIC_Thrust_ring.stl"
-                                        ],
-                              "glb":  "S-IC.glb"
-                          },
-                 "S-II":  {
-                              "run_dir":  "run-20250925-192149-S-II",
-                              "parts":  [
-                                            "J2_chamber.stl",
-                                            "J2_film_band.stl",
-                                            "J2_gg_duct.stl",
-                                            "J2_injector.stl",
-                                            "J2_nozzle.stl",
-                                            "J2_turbopump.stl",
-                                            "SII_CB_dn.stl",
-                                            "SII_CB_insul.stl",
-                                            "SII_CB_up.stl",
-                                            "SII_LH2_tank.stl",
-                                            "SII_LOX_tank.stl",
-                                            "SII_shell.stl"
-                                        ],
-                              "glb":  "S-II.glb"
-                          },
-                 "S-IVB":  {
-                               "run_dir":  "run-20250925-192150-S-IVB",
-                               "parts":  [
-                                             "J2_chamber.stl",
-                                             "J2_film_band.stl",
-                                             "J2_gg_duct.stl",
-                                             "J2_injector.stl",
-                                             "J2_nozzle.stl",
-                                             "J2_turbopump.stl",
-                                             "SIVB_IU_ring.stl",
-                                             "SIVB_LH2_baffle_0.stl",
-                                             "SIVB_LH2_baffle_1.stl",
-                                             "SIVB_LH2_tank.stl",
-                                             "SIVB_LOX_tank.stl",
-                                             "SIVB_shell.stl"
-                                         ],
-                               "glb":  "S-IVB.glb"
-                           },
-                 "STACK":  {
-                               "glb":  "STACK_named.glb"
-                           }
+
              }
 }

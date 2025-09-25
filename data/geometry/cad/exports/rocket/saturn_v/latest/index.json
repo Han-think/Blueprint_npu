@@ -1,8 +1,8 @@
 ﻿{
     "ok":  true,
     "namespace":  "rocket/saturn_v",
-    "stamp":  "20250925-195207",
-    "created_utc":  "2025-09-25T10:52:07Z",
+    "stamp":  "20250925-195847",
+    "created_utc":  "2025-09-25T10:58:48Z",
     "runs":  {
                  "S-IC":  {
                               "run_dir":  "run-20250925-192149-S-IC",
@@ -30,11 +30,28 @@
                                         ]
                           },
                  "S-II":  {
-                              "run_dir":  "data",
-                              "parts":  {
+                              "run_dir":  "run-20250925-192149-S-II",
+                              "parts":  [
+                                            "J2_chamber.stl",
+                                            "J2_film_band.stl",
+                                            "J2_gg_duct.stl",
+                                            "J2_injector.stl",
+                                            "J2_nozzle.stl",
+                                            "J2_turbopump.stl",
+                                            "SII_CB_dn.stl",
+                                            "SII_CB_insul.stl",
+                                            "SII_CB_up.stl",
+                                            "SII_LH2_tank.stl",
+                                            "SII_LOX_tank.stl",
+                                            "SII_shell.stl"
+                                        ]
+                          },
+                 "S-IVB":  {
+                               "run_dir":  "data",
+                               "parts":  {
 
-                                        },
-                              "glb":  "S-II_named.glb"
-                          }
+                                         },
+                               "glb":  "S-IVB_named.glb"
+                           }
              }
 }

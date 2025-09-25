@@ -1,0 +1,23 @@
+﻿{
+    "ok":  true,
+    "namespace":  "expert/pencil_engine",
+    "stamp":  "20250925-184120",
+    "created_utc":  "2025-09-25T09:41:20Z",
+    "runs":  {
+                 "J58":  {
+                             "run_dir":  "run-20250925-184119-J58",
+                             "parts":  [
+                                           "J58_Afterburner_Case.stl",
+                                           "J58_Bypass_Duct_L.stl",
+                                           "J58_Bypass_Duct_R.stl",
+                                           "J58_Combustor_Liner.stl",
+                                           "J58_Compressor_Case.stl",
+                                           "J58_Inlet_Cowl.stl",
+                                           "J58_Inlet_Spike.stl",
+                                           "J58_Nozzle_CD.stl",
+                                           "J58_Turbine_Case.stl"
+                                       ],
+                             "glb":  "J58.glb"
+                         }
+             }
+}

@@ -1,0 +1,151 @@
+{
+  "ok": true,
+  "source": "run-20250925-192149",
+  "groups": {
+    "Combustor": {
+      "Left": [
+        "afterburner_shell_L",
+        "combustor_shell_L"
+      ],
+      "Right": [
+        "afterburner_shell_R",
+        "combustor_shell_R"
+      ]
+    },
+    "Mounts": {
+      "Center": [
+        "base_frame"
+      ]
+    },
+    "Bearing": {
+      "Left": [
+        "bearing_holder_L_L",
+        "bearing_rail_L_L"
+      ],
+      "Center": [
+        "bearing_holder_L_R",
+        "bearing_holder_R_L",
+        "bearing_rail_L_R",
+        "bearing_rail_R_L"
+      ],
+      "Right": [
+        "bearing_holder_R_R",
+        "bearing_rail_R_R"
+      ]
+    },
+    "GearsBelts": {
+      "Left": [
+        "belt_L_stub"
+      ],
+      "Right": [
+        "belt_R_stub"
+      ]
+    },
+    "Casing": {
+      "Left": [
+        "casing_aft_L",
+        "casing_front_L",
+        "casing_mid_L"
+      ],
+      "Right": [
+        "casing_aft_R",
+        "casing_front_R",
+        "casing_mid_R"
+      ]
+    },
+    "Compressor": {
+      "Left": [
+        "comp_rotor_L",
+        "comp_stator_L",
+        "fan_rotor_L",
+        "fan_stator_L",
+        "seat_comp_L",
+        "turb_rotor_L",
+        "turb_stator_L"
+      ],
+      "Right": [
+        "comp_rotor_R",
+        "comp_stator_R",
+        "fan_rotor_R",
+        "fan_stator_R",
+        "seat_comp_R",
+        "turb_rotor_R",
+        "turb_stator_R"
+      ]
+    },
+    "Inlet": {
+      "Left": [
+        "inlet_spike_L"
+      ],
+      "Right": [
+        "inlet_spike_R"
+      ]
+    },
+    "Nozzle": {
+      "Left": [
+        "nozzle_cone_L"
+      ],
+      "Right": [
+        "nozzle_cone_R"
+      ]
+    },
+    "Misc": {
+      "Left": [
+        "pulley_engine_L",
+        "rib_1_L",
+        "rib_2_L",
+        "rib_3_L",
+        "rib_4_L",
+        "rib_5_L",
+        "rib_6_L",
+        "seat_fan_L",
+        "spacer_1_L",
+        "spacer_2_L",
+        "spacer_3_L",
+        "spacer_4_L",
+        "spacer_5_L",
+        "spacer_6_L",
+        "splice_front_mid_L",
+        "splice_mid_aft_L"
+      ],
+      "Right": [
+        "pulley_engine_R",
+        "rib_1_R",
+        "rib_2_R",
+        "rib_3_R",
+        "rib_4_R",
+        "rib_5_R",
+        "rib_6_R",
+        "seat_fan_R",
+        "spacer_1_R",
+        "spacer_2_R",
+        "spacer_3_R",
+        "spacer_4_R",
+        "spacer_5_R",
+        "spacer_6_R",
+        "splice_front_mid_R",
+        "splice_mid_aft_R"
+      ],
+      "Center": [
+        "pulley_motor",
+        "starter_motor_130"
+      ]
+    },
+    "Turbine": {
+      "Left": [
+        "seat_turb_L"
+      ],
+      "Right": [
+        "seat_turb_R"
+      ]
+    },
+    "Shaft": {
+      "Left": [
+        "shaft_main_L"
+      ],
+      "Right": [
+        "shaft_main_R"
+      ]
+    }
+  }
+}

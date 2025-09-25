@@ -1,0 +1,15 @@
+﻿{
+    "ok":  true,
+    "namespace":  "rocket/saturn_v",
+    "stamp":  "20250925-194014",
+    "created_utc":  "2025-09-25T10:40:14Z",
+    "runs":  {
+                 "S-IC":  {
+                              "run_dir":  "data",
+                              "parts":  {
+
+                                        },
+                              "glb":  "S-IC_named.glb"
+                          }
+             }
+}

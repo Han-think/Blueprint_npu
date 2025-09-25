@@ -1,0 +1,43 @@
+{
+  "ok": true,
+  "params": {
+    "D_SIVB_m": 6.6,
+    "wall_t_mm": 2,
+    "L_SIVB_m": 17.8,
+    "L_SII_m": 24.9,
+    "D_SIC_m": 10.1,
+    "L_SIC_m": 42.1,
+    "segments": 96,
+    "D_SII_m": 10.1
+  },
+  "parts": [
+    {
+      "name": "SIC_shell.stl",
+      "rel": "geometry/cad/saturn_cad_runs/run-20250925-162326/SIC_shell.stl"
+    },
+    {
+      "name": "SII_shell.stl",
+      "rel": "geometry/cad/saturn_cad_runs/run-20250925-162326/SII_shell.stl"
+    },
+    {
+      "name": "SIVB_shell.stl",
+      "rel": "geometry/cad/saturn_cad_runs/run-20250925-162326/SIVB_shell.stl"
+    },
+    {
+      "name": "inter_SII_SIC.stl",
+      "rel": "geometry/cad/saturn_cad_runs/run-20250925-162326/inter_SII_SIC.stl"
+    },
+    {
+      "name": "inter_SIVB_SII.stl",
+      "rel": "geometry/cad/saturn_cad_runs/run-20250925-162326/inter_SIVB_SII.stl"
+    },
+    {
+      "name": "F1_placeholder.stl",
+      "rel": "geometry/cad/saturn_cad_runs/run-20250925-162326/F1_placeholder.stl"
+    },
+    {
+      "name": "J2_placeholder.stl",
+      "rel": "geometry/cad/saturn_cad_runs/run-20250925-162326/J2_placeholder.stl"
+    }
+  ]
+}

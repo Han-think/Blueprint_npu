@@ -25,3 +25,6 @@ _try_include("j58_ai")
 _try_include("saturn_s1c")
 _try_include("saturn_stack")
 _try_include("saturn_detail")
+
+_try_include("saturn_cad", "api")
+

@@ -2,7 +2,7 @@
 $PORT = 9035
 
 function Wait-Health {
-  for($i=0;$i -lt 40;$i++){
+  for($i=0;$i -lt 50;$i++){
     try{ Invoke-RestMethod "http://127.0.0.1:$PORT/wb/health" -TimeoutSec 1 | Out-Null; return $true } catch { Start-Sleep -Milliseconds 500 }
   }
   return $false
@@ -33,18 +33,9 @@ $body = @{
 $run = Invoke-RestMethod -Method Post "http://127.0.0.1:$PORT/wb/cad/j58_v23" -ContentType application/json -Body ($body | ConvertTo-Json -Depth 5)
 "run dir: $($run.out_dir)"
 
-# 청사진
-try{
-  $bp = Invoke-RestMethod "http://127.0.0.1:$PORT/wb/cad/j58_blueprint"
-  if($bp.ok -and $bp.svg_rel){
-    "blueprint: http://127.0.0.1:$PORT/wb/files/$($bp.svg_rel)"
-    Start-Process "http://127.0.0.1:$PORT/wb/files/$($bp.svg_rel)"
-  } else { "blueprint: not generated" }
-}catch{ "blueprint error: $($_.Exception.Message)" }
+$bp = Invoke-RestMethod "http://127.0.0.1:$PORT/wb/cad/j58_blueprint"
+if($bp.ok -and $bp.svg_rel){ "blueprint: http://127.0.0.1:$PORT/wb/files/$($bp.svg_rel)"; Start-Process "http://127.0.0.1:$PORT/wb/files/$($bp.svg_rel)" }
 
-# 플레이트(R/L)
-try{
-  $R = Invoke-RestMethod -Method Post "http://127.0.0.1:$PORT/wb/cad/j58_v23_plate" -ContentType application/json -Body (@{engine_tag="R"; set="core"; plate_w=220; plate_d=220; place_shaft_on_last=$true; shaft_angle=45; runner_like=$true} | ConvertTo-Json)
-  $L = Invoke-RestMethod -Method Post "http://127.0.0.1:$PORT/wb/cad/j58_v23_plate" -ContentType application/json -Body (@{engine_tag="L"; set="core"; plate_w=220; plate_d=220; place_shaft_on_last=$true; shaft_angle=45; runner_like=$true} | ConvertTo-Json)
-  "plates: R=$($R.count), L=$($L.count)"
-}catch{ "plate error: $($_.Exception.Message)" }
+$R = Invoke-RestMethod -Method Post "http://127.0.0.1:$PORT/wb/cad/j58_v23_plate" -ContentType application/json -Body (@{engine_tag="R"; set="core"; plate_w=220; plate_d=220; place_shaft_on_last=$true; shaft_angle=45; runner_like=$true} | ConvertTo-Json)
+$L = Invoke-RestMethod -Method Post "http://127.0.0.1:$PORT/wb/cad/j58_v23_plate" -ContentType application/json -Body (@{engine_tag="L"; set="core"; plate_w=220; plate_d=220; place_shaft_on_last=$true; shaft_angle=45; runner_like=$true} | ConvertTo-Json)
+"plates: R=$($R.count), L=$($L.count)"

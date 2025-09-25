@@ -70,40 +70,54 @@ def saturn_stage_assembly(body:dict=Body(None), mode:str="interior"):
             pos,nrm=read_ascii_stl(p); parts.append({"name":name,"positions":pos,"normals":nrm,"translation":tr})
 
     if stage=="S-IC":
-        L=42100.0; inter=900.0; l_lox=L*0.42
+        L=42100.0; l_lox=L*0.42
         add("SIC_shell.stl")
         if mode!="outer":
-            add("SIC_LOX_tank.stl",(0,0,explode))
-            add("SIC_Intertank_ring.stl",(0,0,2*explode))
-            add("SIC_RP1_tank.stl",(0,0,3*explode))
-            add("SIC_Thrust_ring.stl",(0,0,4*explode))
-        # F-1 엔진 5기: 파츠 묶음 배치
+            for n,tr in [
+                ("SIC_LOX_tank.stl",(0,0,explode)),
+                ("SIC_Intertank_ring.stl",(0,0,2*explode)),
+                ("SIC_RP1_tank.stl",(0,0,3*explode)),
+                ("SIC_Thrust_ring.stl",(0,0,4*explode)),
+                ("SIC_Thrust_beam_0.stl",(0,0,4*explode)),
+                ("SIC_Thrust_beam_1.stl",(0,0,4*explode)),
+                ("SIC_Engine_mount_ring.stl",(0,0,4*explode)),
+                ("SIC_LOX_pipe_vert.stl",(0,0,3*explode)),
+                ("SIC_LOX_elbow.stl",(0,0,3*explode)),
+                ("SIC_Fin_rect.stl",(0,0,0)),
+            ]: add(n,tr)
+        # 엔진 파츠 묶음 5기
         engine_files=[p.name for p in run.iterdir() if p.suffix.lower()==".stl" and p.name.startswith("F1_")]
         offs=[(-2500,0,-3000),(2500,0,-3000),(0,0,-3000),(-1250,-2165,-3000),(1250,2165,-3000)]
-        for i,(dx,dy,dz) in enumerate(offs):
-            for ef in engine_files:
-                add(ef,(dx,dy,dz-5*explode))
-        if (run/"SIC_Fin_rect.stl").exists() and mode!="outer":
-            add("SIC_Fin_rect.stl",(0,0,0))
+        for (dx,dy,dz) in offs:
+            for ef in engine_files: add(ef,(dx,dy,dz-5*explode))
+
     elif stage=="S-II":
         add("SII_shell.stl")
         if mode!="outer":
-            add("SII_LOX_tank.stl",(0,0,explode))
-            add("SII_CommonBulkhead.stl",(0,0,2*explode))
-            add("SII_LH2_tank.stl",(0,0,3*explode))
+            for n,tr in [
+                ("SII_LOX_tank.stl",(0,0,explode)),
+                ("SII_CB_up.stl",(0,0,2*explode)),
+                ("SII_CB_dn.stl",(0,0,2*explode)),
+                ("SII_CB_insul.stl",(0,0,2*explode)),
+                ("SII_LH2_tank.stl",(0,0,3*explode)),
+            ]: add(n,tr)
         engine_files=[p.name for p in run.iterdir() if p.suffix.lower()==".stl" and p.name.startswith("J2_")]
         offs=[(-1800,0,-2200),(1800,0,-2200),(0,0,-2200),(-900,-1550,-2200),(900,1550,-2200)]
-        for i,(dx,dy,dz) in enumerate(offs):
-            for ef in engine_files:
-                add(ef,(dx,dy,dz-4*explode))
+        for (dx,dy,dz) in offs:
+            for ef in engine_files: add(ef,(dx,dy,dz-4*explode))
+
     else:
         add("SIVB_shell.stl")
         if mode!="outer":
-            add("SIVB_LOX_tank.stl",(0,0,explode))
-            add("SIVB_LH2_tank.stl",(0,0,2*explode))
+            for n,tr in [
+                ("SIVB_LOX_tank.stl",(0,0,explode)),
+                ("SIVB_LH2_tank.stl",(0,0,2*explode)),
+                ("SIVB_LH2_baffle_0.stl",(0,0,2.5*explode)),
+                ("SIVB_LH2_baffle_1.stl",(0,0,3*explode)),
+                ("SIVB_IU_ring.stl",(0,0,4*explode)),
+            ]: add(n,tr)
         engine_files=[p.name for p in run.iterdir() if p.suffix.lower()==".stl" and p.name.startswith("J2_")]
-        for ef in engine_files:
-            add(ef,(0,0,-2200-3*explode))
+        for ef in engine_files: add(ef,(0,0,-2200-3*explode))
 
     glb=pack_glb(parts)
     out=run/"stage_assembly.glb"; out.write_bytes(glb)
@@ -138,7 +152,7 @@ def saturn_stack_assembly():
 @api.get("/files/{rel_path:path}")
 def send_file(rel_path:str):
     base=(ROOT/"data").resolve(); full=(base/rel_path).resolve()
-    from fastapi import HTTPException
     if not str(full).startswith(str(base)) or not full.exists():
+        from fastapi import HTTPException
         raise HTTPException(status_code=404, detail="not_found")
     return FileResponse(str(full))

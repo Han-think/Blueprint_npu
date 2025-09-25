@@ -1,0 +1,34 @@
+﻿{
+    "ok":  true,
+    "namespace":  "rocket/saturn_v",
+    "stamp":  "20250925-203329",
+    "created_utc":  "2025-09-25T11:33:29Z",
+    "runs":  {
+                 "S-IC":  {
+                              "run_dir":  "run-20250925-192149-S-IC",
+                              "parts":  [
+                                            "F1_chamber.stl",
+                                            "F1_film_band.stl",
+                                            "F1_gimbal_strut_0.stl",
+                                            "F1_gimbal_strut_1.stl",
+                                            "F1_gimbal_strut_2.stl",
+                                            "F1_gimbal_strut_3.stl",
+                                            "F1_heat_shield.stl",
+                                            "F1_injector.stl",
+                                            "F1_nozzle.stl",
+                                            "SIC_Engine_mount_ring.stl",
+                                            "SIC_Fin_rect.stl",
+                                            "SIC_Intertank_ring.stl",
+                                            "SIC_LOX_elbow.stl",
+                                            "SIC_LOX_pipe_vert.stl",
+                                            "SIC_LOX_tank.stl",
+                                            "SIC_RP1_tank.stl",
+                                            "SIC_shell.stl",
+                                            "SIC_Thrust_beam_0.stl",
+                                            "SIC_Thrust_beam_1.stl",
+                                            "SIC_Thrust_ring.stl"
+                                        ],
+                              "glb":  "S-IC_named.glb"
+                          }
+             }
+}

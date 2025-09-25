@@ -1,8 +1,8 @@
 ﻿{
     "ok":  true,
     "namespace":  "rocket/saturn_v",
-    "stamp":  "20250925-201838",
-    "created_utc":  "2025-09-25T11:18:38Z",
+    "stamp":  "20250925-203329",
+    "created_utc":  "2025-09-25T11:33:29Z",
     "runs":  {
                  "S-IC":  {
                               "run_dir":  "run-20250925-192149-S-IC",
@@ -29,45 +29,6 @@
                                             "SIC_Thrust_ring.stl"
                                         ],
                               "glb":  "S-IC_named.glb"
-                          },
-                 "S-II":  {
-                              "run_dir":  "run-20250925-192149-S-II",
-                              "parts":  [
-                                            "J2_chamber.stl",
-                                            "J2_film_band.stl",
-                                            "J2_gg_duct.stl",
-                                            "J2_injector.stl",
-                                            "J2_nozzle.stl",
-                                            "J2_turbopump.stl",
-                                            "SII_CB_dn.stl",
-                                            "SII_CB_insul.stl",
-                                            "SII_CB_up.stl",
-                                            "SII_LH2_tank.stl",
-                                            "SII_LOX_tank.stl",
-                                            "SII_shell.stl"
-                                        ],
-                              "glb":  "S-II_named.glb"
-                          },
-                 "S-IVB":  {
-                               "run_dir":  "run-20250925-192150-S-IVB",
-                               "parts":  [
-                                             "J2_chamber.stl",
-                                             "J2_film_band.stl",
-                                             "J2_gg_duct.stl",
-                                             "J2_injector.stl",
-                                             "J2_nozzle.stl",
-                                             "J2_turbopump.stl",
-                                             "SIVB_IU_ring.stl",
-                                             "SIVB_LH2_baffle_0.stl",
-                                             "SIVB_LH2_baffle_1.stl",
-                                             "SIVB_LH2_tank.stl",
-                                             "SIVB_LOX_tank.stl",
-                                             "SIVB_shell.stl"
-                                         ],
-                               "glb":  "S-IVB_named.glb"
-                           },
-                 "STACK":  {
-                               "glb":  "STACK_named.glb"
-                           }
+                          }
              }
 }

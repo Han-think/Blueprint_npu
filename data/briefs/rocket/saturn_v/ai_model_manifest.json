@@ -1,0 +1,62 @@
+﻿{
+    "model_name":  "MechSyn-Rocket-AI",
+    "version":  "0.1.0",
+    "updated_utc":  "2025-09-26T07:26:41Z",
+    "goals":  [
+                  "Saturn V 외형 유지 + 내부 고효율/간소화",
+                  "다중 인젝터·혼합제 추진 최적화",
+                  "계층 GLB + 명확한 파트 네이밍",
+                  "프린트용 변형 자동 패키징",
+                  "자동 Git 커밋/푸시"
+              ],
+    "constraints":  [
+                        "외형 비율 준수",
+                        "배관 간섭 금지(노즐·히트쉴드·스커트)",
+                        "현실적 조립성(프린트)"
+                    ],
+    "propellant_strategy":  {
+                                "variants":  [
+                                                 "A",
+                                                 "B",
+                                                 "A+B(center)"
+                                             ],
+                                "primary":  "혼합제 기반 다중 인젝터"
+                            },
+    "engine_architecture":  {
+                                "S_IC":  "F-1 외형/간소화 배관",
+                                "S_IVB":  "J-2/IU/APS/CSM",
+                                "S_II":  "J-2/공용벌크헤드/GG"
+                            },
+    "data_locations":  {
+                           "j58_custom":  "data/geometry/cad/exports/pencil_engine/J58_custom",
+                           "rocket_saturn_v":  "data/geometry/cad/exports/rocket/saturn_v",
+                           "print_1_200":  "data/geometry/cad/exports/rocket/saturn_v/print/1_200"
+                       },
+    "export_namespaces":  [
+                              "rocket/saturn_v",
+                              "pencil_engine/J58_custom",
+                              "rocket/saturn_v/print/1_200"
+                          ],
+    "part_naming":  [
+                        "Shell",
+                        "Tanks",
+                        "Intertank",
+                        "ThrustStruct",
+                        "Engines",
+                        "Plumbing",
+                        "Fins",
+                        "APS",
+                        "IU"
+                    ],
+    "cad_endpoints":  [
+                          "/wb/cad/saturn_cad_build",
+                          "/wb/cad/pack_dir_glb_hier",
+                          "/wb/cad/saturn_stack_blueprint"
+                      ],
+    "git":  {
+                "branch":  "main",
+                "use_github_desktop_git":  true,
+                "remote":  "origin"
+            },
+    "notes":  "설계 AI 방향성/폴더 규약 고정"
+}

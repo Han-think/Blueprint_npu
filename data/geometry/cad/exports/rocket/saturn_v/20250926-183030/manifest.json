@@ -1,0 +1,90 @@
+{
+  "ok": true,
+  "run_rel": "geometry\\cad\\saturn_cad_runs\\run-20250926-183028-S-IVB",
+  "parts": [
+    {
+      "name": "SIVB_shell.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-183028-S-IVB\\SIVB_shell.stl"
+    },
+    {
+      "name": "SIVB_LH2_tank.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-183028-S-IVB\\SIVB_LH2_tank.stl"
+    },
+    {
+      "name": "SIVB_LH2_dome_top.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-183028-S-IVB\\SIVB_LH2_dome_top.stl"
+    },
+    {
+      "name": "SIVB_LOX_dome_bottom.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-183028-S-IVB\\SIVB_LOX_dome_bottom.stl"
+    },
+    {
+      "name": "SIVB_LOX_tank.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-183028-S-IVB\\SIVB_LOX_tank.stl"
+    },
+    {
+      "name": "SIVB_IU_ring.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-183028-S-IVB\\SIVB_IU_ring.stl"
+    },
+    {
+      "name": "J2_nozzle.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-183028-S-IVB\\J2_nozzle.stl"
+    },
+    {
+      "name": "J2_chamber.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-183028-S-IVB\\J2_chamber.stl"
+    },
+    {
+      "name": "J2_injector.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-183028-S-IVB\\J2_injector.stl"
+    },
+    {
+      "name": "SIVB_LOX_manifold.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-183028-S-IVB\\SIVB_LOX_manifold.stl"
+    },
+    {
+      "name": "SIVB_LH2_manifold.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-183028-S-IVB\\SIVB_LH2_manifold.stl"
+    },
+    {
+      "name": "SIVB_LOX_valve.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-183028-S-IVB\\SIVB_LOX_valve.stl"
+    },
+    {
+      "name": "SIVB_LOX_bellows.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-183028-S-IVB\\SIVB_LOX_bellows.stl"
+    },
+    {
+      "name": "SIVB_LOX_Hrun.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-183028-S-IVB\\SIVB_LOX_Hrun.stl"
+    },
+    {
+      "name": "SIVB_LOX_elbow.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-183028-S-IVB\\SIVB_LOX_elbow.stl"
+    },
+    {
+      "name": "SIVB_LOX_drop.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-183028-S-IVB\\SIVB_LOX_drop.stl"
+    },
+    {
+      "name": "SIVB_LH2_valve.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-183028-S-IVB\\SIVB_LH2_valve.stl"
+    },
+    {
+      "name": "SIVB_LH2_bellows.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-183028-S-IVB\\SIVB_LH2_bellows.stl"
+    },
+    {
+      "name": "SIVB_LH2_Hrun.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-183028-S-IVB\\SIVB_LH2_Hrun.stl"
+    },
+    {
+      "name": "SIVB_LH2_elbow.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-183028-S-IVB\\SIVB_LH2_elbow.stl"
+    },
+    {
+      "name": "SIVB_LH2_drop.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-183028-S-IVB\\SIVB_LH2_drop.stl"
+    }
+  ]
+}

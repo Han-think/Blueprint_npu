@@ -17,3 +17,13 @@ data/geometry/cad/saturn_cad_runs/
 
 
 
+
+data/geometry/cad/exports/rocket/saturn_v/latest/
+uvicorn.out.txt
+uvicorn.err.txt
+
+
+
+
+
+

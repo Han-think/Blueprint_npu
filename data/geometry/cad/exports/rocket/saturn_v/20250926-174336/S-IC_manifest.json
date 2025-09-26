@@ -1,0 +1,242 @@
+{
+  "ok": true,
+  "run_rel": "geometry/cad/saturn_cad_runs/run-20250926-174335-S-IC",
+  "parts": [
+    {
+      "name": "SIC_shell.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_shell.stl"
+    },
+    {
+      "name": "SIC_LOX_tank.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_LOX_tank.stl"
+    },
+    {
+      "name": "SIC_RP1_tank.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_RP1_tank.stl"
+    },
+    {
+      "name": "SIC_Intertank_ring.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_Intertank_ring.stl"
+    },
+    {
+      "name": "SIC_Engine_mount_ring.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_Engine_mount_ring.stl"
+    },
+    {
+      "name": "F1_nozzle_0.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\F1_nozzle_0.stl"
+    },
+    {
+      "name": "F1_chamber_0.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\F1_chamber_0.stl"
+    },
+    {
+      "name": "F1_injector_0.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\F1_injector_0.stl"
+    },
+    {
+      "name": "F1_inlet_stub_0.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\F1_inlet_stub_0.stl"
+    },
+    {
+      "name": "F1_nozzle_1.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\F1_nozzle_1.stl"
+    },
+    {
+      "name": "F1_chamber_1.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\F1_chamber_1.stl"
+    },
+    {
+      "name": "F1_injector_1.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\F1_injector_1.stl"
+    },
+    {
+      "name": "F1_inlet_stub_1.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\F1_inlet_stub_1.stl"
+    },
+    {
+      "name": "F1_nozzle_2.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\F1_nozzle_2.stl"
+    },
+    {
+      "name": "F1_chamber_2.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\F1_chamber_2.stl"
+    },
+    {
+      "name": "F1_injector_2.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\F1_injector_2.stl"
+    },
+    {
+      "name": "F1_inlet_stub_2.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\F1_inlet_stub_2.stl"
+    },
+    {
+      "name": "F1_nozzle_3.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\F1_nozzle_3.stl"
+    },
+    {
+      "name": "F1_chamber_3.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\F1_chamber_3.stl"
+    },
+    {
+      "name": "F1_injector_3.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\F1_injector_3.stl"
+    },
+    {
+      "name": "F1_inlet_stub_3.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\F1_inlet_stub_3.stl"
+    },
+    {
+      "name": "F1_nozzle_4.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\F1_nozzle_4.stl"
+    },
+    {
+      "name": "F1_chamber_4.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\F1_chamber_4.stl"
+    },
+    {
+      "name": "F1_injector_4.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\F1_injector_4.stl"
+    },
+    {
+      "name": "F1_inlet_stub_4.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\F1_inlet_stub_4.stl"
+    },
+    {
+      "name": "SIC_LOX_manifold.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_LOX_manifold.stl"
+    },
+    {
+      "name": "SIC_RP1_manifold.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_RP1_manifold.stl"
+    },
+    {
+      "name": "SIC_LOX_downcomer.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_LOX_downcomer.stl"
+    },
+    {
+      "name": "SIC_RP1_riser.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_RP1_riser.stl"
+    },
+    {
+      "name": "SIC_LOX_feed_0_Hrun.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_LOX_feed_0_Hrun.stl"
+    },
+    {
+      "name": "SIC_LOX_feed_0_elbow.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_LOX_feed_0_elbow.stl"
+    },
+    {
+      "name": "SIC_LOX_feed_0_drop.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_LOX_feed_0_drop.stl"
+    },
+    {
+      "name": "SIC_RP1_feed_0_Hrun.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_RP1_feed_0_Hrun.stl"
+    },
+    {
+      "name": "SIC_RP1_feed_0_elbow.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_RP1_feed_0_elbow.stl"
+    },
+    {
+      "name": "SIC_RP1_feed_0_drop.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_RP1_feed_0_drop.stl"
+    },
+    {
+      "name": "SIC_LOX_feed_1_Hrun.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_LOX_feed_1_Hrun.stl"
+    },
+    {
+      "name": "SIC_LOX_feed_1_elbow.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_LOX_feed_1_elbow.stl"
+    },
+    {
+      "name": "SIC_LOX_feed_1_drop.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_LOX_feed_1_drop.stl"
+    },
+    {
+      "name": "SIC_RP1_feed_1_Hrun.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_RP1_feed_1_Hrun.stl"
+    },
+    {
+      "name": "SIC_RP1_feed_1_elbow.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_RP1_feed_1_elbow.stl"
+    },
+    {
+      "name": "SIC_RP1_feed_1_drop.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_RP1_feed_1_drop.stl"
+    },
+    {
+      "name": "SIC_LOX_feed_2_Hrun.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_LOX_feed_2_Hrun.stl"
+    },
+    {
+      "name": "SIC_LOX_feed_2_elbow.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_LOX_feed_2_elbow.stl"
+    },
+    {
+      "name": "SIC_LOX_feed_2_drop.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_LOX_feed_2_drop.stl"
+    },
+    {
+      "name": "SIC_RP1_feed_2_Hrun.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_RP1_feed_2_Hrun.stl"
+    },
+    {
+      "name": "SIC_RP1_feed_2_elbow.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_RP1_feed_2_elbow.stl"
+    },
+    {
+      "name": "SIC_RP1_feed_2_drop.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_RP1_feed_2_drop.stl"
+    },
+    {
+      "name": "SIC_LOX_feed_3_Hrun.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_LOX_feed_3_Hrun.stl"
+    },
+    {
+      "name": "SIC_LOX_feed_3_elbow.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_LOX_feed_3_elbow.stl"
+    },
+    {
+      "name": "SIC_LOX_feed_3_drop.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_LOX_feed_3_drop.stl"
+    },
+    {
+      "name": "SIC_RP1_feed_3_Hrun.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_RP1_feed_3_Hrun.stl"
+    },
+    {
+      "name": "SIC_RP1_feed_3_elbow.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_RP1_feed_3_elbow.stl"
+    },
+    {
+      "name": "SIC_RP1_feed_3_drop.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_RP1_feed_3_drop.stl"
+    },
+    {
+      "name": "SIC_LOX_feed_4_Hrun.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_LOX_feed_4_Hrun.stl"
+    },
+    {
+      "name": "SIC_LOX_feed_4_elbow.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_LOX_feed_4_elbow.stl"
+    },
+    {
+      "name": "SIC_LOX_feed_4_drop.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_LOX_feed_4_drop.stl"
+    },
+    {
+      "name": "SIC_RP1_feed_4_Hrun.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_RP1_feed_4_Hrun.stl"
+    },
+    {
+      "name": "SIC_RP1_feed_4_elbow.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_RP1_feed_4_elbow.stl"
+    },
+    {
+      "name": "SIC_RP1_feed_4_drop.stl",
+      "path": "C:\\Users\\Lenovo\\Blueprint_npu-main\\Blueprint_npu\\data\\geometry\\cad\\saturn_cad_runs\\run-20250926-174335-S-IC\\SIC_RP1_feed_4_drop.stl"
+    }
+  ]
+}

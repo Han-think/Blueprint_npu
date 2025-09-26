@@ -1,0 +1,66 @@
+﻿{
+    "ok":  true,
+    "stamp":  "20250926-193936",
+    "created_utc":  "2025-09-26T10:39:36Z",
+    "runs":  {
+                 "S-IVB":  {
+                               "run_dir":  "run-20250926-193935-S-IVB",
+                               "glb":  "S-IVB_named.glb",
+                               "parts":  [
+                                             "CSM_CM.stl",
+                                             "CSM_SM.stl",
+                                             "IU_ring.stl",
+                                             "J2_chamber.stl",
+                                             "J2_nozzle_0.stl",
+                                             "LES_fairing.stl",
+                                             "LES_tower.stl",
+                                             "SIVB_aft_skirt.stl",
+                                             "SIVB_intertank_ring.stl",
+                                             "SIVB_LH2_dome_bottom.stl",
+                                             "SIVB_LH2_tank.stl",
+                                             "SIVB_LOX_dome_top.stl",
+                                             "SIVB_LOX_tank.stl",
+                                             "SLA_adapter.stl"
+                                         ]
+                           },
+                 "FULL":  {
+                              "run_dir":  "run-20250926-193935-STACK",
+                              "glb":  "SaturnV_full_named.glb",
+                              "parts":  [
+                                            "BASE_plate.stl",
+                                            "BASE_post_0.stl",
+                                            "BASE_post_1.stl",
+                                            "BASE_post_2.stl",
+                                            "BASE_post_3.stl",
+                                            "BASE_post_4.stl",
+                                            "BASE_post_5.stl",
+                                            "BASE_post_6.stl",
+                                            "BASE_post_7.stl",
+                                            "CSM_CM.stl",
+                                            "CSM_SM.stl",
+                                            "IU_ring.stl",
+                                            "J2_nozzle_0.stl",
+                                            "LES_fairing.stl",
+                                            "LES_tower.stl",
+                                            "SIC_nozzle_0.stl",
+                                            "SIC_nozzle_1.stl",
+                                            "SIC_nozzle_2.stl",
+                                            "SIC_nozzle_3.stl",
+                                            "SIC_nozzle_4.stl",
+                                            "SIC_shell_ext.stl",
+                                            "SII_nozzle_0.stl",
+                                            "SII_nozzle_1.stl",
+                                            "SII_nozzle_2.stl",
+                                            "SII_nozzle_3.stl",
+                                            "SII_nozzle_4.stl",
+                                            "SII_shell_ext.stl",
+                                            "SIVB_intertank_ring.stl",
+                                            "SIVB_LH2_dome_bottom.stl",
+                                            "SIVB_LH2_tank.stl",
+                                            "SIVB_LOX_dome_top.stl",
+                                            "SIVB_LOX_tank.stl",
+                                            "SLA_adapter.stl"
+                                        ]
+                          }
+             }
+}

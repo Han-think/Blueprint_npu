@@ -1,0 +1,24 @@
+﻿{
+    "ok":  true,
+    "stamp":  "20250926-192722",
+    "created_utc":  "2025-09-26T10:27:23Z",
+    "print":  {
+                  "run_dir":  "data",
+                  "stl":  "Saturn_stack_print.stl",
+                  "target_h_mm":  250
+              },
+    "runs":  {
+                 "S-IC":  {
+                              "run_dir":  "run-20250926-192718-S-IC",
+                              "glb":  "S-IC_named.glb"
+                          },
+                 "S-II":  {
+                              "run_dir":  "run-20250926-192718-S-II",
+                              "glb":  "S-II_named.glb"
+                          },
+                 "STACK":  {
+                               "run_dir":  "data",
+                               "glb":  "Saturn_stack_named.glb"
+                           }
+             }
+}

@@ -10,3 +10,14 @@ logs/
 *.onnx
 *.glb
 *.stl
+.env
+save/
+logs/
+models/
+data/
+__pycache__/
+*.bin
+*.xml
+*.safetensors
+*.pt
+*.onnx

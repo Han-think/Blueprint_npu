@@ -1,0 +1,5 @@
+﻿Topic: {topic}
+Constraints:
+- DfAM: channel radius ≥1.5 mm; overhang ≥30°; specify post-machining stock.
+- Provide ranges for Pc, OF, Tt, Mach, loads as applicable.
+- Deliver exactly the sections in the spec. Nothing else.

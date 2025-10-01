@@ -1,0 +1,6 @@
+﻿# key = local_path  (절대/상대 모두 허용, 환경변수/~ 지원)
+llama1b   = models/ov_npu_ready/llama32_1b_int4_npu_ov
+phi4mini  = models/ov_npu_ready/phi4_mini_int4_ov
+qwen25_7b = models/ov_npu_ready/qwen25_7b_int4_ov
+# 예시(드라이브 분리):
+# phi4mini = D:/ov_models/phi4_mini_int4_ov

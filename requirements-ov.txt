@@ -1,0 +1,4 @@
+﻿openvino==2025.3.*
+openvino-genai==2025.3.*
+rich
+pandas

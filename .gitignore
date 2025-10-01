@@ -21,3 +21,5 @@ __pycache__/
 *.safetensors
 *.pt
 *.onnx
+
+BluePrint_New/

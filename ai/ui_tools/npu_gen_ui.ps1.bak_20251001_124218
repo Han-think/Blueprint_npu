@@ -1,0 +1,1161 @@
+﻿$ErrorActionPreference="Stop"
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+[Windows.Forms.Application]::EnableVisualStyles()
+
+$AI   = Split-Path -Parent $PSScriptRoot
+$ROOT = Split-Path -Parent $AI
+$PY   = Join-Path $ROOT ".\.venv\Scripts\python.exe"
+$CLI  = Join-Path $ROOT "ai\cli\genai_run.py"
+
+function Get-ModelDirs {
+  $roots = @(
+    (Join-Path $ROOT "models\ov_npu_ready"),
+    (Join-Path $ROOT "models\ov_static")
+  ) | Where-Object { Test-Path $_ }
+
+  $list = New-Object System.Collections.ArrayList
+  foreach($r in $roots){
+    Get-ChildItem -Path $r -Directory -Recurse -EA SilentlyContinue | ForEach-Object {
+      $base = $_.FullName
+      $xml = Join-Path $base 'openvino_model.xml'
+      $tok = Join-Path $base 'openvino_tokenizer.xml'
+      $det = Join-Path $base 'openvino_detokenizer.xml'
+      if( (Test-Path $xml) -and (Test-Path $tok) -and (Test-Path $det) ){
+        [void]$list.Add($base)
+      }
+    }
+  }
+  return ($list | Sort-Object)
+}
+function Q([string]$s){ if($s -match '[\s"]'){ '"' + ($s -replace '"','\"') + '"' } else { $s } }
+
+# --- UI ---
+$f = New-Object Windows.Forms.Form
+$f.Text="NPU GenAI 제너레이터"
+$f.StartPosition="CenterScreen"
+$f.Width=980; $f.Height=720
+$f.Font=New-Object System.Drawing.Font('맑은 고딕',9)
+
+# 상단 레이아웃
+$tbl = New-Object Windows.Forms.TableLayoutPanel
+$tbl.Dock='Top'; $tbl.RowCount=3; $tbl.ColumnCount=5; $tbl.Height=140
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,15)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,40)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,12)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,8)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,25)))
+$tbl.RowStyles.Add((New-Object Windows.Forms.RowStyle([Windows.Forms.SizeType]::Absolute,40)))
+$tbl.RowStyles.Add((New-Object Windows.Forms.RowStyle([Windows.Forms.SizeType]::Absolute,60)))
+$tbl.RowStyles.Add((New-Object Windows.Forms.RowStyle([Windows.Forms.SizeType]::Absolute,40)))
+
+# 1행: 모델
+$lblM   = New-Object Windows.Forms.Label; $lblM.Text="모델"; $lblM.TextAlign='MiddleRight'; $lblM.Dock='Fill'
+$cbModel= New-Object Windows.Forms.ComboBox; $cbModel.Dock='Fill'; $cbModel.DropDownStyle='DropDownList'
+(Get-ModelDirs) | ForEach-Object { [void]$cbModel.Items.Add($_) }; if($cbModel.Items.Count -gt 0){ $cbModel.SelectedIndex=0 }
+$btnScan= New-Object Windows.Forms.Button; $btnScan.Text="재검색"; $btnScan.Dock='Fill'
+$cbDev  = New-Object Windows.Forms.ComboBox; $cbDev.Dock='Fill'; @("NPU","AUTO","GPU","CPU") | % { [void]$cbDev.Items.Add($_) }; $cbDev.SelectedIndex=0
+$lblTok = New-Object Windows.Forms.Label; $lblTok.Text="토큰"; $lblTok.TextAlign='MiddleRight'; $lblTok.Dock='Fill'
+$nudTok = New-Object Windows.Forms.NumericUpDown; $nudTok.Dock='Fill'; $nudTok.Minimum=16; $nudTok.Maximum=2048; $nudTok.Value=128
+$tbl.Controls.Add($lblM,0,0); $tbl.Controls.Add($cbModel,1,0); $tbl.Controls.Add($btnScan,2,0); $tbl.Controls.Add($lblTok,3,0); $tbl.Controls.Add($nudTok,4,0)
+
+# 2행: 프롬프트(멀티라인)
+$lblP = New-Object Windows.Forms.Label; $lblP.Text="프롬프트"; $lblP.TextAlign='MiddleRight'; $lblP.Dock='Fill'
+$txtP = New-Object Windows.Forms.TextBox; $txtP.Dock='Fill'; $txtP.Multiline=$true
+$txtP.Text = Get-Content (Join-Path $ROOT "ai\prompts\design_master.txt") -Raw
+$tbl.Controls.Add($lblP,0,1); $tbl.Controls.Add($txtP,1,1); $tbl.SetColumnSpan($txtP,4)
+
+# 3행: 버튼들
+$btnDiag = New-Object Windows.Forms.Button; $btnDiag.Text="진단"; $btnDiag.Dock='Fill'
+$btnGen  = New-Object Windows.Forms.Button; $btnGen.Text="제너레이터 시작"; $btnGen.Dock='Fill'
+$btnStop = New-Object Windows.Forms.Button; $btnStop.Text="중지"; $btnStop.Dock='Fill'; $btnStop.Enabled=$false
+$tbl.Controls.Add($btnDiag,2,2); $tbl.Controls.Add($btnGen,3,2); $tbl.Controls.Add($btnStop,4,2)
+
+# 로그/상태
+$pb = New-Object Windows.Forms.ProgressBar; $pb.Dock='Top'; $pb.Height=12; $pb.Minimum=0; $pb.Maximum=100
+$lbl = New-Object Windows.Forms.Label; $lbl.Dock='Top'; $lbl.Height=18; $lbl.TextAlign='MiddleLeft'; $lbl.Text="대기"
+$tb = New-Object Windows.Forms.TextBox; $tb.Dock='Fill'; $tb.Multiline=$true; $tb.ScrollBars='Vertical'
+$f.Controls.Add($tb); $f.Controls.Add($pb); $f.Controls.Add($lbl); $f.Controls.Add($tbl)
+$tb.BringToFront(); $tb.Dock='Fill'
+
+function Append([string]$s){
+  $null = $tb.BeginInvoke([Action]{ $ts=(Get-Date).ToString('HH:mm:ss'); $tb.AppendText("[$ts] $s`r`n"); $tb.SelectionStart=$tb.Text.Length; $tb.ScrollToCaret() })
+}
+$tmr = New-Object Windows.Forms.Timer; $tmr.Interval=300
+$sw  = New-Object System.Diagnostics.Stopwatch
+$script:curProc = $null
+
+$tmr.Add_Tick({ if($sw.IsRunning){ $lbl.Text = "실행 중... " + "{0:N1}s" -f $sw.Elapsed.TotalSeconds } })
+
+$btnScan.Add_Click({
+  $cbModel.Items.Clear()
+  (Get-ModelDirs) | ForEach-Object { [void]$cbModel.Items.Add($_) }
+  if($cbModel.Items.Count -gt 0){ $cbModel.SelectedIndex=0 }
+  Append "재검색 완료: $($cbModel.Items.Count)개"
+})
+
+$btnDiag.Add_Click({
+  try{
+    $tb.Clear(); & $append ("== 진단 시작 " + (Get-Date).ToString("HH:mm:ss") + " ==")
+    $psi = [Diagnostics.ProcessStartInfo]::new()
+    $psi.FileName = $PY
+    $psi.ArgumentList.Add("-c")
+    $psi.ArgumentList.Add('import openvino as ov, openvino_genai as genai, sys, os; print("OV:",ov.get_version()); print("GEN:",genai.__version__); print("PY:",sys.version.replace("\n"," ")); print("CWD:",os.getcwd())')
+    $psi.UseShellExecute=$false; $psi.RedirectStandardOutput=$true; $psi.RedirectStandardError=$true; $psi.CreateNoWindow=$true
+    $p=[Diagnostics.Process]::Start($psi)
+    $out = $p.StandardOutput.ReadToEnd()
+    $err = $p.StandardError.ReadToEnd()
+    $p.WaitForExit()
+    if($out){ $out -split "`r?`n" | ForEach-Object { if($ErrorActionPreference="Stop"
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+[Windows.Forms.Application]::EnableVisualStyles()
+
+$AI   = Split-Path -Parent $PSScriptRoot
+$ROOT = Split-Path -Parent $AI
+$PY   = Join-Path $ROOT ".\.venv\Scripts\python.exe"
+$CLI  = Join-Path $ROOT "ai\cli\genai_run.py"
+
+function Get-ModelDirs {
+  $roots = @(
+    (Join-Path $ROOT "models\ov_npu_ready"),
+    (Join-Path $ROOT "models\ov_static")
+  ) | Where-Object { Test-Path $_ }
+
+  $list = New-Object System.Collections.ArrayList
+  foreach($r in $roots){
+    Get-ChildItem -Path $r -Directory -Recurse -EA SilentlyContinue | ForEach-Object {
+      $base = $_.FullName
+      $xml = Join-Path $base 'openvino_model.xml'
+      $tok = Join-Path $base 'openvino_tokenizer.xml'
+      $det = Join-Path $base 'openvino_detokenizer.xml'
+      if( (Test-Path $xml) -and (Test-Path $tok) -and (Test-Path $det) ){
+        [void]$list.Add($base)
+      }
+    }
+  }
+  return ($list | Sort-Object)
+}
+function Q([string]$s){ if($s -match '[\s"]'){ '"' + ($s -replace '"','\"') + '"' } else { $s } }
+
+# --- UI ---
+$f = New-Object Windows.Forms.Form
+$f.Text="NPU GenAI 제너레이터"
+$f.StartPosition="CenterScreen"
+$f.Width=980; $f.Height=720
+$f.Font=New-Object System.Drawing.Font('맑은 고딕',9)
+
+# 상단 레이아웃
+$tbl = New-Object Windows.Forms.TableLayoutPanel
+$tbl.Dock='Top'; $tbl.RowCount=3; $tbl.ColumnCount=5; $tbl.Height=140
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,15)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,40)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,12)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,8)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,25)))
+$tbl.RowStyles.Add((New-Object Windows.Forms.RowStyle([Windows.Forms.SizeType]::Absolute,40)))
+$tbl.RowStyles.Add((New-Object Windows.Forms.RowStyle([Windows.Forms.SizeType]::Absolute,60)))
+$tbl.RowStyles.Add((New-Object Windows.Forms.RowStyle([Windows.Forms.SizeType]::Absolute,40)))
+
+# 1행: 모델
+$lblM   = New-Object Windows.Forms.Label; $lblM.Text="모델"; $lblM.TextAlign='MiddleRight'; $lblM.Dock='Fill'
+$cbModel= New-Object Windows.Forms.ComboBox; $cbModel.Dock='Fill'; $cbModel.DropDownStyle='DropDownList'
+(Get-ModelDirs) | ForEach-Object { [void]$cbModel.Items.Add($_) }; if($cbModel.Items.Count -gt 0){ $cbModel.SelectedIndex=0 }
+$btnScan= New-Object Windows.Forms.Button; $btnScan.Text="재검색"; $btnScan.Dock='Fill'
+$cbDev  = New-Object Windows.Forms.ComboBox; $cbDev.Dock='Fill'; @("NPU","AUTO","GPU","CPU") | % { [void]$cbDev.Items.Add($_) }; $cbDev.SelectedIndex=0
+$lblTok = New-Object Windows.Forms.Label; $lblTok.Text="토큰"; $lblTok.TextAlign='MiddleRight'; $lblTok.Dock='Fill'
+$nudTok = New-Object Windows.Forms.NumericUpDown; $nudTok.Dock='Fill'; $nudTok.Minimum=16; $nudTok.Maximum=2048; $nudTok.Value=128
+$tbl.Controls.Add($lblM,0,0); $tbl.Controls.Add($cbModel,1,0); $tbl.Controls.Add($btnScan,2,0); $tbl.Controls.Add($lblTok,3,0); $tbl.Controls.Add($nudTok,4,0)
+
+# 2행: 프롬프트(멀티라인)
+$lblP = New-Object Windows.Forms.Label; $lblP.Text="프롬프트"; $lblP.TextAlign='MiddleRight'; $lblP.Dock='Fill'
+$txtP = New-Object Windows.Forms.TextBox; $txtP.Dock='Fill'; $txtP.Multiline=$true
+$txtP.Text = Get-Content (Join-Path $ROOT "ai\prompts\design_master.txt") -Raw
+$tbl.Controls.Add($lblP,0,1); $tbl.Controls.Add($txtP,1,1); $tbl.SetColumnSpan($txtP,4)
+
+# 3행: 버튼들
+$btnDiag = New-Object Windows.Forms.Button; $btnDiag.Text="진단"; $btnDiag.Dock='Fill'
+$btnGen  = New-Object Windows.Forms.Button; $btnGen.Text="제너레이터 시작"; $btnGen.Dock='Fill'
+$btnStop = New-Object Windows.Forms.Button; $btnStop.Text="중지"; $btnStop.Dock='Fill'; $btnStop.Enabled=$false
+$tbl.Controls.Add($btnDiag,2,2); $tbl.Controls.Add($btnGen,3,2); $tbl.Controls.Add($btnStop,4,2)
+
+# 로그/상태
+$pb = New-Object Windows.Forms.ProgressBar; $pb.Dock='Top'; $pb.Height=12; $pb.Minimum=0; $pb.Maximum=100
+$lbl = New-Object Windows.Forms.Label; $lbl.Dock='Top'; $lbl.Height=18; $lbl.TextAlign='MiddleLeft'; $lbl.Text="대기"
+$tb = New-Object Windows.Forms.TextBox; $tb.Dock='Fill'; $tb.Multiline=$true; $tb.ScrollBars='Vertical'
+$f.Controls.Add($tb); $f.Controls.Add($pb); $f.Controls.Add($lbl); $f.Controls.Add($tbl)
+$tb.BringToFront(); $tb.Dock='Fill'
+
+function Append([string]$s){
+  $null = $tb.BeginInvoke([Action]{ $ts=(Get-Date).ToString('HH:mm:ss'); $tb.AppendText("[$ts] $s`r`n"); $tb.SelectionStart=$tb.Text.Length; $tb.ScrollToCaret() })
+}
+$tmr = New-Object Windows.Forms.Timer; $tmr.Interval=300
+$sw  = New-Object System.Diagnostics.Stopwatch
+$script:curProc = $null
+
+$tmr.Add_Tick({ if($sw.IsRunning){ $lbl.Text = "실행 중... " + "{0:N1}s" -f $sw.Elapsed.TotalSeconds } })
+
+$btnScan.Add_Click({
+  $cbModel.Items.Clear()
+  (Get-ModelDirs) | ForEach-Object { [void]$cbModel.Items.Add($_) }
+  if($cbModel.Items.Count -gt 0){ $cbModel.SelectedIndex=0 }
+  Append "재검색 완료: $($cbModel.Items.Count)개"
+})
+
+$btnDiag.Add_Click({
+  try{
+    $tb.Clear(); Append "== 진단 시작 =="
+    $pb.Style='Marquee'; $lbl.Text="진단 중..."
+    & $PY -c "import openvino as ov, openvino_genai as genai, sys, os; print('OV :', ov.get_version()); print('GEN:', genai.__version__); print('PY :', sys.version.replace('\n',' ')); print('CWD:', os.getcwd())" 2>&1 | % { Append $_ }
+    Append "모델 탐색:"; (Get-ModelDirs) | % { Append (' - ' + $_) }
+    $pb.Style='Blocks'; $lbl.Text="진단 완료"
+    Append "== 진단 완료 =="
+  } catch { $pb.Style='Blocks'; $lbl.Text="진단 오류"; Append ('[진단 오류] ' + $_.Exception.Message) }
+})
+
+$btnGen.Add_Click({
+  $pb.Style='Marquee'; $pb.Value=0; $lbl.Text="시작 준비"
+  $dir=$cbModel.SelectedItem; if(-not $dir){ Append "모델 없음"; $pb.Style='Blocks'; return }
+  $dev=$cbDev.SelectedItem; $tok=[int]$nudTok.Value; $pr=$txtP.Text
+  $tb.Clear(); Append "== 생성 시작 =="; Append "모델=$dir"; Append "장치=$dev"; Append "토큰제한=$tok"
+  $args=@($CLI,"--model_dir",$dir,"--device",$dev,"--max_new_tokens",$tok,"--prompt",$pr) | % { Q $_ }
+  $psi=[Diagnostics.ProcessStartInfo]::new()
+  $psi.FileName=$PY; $psi.Arguments=($args -join " ")
+  $psi.UseShellExecute=$false; $psi.RedirectStandardOutput=$true; $psi.RedirectStandardError=$true; $psi.CreateNoWindow=$true
+
+  try{
+    $p=[Diagnostics.Process]::new(); $p.StartInfo=$psi; $p.EnableRaisingEvents=$true
+    $p.add_OutputDataReceived({ param($s,$e) if($e.Data){ Append $e.Data } })
+    $p.add_ErrorDataReceived( { param($s,$e) if($e.Data){ Append ("[ERR] " + $e.Data) } })
+    $p.add_Exited({
+      $sw.Stop(); $tmr.Stop()
+      $null = $f.BeginInvoke([Action]{ $pb.Style='Blocks'; $lbl.Text = "완료 (코드={0})" -f $p.ExitCode; $btnStop.Enabled=$false })
+      Append ("== 종료, 코드=" + $p.ExitCode)
+      $script:curProc = $null
+    })
+    [void]$p.Start()
+    $p.BeginOutputReadLine(); $p.BeginErrorReadLine()
+    $script:curProc = $p
+    $sw.Restart(); $tmr.Start(); $btnStop.Enabled=$true; $lbl.Text="실행 중..."
+  } catch {
+    $pb.Style='Blocks'; $lbl.Text="실행 오류"; Append ('[실행 오류] ' + $_.Exception.Message)
+  }
+})
+
+$btnStop.Add_Click({
+  if($script:curProc -and -not $script:curProc.HasExited){
+    try{ $script:curProc.Kill(); Append "사용자 중지"; } catch { Append "[중지 실패] " + $_.Exception.Message }
+  }
+})
+
+[void]$f.ShowDialog()
+){ & $append $ErrorActionPreference="Stop"
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+[Windows.Forms.Application]::EnableVisualStyles()
+
+$AI   = Split-Path -Parent $PSScriptRoot
+$ROOT = Split-Path -Parent $AI
+$PY   = Join-Path $ROOT ".\.venv\Scripts\python.exe"
+$CLI  = Join-Path $ROOT "ai\cli\genai_run.py"
+
+function Get-ModelDirs {
+  $roots = @(
+    (Join-Path $ROOT "models\ov_npu_ready"),
+    (Join-Path $ROOT "models\ov_static")
+  ) | Where-Object { Test-Path $_ }
+
+  $list = New-Object System.Collections.ArrayList
+  foreach($r in $roots){
+    Get-ChildItem -Path $r -Directory -Recurse -EA SilentlyContinue | ForEach-Object {
+      $base = $_.FullName
+      $xml = Join-Path $base 'openvino_model.xml'
+      $tok = Join-Path $base 'openvino_tokenizer.xml'
+      $det = Join-Path $base 'openvino_detokenizer.xml'
+      if( (Test-Path $xml) -and (Test-Path $tok) -and (Test-Path $det) ){
+        [void]$list.Add($base)
+      }
+    }
+  }
+  return ($list | Sort-Object)
+}
+function Q([string]$s){ if($s -match '[\s"]'){ '"' + ($s -replace '"','\"') + '"' } else { $s } }
+
+# --- UI ---
+$f = New-Object Windows.Forms.Form
+$f.Text="NPU GenAI 제너레이터"
+$f.StartPosition="CenterScreen"
+$f.Width=980; $f.Height=720
+$f.Font=New-Object System.Drawing.Font('맑은 고딕',9)
+
+# 상단 레이아웃
+$tbl = New-Object Windows.Forms.TableLayoutPanel
+$tbl.Dock='Top'; $tbl.RowCount=3; $tbl.ColumnCount=5; $tbl.Height=140
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,15)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,40)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,12)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,8)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,25)))
+$tbl.RowStyles.Add((New-Object Windows.Forms.RowStyle([Windows.Forms.SizeType]::Absolute,40)))
+$tbl.RowStyles.Add((New-Object Windows.Forms.RowStyle([Windows.Forms.SizeType]::Absolute,60)))
+$tbl.RowStyles.Add((New-Object Windows.Forms.RowStyle([Windows.Forms.SizeType]::Absolute,40)))
+
+# 1행: 모델
+$lblM   = New-Object Windows.Forms.Label; $lblM.Text="모델"; $lblM.TextAlign='MiddleRight'; $lblM.Dock='Fill'
+$cbModel= New-Object Windows.Forms.ComboBox; $cbModel.Dock='Fill'; $cbModel.DropDownStyle='DropDownList'
+(Get-ModelDirs) | ForEach-Object { [void]$cbModel.Items.Add($_) }; if($cbModel.Items.Count -gt 0){ $cbModel.SelectedIndex=0 }
+$btnScan= New-Object Windows.Forms.Button; $btnScan.Text="재검색"; $btnScan.Dock='Fill'
+$cbDev  = New-Object Windows.Forms.ComboBox; $cbDev.Dock='Fill'; @("NPU","AUTO","GPU","CPU") | % { [void]$cbDev.Items.Add($_) }; $cbDev.SelectedIndex=0
+$lblTok = New-Object Windows.Forms.Label; $lblTok.Text="토큰"; $lblTok.TextAlign='MiddleRight'; $lblTok.Dock='Fill'
+$nudTok = New-Object Windows.Forms.NumericUpDown; $nudTok.Dock='Fill'; $nudTok.Minimum=16; $nudTok.Maximum=2048; $nudTok.Value=128
+$tbl.Controls.Add($lblM,0,0); $tbl.Controls.Add($cbModel,1,0); $tbl.Controls.Add($btnScan,2,0); $tbl.Controls.Add($lblTok,3,0); $tbl.Controls.Add($nudTok,4,0)
+
+# 2행: 프롬프트(멀티라인)
+$lblP = New-Object Windows.Forms.Label; $lblP.Text="프롬프트"; $lblP.TextAlign='MiddleRight'; $lblP.Dock='Fill'
+$txtP = New-Object Windows.Forms.TextBox; $txtP.Dock='Fill'; $txtP.Multiline=$true
+$txtP.Text = Get-Content (Join-Path $ROOT "ai\prompts\design_master.txt") -Raw
+$tbl.Controls.Add($lblP,0,1); $tbl.Controls.Add($txtP,1,1); $tbl.SetColumnSpan($txtP,4)
+
+# 3행: 버튼들
+$btnDiag = New-Object Windows.Forms.Button; $btnDiag.Text="진단"; $btnDiag.Dock='Fill'
+$btnGen  = New-Object Windows.Forms.Button; $btnGen.Text="제너레이터 시작"; $btnGen.Dock='Fill'
+$btnStop = New-Object Windows.Forms.Button; $btnStop.Text="중지"; $btnStop.Dock='Fill'; $btnStop.Enabled=$false
+$tbl.Controls.Add($btnDiag,2,2); $tbl.Controls.Add($btnGen,3,2); $tbl.Controls.Add($btnStop,4,2)
+
+# 로그/상태
+$pb = New-Object Windows.Forms.ProgressBar; $pb.Dock='Top'; $pb.Height=12; $pb.Minimum=0; $pb.Maximum=100
+$lbl = New-Object Windows.Forms.Label; $lbl.Dock='Top'; $lbl.Height=18; $lbl.TextAlign='MiddleLeft'; $lbl.Text="대기"
+$tb = New-Object Windows.Forms.TextBox; $tb.Dock='Fill'; $tb.Multiline=$true; $tb.ScrollBars='Vertical'
+$f.Controls.Add($tb); $f.Controls.Add($pb); $f.Controls.Add($lbl); $f.Controls.Add($tbl)
+$tb.BringToFront(); $tb.Dock='Fill'
+
+function Append([string]$s){
+  $null = $tb.BeginInvoke([Action]{ $ts=(Get-Date).ToString('HH:mm:ss'); $tb.AppendText("[$ts] $s`r`n"); $tb.SelectionStart=$tb.Text.Length; $tb.ScrollToCaret() })
+}
+$tmr = New-Object Windows.Forms.Timer; $tmr.Interval=300
+$sw  = New-Object System.Diagnostics.Stopwatch
+$script:curProc = $null
+
+$tmr.Add_Tick({ if($sw.IsRunning){ $lbl.Text = "실행 중... " + "{0:N1}s" -f $sw.Elapsed.TotalSeconds } })
+
+$btnScan.Add_Click({
+  $cbModel.Items.Clear()
+  (Get-ModelDirs) | ForEach-Object { [void]$cbModel.Items.Add($_) }
+  if($cbModel.Items.Count -gt 0){ $cbModel.SelectedIndex=0 }
+  Append "재검색 완료: $($cbModel.Items.Count)개"
+})
+
+$btnDiag.Add_Click({
+  try{
+    $tb.Clear(); Append "== 진단 시작 =="
+    $pb.Style='Marquee'; $lbl.Text="진단 중..."
+    & $PY -c "import openvino as ov, openvino_genai as genai, sys, os; print('OV :', ov.get_version()); print('GEN:', genai.__version__); print('PY :', sys.version.replace('\n',' ')); print('CWD:', os.getcwd())" 2>&1 | % { Append $_ }
+    Append "모델 탐색:"; (Get-ModelDirs) | % { Append (' - ' + $_) }
+    $pb.Style='Blocks'; $lbl.Text="진단 완료"
+    Append "== 진단 완료 =="
+  } catch { $pb.Style='Blocks'; $lbl.Text="진단 오류"; Append ('[진단 오류] ' + $_.Exception.Message) }
+})
+
+$btnGen.Add_Click({
+  $pb.Style='Marquee'; $pb.Value=0; $lbl.Text="시작 준비"
+  $dir=$cbModel.SelectedItem; if(-not $dir){ Append "모델 없음"; $pb.Style='Blocks'; return }
+  $dev=$cbDev.SelectedItem; $tok=[int]$nudTok.Value; $pr=$txtP.Text
+  $tb.Clear(); Append "== 생성 시작 =="; Append "모델=$dir"; Append "장치=$dev"; Append "토큰제한=$tok"
+  $args=@($CLI,"--model_dir",$dir,"--device",$dev,"--max_new_tokens",$tok,"--prompt",$pr) | % { Q $_ }
+  $psi=[Diagnostics.ProcessStartInfo]::new()
+  $psi.FileName=$PY; $psi.Arguments=($args -join " ")
+  $psi.UseShellExecute=$false; $psi.RedirectStandardOutput=$true; $psi.RedirectStandardError=$true; $psi.CreateNoWindow=$true
+
+  try{
+    $p=[Diagnostics.Process]::new(); $p.StartInfo=$psi; $p.EnableRaisingEvents=$true
+    $p.add_OutputDataReceived({ param($s,$e) if($e.Data){ Append $e.Data } })
+    $p.add_ErrorDataReceived( { param($s,$e) if($e.Data){ Append ("[ERR] " + $e.Data) } })
+    $p.add_Exited({
+      $sw.Stop(); $tmr.Stop()
+      $null = $f.BeginInvoke([Action]{ $pb.Style='Blocks'; $lbl.Text = "완료 (코드={0})" -f $p.ExitCode; $btnStop.Enabled=$false })
+      Append ("== 종료, 코드=" + $p.ExitCode)
+      $script:curProc = $null
+    })
+    [void]$p.Start()
+    $p.BeginOutputReadLine(); $p.BeginErrorReadLine()
+    $script:curProc = $p
+    $sw.Restart(); $tmr.Start(); $btnStop.Enabled=$true; $lbl.Text="실행 중..."
+  } catch {
+    $pb.Style='Blocks'; $lbl.Text="실행 오류"; Append ('[실행 오류] ' + $_.Exception.Message)
+  }
+})
+
+$btnStop.Add_Click({
+  if($script:curProc -and -not $script:curProc.HasExited){
+    try{ $script:curProc.Kill(); Append "사용자 중지"; } catch { Append "[중지 실패] " + $_.Exception.Message }
+  }
+})
+
+[void]$f.ShowDialog()
+ } } }
+    if($err){ & $append ("[ERR] " + $err.Trim()) }
+    & $append ("모델 탐색:")
+    (Get-ChildItem (Join-Path $ROOT "models\ov_npu_ready") -Directory -Recurse -EA SilentlyContinue |
+      Where-Object {
+        Test-Path (Join-Path $ErrorActionPreference="Stop"
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+[Windows.Forms.Application]::EnableVisualStyles()
+
+$AI   = Split-Path -Parent $PSScriptRoot
+$ROOT = Split-Path -Parent $AI
+$PY   = Join-Path $ROOT ".\.venv\Scripts\python.exe"
+$CLI  = Join-Path $ROOT "ai\cli\genai_run.py"
+
+function Get-ModelDirs {
+  $roots = @(
+    (Join-Path $ROOT "models\ov_npu_ready"),
+    (Join-Path $ROOT "models\ov_static")
+  ) | Where-Object { Test-Path $_ }
+
+  $list = New-Object System.Collections.ArrayList
+  foreach($r in $roots){
+    Get-ChildItem -Path $r -Directory -Recurse -EA SilentlyContinue | ForEach-Object {
+      $base = $_.FullName
+      $xml = Join-Path $base 'openvino_model.xml'
+      $tok = Join-Path $base 'openvino_tokenizer.xml'
+      $det = Join-Path $base 'openvino_detokenizer.xml'
+      if( (Test-Path $xml) -and (Test-Path $tok) -and (Test-Path $det) ){
+        [void]$list.Add($base)
+      }
+    }
+  }
+  return ($list | Sort-Object)
+}
+function Q([string]$s){ if($s -match '[\s"]'){ '"' + ($s -replace '"','\"') + '"' } else { $s } }
+
+# --- UI ---
+$f = New-Object Windows.Forms.Form
+$f.Text="NPU GenAI 제너레이터"
+$f.StartPosition="CenterScreen"
+$f.Width=980; $f.Height=720
+$f.Font=New-Object System.Drawing.Font('맑은 고딕',9)
+
+# 상단 레이아웃
+$tbl = New-Object Windows.Forms.TableLayoutPanel
+$tbl.Dock='Top'; $tbl.RowCount=3; $tbl.ColumnCount=5; $tbl.Height=140
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,15)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,40)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,12)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,8)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,25)))
+$tbl.RowStyles.Add((New-Object Windows.Forms.RowStyle([Windows.Forms.SizeType]::Absolute,40)))
+$tbl.RowStyles.Add((New-Object Windows.Forms.RowStyle([Windows.Forms.SizeType]::Absolute,60)))
+$tbl.RowStyles.Add((New-Object Windows.Forms.RowStyle([Windows.Forms.SizeType]::Absolute,40)))
+
+# 1행: 모델
+$lblM   = New-Object Windows.Forms.Label; $lblM.Text="모델"; $lblM.TextAlign='MiddleRight'; $lblM.Dock='Fill'
+$cbModel= New-Object Windows.Forms.ComboBox; $cbModel.Dock='Fill'; $cbModel.DropDownStyle='DropDownList'
+(Get-ModelDirs) | ForEach-Object { [void]$cbModel.Items.Add($_) }; if($cbModel.Items.Count -gt 0){ $cbModel.SelectedIndex=0 }
+$btnScan= New-Object Windows.Forms.Button; $btnScan.Text="재검색"; $btnScan.Dock='Fill'
+$cbDev  = New-Object Windows.Forms.ComboBox; $cbDev.Dock='Fill'; @("NPU","AUTO","GPU","CPU") | % { [void]$cbDev.Items.Add($_) }; $cbDev.SelectedIndex=0
+$lblTok = New-Object Windows.Forms.Label; $lblTok.Text="토큰"; $lblTok.TextAlign='MiddleRight'; $lblTok.Dock='Fill'
+$nudTok = New-Object Windows.Forms.NumericUpDown; $nudTok.Dock='Fill'; $nudTok.Minimum=16; $nudTok.Maximum=2048; $nudTok.Value=128
+$tbl.Controls.Add($lblM,0,0); $tbl.Controls.Add($cbModel,1,0); $tbl.Controls.Add($btnScan,2,0); $tbl.Controls.Add($lblTok,3,0); $tbl.Controls.Add($nudTok,4,0)
+
+# 2행: 프롬프트(멀티라인)
+$lblP = New-Object Windows.Forms.Label; $lblP.Text="프롬프트"; $lblP.TextAlign='MiddleRight'; $lblP.Dock='Fill'
+$txtP = New-Object Windows.Forms.TextBox; $txtP.Dock='Fill'; $txtP.Multiline=$true
+$txtP.Text = Get-Content (Join-Path $ROOT "ai\prompts\design_master.txt") -Raw
+$tbl.Controls.Add($lblP,0,1); $tbl.Controls.Add($txtP,1,1); $tbl.SetColumnSpan($txtP,4)
+
+# 3행: 버튼들
+$btnDiag = New-Object Windows.Forms.Button; $btnDiag.Text="진단"; $btnDiag.Dock='Fill'
+$btnGen  = New-Object Windows.Forms.Button; $btnGen.Text="제너레이터 시작"; $btnGen.Dock='Fill'
+$btnStop = New-Object Windows.Forms.Button; $btnStop.Text="중지"; $btnStop.Dock='Fill'; $btnStop.Enabled=$false
+$tbl.Controls.Add($btnDiag,2,2); $tbl.Controls.Add($btnGen,3,2); $tbl.Controls.Add($btnStop,4,2)
+
+# 로그/상태
+$pb = New-Object Windows.Forms.ProgressBar; $pb.Dock='Top'; $pb.Height=12; $pb.Minimum=0; $pb.Maximum=100
+$lbl = New-Object Windows.Forms.Label; $lbl.Dock='Top'; $lbl.Height=18; $lbl.TextAlign='MiddleLeft'; $lbl.Text="대기"
+$tb = New-Object Windows.Forms.TextBox; $tb.Dock='Fill'; $tb.Multiline=$true; $tb.ScrollBars='Vertical'
+$f.Controls.Add($tb); $f.Controls.Add($pb); $f.Controls.Add($lbl); $f.Controls.Add($tbl)
+$tb.BringToFront(); $tb.Dock='Fill'
+
+function Append([string]$s){
+  $null = $tb.BeginInvoke([Action]{ $ts=(Get-Date).ToString('HH:mm:ss'); $tb.AppendText("[$ts] $s`r`n"); $tb.SelectionStart=$tb.Text.Length; $tb.ScrollToCaret() })
+}
+$tmr = New-Object Windows.Forms.Timer; $tmr.Interval=300
+$sw  = New-Object System.Diagnostics.Stopwatch
+$script:curProc = $null
+
+$tmr.Add_Tick({ if($sw.IsRunning){ $lbl.Text = "실행 중... " + "{0:N1}s" -f $sw.Elapsed.TotalSeconds } })
+
+$btnScan.Add_Click({
+  $cbModel.Items.Clear()
+  (Get-ModelDirs) | ForEach-Object { [void]$cbModel.Items.Add($_) }
+  if($cbModel.Items.Count -gt 0){ $cbModel.SelectedIndex=0 }
+  Append "재검색 완료: $($cbModel.Items.Count)개"
+})
+
+$btnDiag.Add_Click({
+  try{
+    $tb.Clear(); Append "== 진단 시작 =="
+    $pb.Style='Marquee'; $lbl.Text="진단 중..."
+    & $PY -c "import openvino as ov, openvino_genai as genai, sys, os; print('OV :', ov.get_version()); print('GEN:', genai.__version__); print('PY :', sys.version.replace('\n',' ')); print('CWD:', os.getcwd())" 2>&1 | % { Append $_ }
+    Append "모델 탐색:"; (Get-ModelDirs) | % { Append (' - ' + $_) }
+    $pb.Style='Blocks'; $lbl.Text="진단 완료"
+    Append "== 진단 완료 =="
+  } catch { $pb.Style='Blocks'; $lbl.Text="진단 오류"; Append ('[진단 오류] ' + $_.Exception.Message) }
+})
+
+$btnGen.Add_Click({
+  $pb.Style='Marquee'; $pb.Value=0; $lbl.Text="시작 준비"
+  $dir=$cbModel.SelectedItem; if(-not $dir){ Append "모델 없음"; $pb.Style='Blocks'; return }
+  $dev=$cbDev.SelectedItem; $tok=[int]$nudTok.Value; $pr=$txtP.Text
+  $tb.Clear(); Append "== 생성 시작 =="; Append "모델=$dir"; Append "장치=$dev"; Append "토큰제한=$tok"
+  $args=@($CLI,"--model_dir",$dir,"--device",$dev,"--max_new_tokens",$tok,"--prompt",$pr) | % { Q $_ }
+  $psi=[Diagnostics.ProcessStartInfo]::new()
+  $psi.FileName=$PY; $psi.Arguments=($args -join " ")
+  $psi.UseShellExecute=$false; $psi.RedirectStandardOutput=$true; $psi.RedirectStandardError=$true; $psi.CreateNoWindow=$true
+
+  try{
+    $p=[Diagnostics.Process]::new(); $p.StartInfo=$psi; $p.EnableRaisingEvents=$true
+    $p.add_OutputDataReceived({ param($s,$e) if($e.Data){ Append $e.Data } })
+    $p.add_ErrorDataReceived( { param($s,$e) if($e.Data){ Append ("[ERR] " + $e.Data) } })
+    $p.add_Exited({
+      $sw.Stop(); $tmr.Stop()
+      $null = $f.BeginInvoke([Action]{ $pb.Style='Blocks'; $lbl.Text = "완료 (코드={0})" -f $p.ExitCode; $btnStop.Enabled=$false })
+      Append ("== 종료, 코드=" + $p.ExitCode)
+      $script:curProc = $null
+    })
+    [void]$p.Start()
+    $p.BeginOutputReadLine(); $p.BeginErrorReadLine()
+    $script:curProc = $p
+    $sw.Restart(); $tmr.Start(); $btnStop.Enabled=$true; $lbl.Text="실행 중..."
+  } catch {
+    $pb.Style='Blocks'; $lbl.Text="실행 오류"; Append ('[실행 오류] ' + $_.Exception.Message)
+  }
+})
+
+$btnStop.Add_Click({
+  if($script:curProc -and -not $script:curProc.HasExited){
+    try{ $script:curProc.Kill(); Append "사용자 중지"; } catch { Append "[중지 실패] " + $_.Exception.Message }
+  }
+})
+
+[void]$f.ShowDialog()
+.FullName 'openvino_model.xml') -and
+        Test-Path (Join-Path $ErrorActionPreference="Stop"
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+[Windows.Forms.Application]::EnableVisualStyles()
+
+$AI   = Split-Path -Parent $PSScriptRoot
+$ROOT = Split-Path -Parent $AI
+$PY   = Join-Path $ROOT ".\.venv\Scripts\python.exe"
+$CLI  = Join-Path $ROOT "ai\cli\genai_run.py"
+
+function Get-ModelDirs {
+  $roots = @(
+    (Join-Path $ROOT "models\ov_npu_ready"),
+    (Join-Path $ROOT "models\ov_static")
+  ) | Where-Object { Test-Path $_ }
+
+  $list = New-Object System.Collections.ArrayList
+  foreach($r in $roots){
+    Get-ChildItem -Path $r -Directory -Recurse -EA SilentlyContinue | ForEach-Object {
+      $base = $_.FullName
+      $xml = Join-Path $base 'openvino_model.xml'
+      $tok = Join-Path $base 'openvino_tokenizer.xml'
+      $det = Join-Path $base 'openvino_detokenizer.xml'
+      if( (Test-Path $xml) -and (Test-Path $tok) -and (Test-Path $det) ){
+        [void]$list.Add($base)
+      }
+    }
+  }
+  return ($list | Sort-Object)
+}
+function Q([string]$s){ if($s -match '[\s"]'){ '"' + ($s -replace '"','\"') + '"' } else { $s } }
+
+# --- UI ---
+$f = New-Object Windows.Forms.Form
+$f.Text="NPU GenAI 제너레이터"
+$f.StartPosition="CenterScreen"
+$f.Width=980; $f.Height=720
+$f.Font=New-Object System.Drawing.Font('맑은 고딕',9)
+
+# 상단 레이아웃
+$tbl = New-Object Windows.Forms.TableLayoutPanel
+$tbl.Dock='Top'; $tbl.RowCount=3; $tbl.ColumnCount=5; $tbl.Height=140
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,15)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,40)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,12)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,8)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,25)))
+$tbl.RowStyles.Add((New-Object Windows.Forms.RowStyle([Windows.Forms.SizeType]::Absolute,40)))
+$tbl.RowStyles.Add((New-Object Windows.Forms.RowStyle([Windows.Forms.SizeType]::Absolute,60)))
+$tbl.RowStyles.Add((New-Object Windows.Forms.RowStyle([Windows.Forms.SizeType]::Absolute,40)))
+
+# 1행: 모델
+$lblM   = New-Object Windows.Forms.Label; $lblM.Text="모델"; $lblM.TextAlign='MiddleRight'; $lblM.Dock='Fill'
+$cbModel= New-Object Windows.Forms.ComboBox; $cbModel.Dock='Fill'; $cbModel.DropDownStyle='DropDownList'
+(Get-ModelDirs) | ForEach-Object { [void]$cbModel.Items.Add($_) }; if($cbModel.Items.Count -gt 0){ $cbModel.SelectedIndex=0 }
+$btnScan= New-Object Windows.Forms.Button; $btnScan.Text="재검색"; $btnScan.Dock='Fill'
+$cbDev  = New-Object Windows.Forms.ComboBox; $cbDev.Dock='Fill'; @("NPU","AUTO","GPU","CPU") | % { [void]$cbDev.Items.Add($_) }; $cbDev.SelectedIndex=0
+$lblTok = New-Object Windows.Forms.Label; $lblTok.Text="토큰"; $lblTok.TextAlign='MiddleRight'; $lblTok.Dock='Fill'
+$nudTok = New-Object Windows.Forms.NumericUpDown; $nudTok.Dock='Fill'; $nudTok.Minimum=16; $nudTok.Maximum=2048; $nudTok.Value=128
+$tbl.Controls.Add($lblM,0,0); $tbl.Controls.Add($cbModel,1,0); $tbl.Controls.Add($btnScan,2,0); $tbl.Controls.Add($lblTok,3,0); $tbl.Controls.Add($nudTok,4,0)
+
+# 2행: 프롬프트(멀티라인)
+$lblP = New-Object Windows.Forms.Label; $lblP.Text="프롬프트"; $lblP.TextAlign='MiddleRight'; $lblP.Dock='Fill'
+$txtP = New-Object Windows.Forms.TextBox; $txtP.Dock='Fill'; $txtP.Multiline=$true
+$txtP.Text = Get-Content (Join-Path $ROOT "ai\prompts\design_master.txt") -Raw
+$tbl.Controls.Add($lblP,0,1); $tbl.Controls.Add($txtP,1,1); $tbl.SetColumnSpan($txtP,4)
+
+# 3행: 버튼들
+$btnDiag = New-Object Windows.Forms.Button; $btnDiag.Text="진단"; $btnDiag.Dock='Fill'
+$btnGen  = New-Object Windows.Forms.Button; $btnGen.Text="제너레이터 시작"; $btnGen.Dock='Fill'
+$btnStop = New-Object Windows.Forms.Button; $btnStop.Text="중지"; $btnStop.Dock='Fill'; $btnStop.Enabled=$false
+$tbl.Controls.Add($btnDiag,2,2); $tbl.Controls.Add($btnGen,3,2); $tbl.Controls.Add($btnStop,4,2)
+
+# 로그/상태
+$pb = New-Object Windows.Forms.ProgressBar; $pb.Dock='Top'; $pb.Height=12; $pb.Minimum=0; $pb.Maximum=100
+$lbl = New-Object Windows.Forms.Label; $lbl.Dock='Top'; $lbl.Height=18; $lbl.TextAlign='MiddleLeft'; $lbl.Text="대기"
+$tb = New-Object Windows.Forms.TextBox; $tb.Dock='Fill'; $tb.Multiline=$true; $tb.ScrollBars='Vertical'
+$f.Controls.Add($tb); $f.Controls.Add($pb); $f.Controls.Add($lbl); $f.Controls.Add($tbl)
+$tb.BringToFront(); $tb.Dock='Fill'
+
+function Append([string]$s){
+  $null = $tb.BeginInvoke([Action]{ $ts=(Get-Date).ToString('HH:mm:ss'); $tb.AppendText("[$ts] $s`r`n"); $tb.SelectionStart=$tb.Text.Length; $tb.ScrollToCaret() })
+}
+$tmr = New-Object Windows.Forms.Timer; $tmr.Interval=300
+$sw  = New-Object System.Diagnostics.Stopwatch
+$script:curProc = $null
+
+$tmr.Add_Tick({ if($sw.IsRunning){ $lbl.Text = "실행 중... " + "{0:N1}s" -f $sw.Elapsed.TotalSeconds } })
+
+$btnScan.Add_Click({
+  $cbModel.Items.Clear()
+  (Get-ModelDirs) | ForEach-Object { [void]$cbModel.Items.Add($_) }
+  if($cbModel.Items.Count -gt 0){ $cbModel.SelectedIndex=0 }
+  Append "재검색 완료: $($cbModel.Items.Count)개"
+})
+
+$btnDiag.Add_Click({
+  try{
+    $tb.Clear(); Append "== 진단 시작 =="
+    $pb.Style='Marquee'; $lbl.Text="진단 중..."
+    & $PY -c "import openvino as ov, openvino_genai as genai, sys, os; print('OV :', ov.get_version()); print('GEN:', genai.__version__); print('PY :', sys.version.replace('\n',' ')); print('CWD:', os.getcwd())" 2>&1 | % { Append $_ }
+    Append "모델 탐색:"; (Get-ModelDirs) | % { Append (' - ' + $_) }
+    $pb.Style='Blocks'; $lbl.Text="진단 완료"
+    Append "== 진단 완료 =="
+  } catch { $pb.Style='Blocks'; $lbl.Text="진단 오류"; Append ('[진단 오류] ' + $_.Exception.Message) }
+})
+
+$btnGen.Add_Click({
+  $pb.Style='Marquee'; $pb.Value=0; $lbl.Text="시작 준비"
+  $dir=$cbModel.SelectedItem; if(-not $dir){ Append "모델 없음"; $pb.Style='Blocks'; return }
+  $dev=$cbDev.SelectedItem; $tok=[int]$nudTok.Value; $pr=$txtP.Text
+  $tb.Clear(); Append "== 생성 시작 =="; Append "모델=$dir"; Append "장치=$dev"; Append "토큰제한=$tok"
+  $args=@($CLI,"--model_dir",$dir,"--device",$dev,"--max_new_tokens",$tok,"--prompt",$pr) | % { Q $_ }
+  $psi=[Diagnostics.ProcessStartInfo]::new()
+  $psi.FileName=$PY; $psi.Arguments=($args -join " ")
+  $psi.UseShellExecute=$false; $psi.RedirectStandardOutput=$true; $psi.RedirectStandardError=$true; $psi.CreateNoWindow=$true
+
+  try{
+    $p=[Diagnostics.Process]::new(); $p.StartInfo=$psi; $p.EnableRaisingEvents=$true
+    $p.add_OutputDataReceived({ param($s,$e) if($e.Data){ Append $e.Data } })
+    $p.add_ErrorDataReceived( { param($s,$e) if($e.Data){ Append ("[ERR] " + $e.Data) } })
+    $p.add_Exited({
+      $sw.Stop(); $tmr.Stop()
+      $null = $f.BeginInvoke([Action]{ $pb.Style='Blocks'; $lbl.Text = "완료 (코드={0})" -f $p.ExitCode; $btnStop.Enabled=$false })
+      Append ("== 종료, 코드=" + $p.ExitCode)
+      $script:curProc = $null
+    })
+    [void]$p.Start()
+    $p.BeginOutputReadLine(); $p.BeginErrorReadLine()
+    $script:curProc = $p
+    $sw.Restart(); $tmr.Start(); $btnStop.Enabled=$true; $lbl.Text="실행 중..."
+  } catch {
+    $pb.Style='Blocks'; $lbl.Text="실행 오류"; Append ('[실행 오류] ' + $_.Exception.Message)
+  }
+})
+
+$btnStop.Add_Click({
+  if($script:curProc -and -not $script:curProc.HasExited){
+    try{ $script:curProc.Kill(); Append "사용자 중지"; } catch { Append "[중지 실패] " + $_.Exception.Message }
+  }
+})
+
+[void]$f.ShowDialog()
+.FullName 'openvino_tokenizer.xml') -and
+        Test-Path (Join-Path $ErrorActionPreference="Stop"
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+[Windows.Forms.Application]::EnableVisualStyles()
+
+$AI   = Split-Path -Parent $PSScriptRoot
+$ROOT = Split-Path -Parent $AI
+$PY   = Join-Path $ROOT ".\.venv\Scripts\python.exe"
+$CLI  = Join-Path $ROOT "ai\cli\genai_run.py"
+
+function Get-ModelDirs {
+  $roots = @(
+    (Join-Path $ROOT "models\ov_npu_ready"),
+    (Join-Path $ROOT "models\ov_static")
+  ) | Where-Object { Test-Path $_ }
+
+  $list = New-Object System.Collections.ArrayList
+  foreach($r in $roots){
+    Get-ChildItem -Path $r -Directory -Recurse -EA SilentlyContinue | ForEach-Object {
+      $base = $_.FullName
+      $xml = Join-Path $base 'openvino_model.xml'
+      $tok = Join-Path $base 'openvino_tokenizer.xml'
+      $det = Join-Path $base 'openvino_detokenizer.xml'
+      if( (Test-Path $xml) -and (Test-Path $tok) -and (Test-Path $det) ){
+        [void]$list.Add($base)
+      }
+    }
+  }
+  return ($list | Sort-Object)
+}
+function Q([string]$s){ if($s -match '[\s"]'){ '"' + ($s -replace '"','\"') + '"' } else { $s } }
+
+# --- UI ---
+$f = New-Object Windows.Forms.Form
+$f.Text="NPU GenAI 제너레이터"
+$f.StartPosition="CenterScreen"
+$f.Width=980; $f.Height=720
+$f.Font=New-Object System.Drawing.Font('맑은 고딕',9)
+
+# 상단 레이아웃
+$tbl = New-Object Windows.Forms.TableLayoutPanel
+$tbl.Dock='Top'; $tbl.RowCount=3; $tbl.ColumnCount=5; $tbl.Height=140
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,15)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,40)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,12)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,8)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,25)))
+$tbl.RowStyles.Add((New-Object Windows.Forms.RowStyle([Windows.Forms.SizeType]::Absolute,40)))
+$tbl.RowStyles.Add((New-Object Windows.Forms.RowStyle([Windows.Forms.SizeType]::Absolute,60)))
+$tbl.RowStyles.Add((New-Object Windows.Forms.RowStyle([Windows.Forms.SizeType]::Absolute,40)))
+
+# 1행: 모델
+$lblM   = New-Object Windows.Forms.Label; $lblM.Text="모델"; $lblM.TextAlign='MiddleRight'; $lblM.Dock='Fill'
+$cbModel= New-Object Windows.Forms.ComboBox; $cbModel.Dock='Fill'; $cbModel.DropDownStyle='DropDownList'
+(Get-ModelDirs) | ForEach-Object { [void]$cbModel.Items.Add($_) }; if($cbModel.Items.Count -gt 0){ $cbModel.SelectedIndex=0 }
+$btnScan= New-Object Windows.Forms.Button; $btnScan.Text="재검색"; $btnScan.Dock='Fill'
+$cbDev  = New-Object Windows.Forms.ComboBox; $cbDev.Dock='Fill'; @("NPU","AUTO","GPU","CPU") | % { [void]$cbDev.Items.Add($_) }; $cbDev.SelectedIndex=0
+$lblTok = New-Object Windows.Forms.Label; $lblTok.Text="토큰"; $lblTok.TextAlign='MiddleRight'; $lblTok.Dock='Fill'
+$nudTok = New-Object Windows.Forms.NumericUpDown; $nudTok.Dock='Fill'; $nudTok.Minimum=16; $nudTok.Maximum=2048; $nudTok.Value=128
+$tbl.Controls.Add($lblM,0,0); $tbl.Controls.Add($cbModel,1,0); $tbl.Controls.Add($btnScan,2,0); $tbl.Controls.Add($lblTok,3,0); $tbl.Controls.Add($nudTok,4,0)
+
+# 2행: 프롬프트(멀티라인)
+$lblP = New-Object Windows.Forms.Label; $lblP.Text="프롬프트"; $lblP.TextAlign='MiddleRight'; $lblP.Dock='Fill'
+$txtP = New-Object Windows.Forms.TextBox; $txtP.Dock='Fill'; $txtP.Multiline=$true
+$txtP.Text = Get-Content (Join-Path $ROOT "ai\prompts\design_master.txt") -Raw
+$tbl.Controls.Add($lblP,0,1); $tbl.Controls.Add($txtP,1,1); $tbl.SetColumnSpan($txtP,4)
+
+# 3행: 버튼들
+$btnDiag = New-Object Windows.Forms.Button; $btnDiag.Text="진단"; $btnDiag.Dock='Fill'
+$btnGen  = New-Object Windows.Forms.Button; $btnGen.Text="제너레이터 시작"; $btnGen.Dock='Fill'
+$btnStop = New-Object Windows.Forms.Button; $btnStop.Text="중지"; $btnStop.Dock='Fill'; $btnStop.Enabled=$false
+$tbl.Controls.Add($btnDiag,2,2); $tbl.Controls.Add($btnGen,3,2); $tbl.Controls.Add($btnStop,4,2)
+
+# 로그/상태
+$pb = New-Object Windows.Forms.ProgressBar; $pb.Dock='Top'; $pb.Height=12; $pb.Minimum=0; $pb.Maximum=100
+$lbl = New-Object Windows.Forms.Label; $lbl.Dock='Top'; $lbl.Height=18; $lbl.TextAlign='MiddleLeft'; $lbl.Text="대기"
+$tb = New-Object Windows.Forms.TextBox; $tb.Dock='Fill'; $tb.Multiline=$true; $tb.ScrollBars='Vertical'
+$f.Controls.Add($tb); $f.Controls.Add($pb); $f.Controls.Add($lbl); $f.Controls.Add($tbl)
+$tb.BringToFront(); $tb.Dock='Fill'
+
+function Append([string]$s){
+  $null = $tb.BeginInvoke([Action]{ $ts=(Get-Date).ToString('HH:mm:ss'); $tb.AppendText("[$ts] $s`r`n"); $tb.SelectionStart=$tb.Text.Length; $tb.ScrollToCaret() })
+}
+$tmr = New-Object Windows.Forms.Timer; $tmr.Interval=300
+$sw  = New-Object System.Diagnostics.Stopwatch
+$script:curProc = $null
+
+$tmr.Add_Tick({ if($sw.IsRunning){ $lbl.Text = "실행 중... " + "{0:N1}s" -f $sw.Elapsed.TotalSeconds } })
+
+$btnScan.Add_Click({
+  $cbModel.Items.Clear()
+  (Get-ModelDirs) | ForEach-Object { [void]$cbModel.Items.Add($_) }
+  if($cbModel.Items.Count -gt 0){ $cbModel.SelectedIndex=0 }
+  Append "재검색 완료: $($cbModel.Items.Count)개"
+})
+
+$btnDiag.Add_Click({
+  try{
+    $tb.Clear(); Append "== 진단 시작 =="
+    $pb.Style='Marquee'; $lbl.Text="진단 중..."
+    & $PY -c "import openvino as ov, openvino_genai as genai, sys, os; print('OV :', ov.get_version()); print('GEN:', genai.__version__); print('PY :', sys.version.replace('\n',' ')); print('CWD:', os.getcwd())" 2>&1 | % { Append $_ }
+    Append "모델 탐색:"; (Get-ModelDirs) | % { Append (' - ' + $_) }
+    $pb.Style='Blocks'; $lbl.Text="진단 완료"
+    Append "== 진단 완료 =="
+  } catch { $pb.Style='Blocks'; $lbl.Text="진단 오류"; Append ('[진단 오류] ' + $_.Exception.Message) }
+})
+
+$btnGen.Add_Click({
+  $pb.Style='Marquee'; $pb.Value=0; $lbl.Text="시작 준비"
+  $dir=$cbModel.SelectedItem; if(-not $dir){ Append "모델 없음"; $pb.Style='Blocks'; return }
+  $dev=$cbDev.SelectedItem; $tok=[int]$nudTok.Value; $pr=$txtP.Text
+  $tb.Clear(); Append "== 생성 시작 =="; Append "모델=$dir"; Append "장치=$dev"; Append "토큰제한=$tok"
+  $args=@($CLI,"--model_dir",$dir,"--device",$dev,"--max_new_tokens",$tok,"--prompt",$pr) | % { Q $_ }
+  $psi=[Diagnostics.ProcessStartInfo]::new()
+  $psi.FileName=$PY; $psi.Arguments=($args -join " ")
+  $psi.UseShellExecute=$false; $psi.RedirectStandardOutput=$true; $psi.RedirectStandardError=$true; $psi.CreateNoWindow=$true
+
+  try{
+    $p=[Diagnostics.Process]::new(); $p.StartInfo=$psi; $p.EnableRaisingEvents=$true
+    $p.add_OutputDataReceived({ param($s,$e) if($e.Data){ Append $e.Data } })
+    $p.add_ErrorDataReceived( { param($s,$e) if($e.Data){ Append ("[ERR] " + $e.Data) } })
+    $p.add_Exited({
+      $sw.Stop(); $tmr.Stop()
+      $null = $f.BeginInvoke([Action]{ $pb.Style='Blocks'; $lbl.Text = "완료 (코드={0})" -f $p.ExitCode; $btnStop.Enabled=$false })
+      Append ("== 종료, 코드=" + $p.ExitCode)
+      $script:curProc = $null
+    })
+    [void]$p.Start()
+    $p.BeginOutputReadLine(); $p.BeginErrorReadLine()
+    $script:curProc = $p
+    $sw.Restart(); $tmr.Start(); $btnStop.Enabled=$true; $lbl.Text="실행 중..."
+  } catch {
+    $pb.Style='Blocks'; $lbl.Text="실행 오류"; Append ('[실행 오류] ' + $_.Exception.Message)
+  }
+})
+
+$btnStop.Add_Click({
+  if($script:curProc -and -not $script:curProc.HasExited){
+    try{ $script:curProc.Kill(); Append "사용자 중지"; } catch { Append "[중지 실패] " + $_.Exception.Message }
+  }
+})
+
+[void]$f.ShowDialog()
+.FullName 'openvino_detokenizer.xml')
+      } | Select-Object -ExpandProperty FullName) | ForEach-Object { & $append (" - " + $ErrorActionPreference="Stop"
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+[Windows.Forms.Application]::EnableVisualStyles()
+
+$AI   = Split-Path -Parent $PSScriptRoot
+$ROOT = Split-Path -Parent $AI
+$PY   = Join-Path $ROOT ".\.venv\Scripts\python.exe"
+$CLI  = Join-Path $ROOT "ai\cli\genai_run.py"
+
+function Get-ModelDirs {
+  $roots = @(
+    (Join-Path $ROOT "models\ov_npu_ready"),
+    (Join-Path $ROOT "models\ov_static")
+  ) | Where-Object { Test-Path $_ }
+
+  $list = New-Object System.Collections.ArrayList
+  foreach($r in $roots){
+    Get-ChildItem -Path $r -Directory -Recurse -EA SilentlyContinue | ForEach-Object {
+      $base = $_.FullName
+      $xml = Join-Path $base 'openvino_model.xml'
+      $tok = Join-Path $base 'openvino_tokenizer.xml'
+      $det = Join-Path $base 'openvino_detokenizer.xml'
+      if( (Test-Path $xml) -and (Test-Path $tok) -and (Test-Path $det) ){
+        [void]$list.Add($base)
+      }
+    }
+  }
+  return ($list | Sort-Object)
+}
+function Q([string]$s){ if($s -match '[\s"]'){ '"' + ($s -replace '"','\"') + '"' } else { $s } }
+
+# --- UI ---
+$f = New-Object Windows.Forms.Form
+$f.Text="NPU GenAI 제너레이터"
+$f.StartPosition="CenterScreen"
+$f.Width=980; $f.Height=720
+$f.Font=New-Object System.Drawing.Font('맑은 고딕',9)
+
+# 상단 레이아웃
+$tbl = New-Object Windows.Forms.TableLayoutPanel
+$tbl.Dock='Top'; $tbl.RowCount=3; $tbl.ColumnCount=5; $tbl.Height=140
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,15)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,40)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,12)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,8)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,25)))
+$tbl.RowStyles.Add((New-Object Windows.Forms.RowStyle([Windows.Forms.SizeType]::Absolute,40)))
+$tbl.RowStyles.Add((New-Object Windows.Forms.RowStyle([Windows.Forms.SizeType]::Absolute,60)))
+$tbl.RowStyles.Add((New-Object Windows.Forms.RowStyle([Windows.Forms.SizeType]::Absolute,40)))
+
+# 1행: 모델
+$lblM   = New-Object Windows.Forms.Label; $lblM.Text="모델"; $lblM.TextAlign='MiddleRight'; $lblM.Dock='Fill'
+$cbModel= New-Object Windows.Forms.ComboBox; $cbModel.Dock='Fill'; $cbModel.DropDownStyle='DropDownList'
+(Get-ModelDirs) | ForEach-Object { [void]$cbModel.Items.Add($_) }; if($cbModel.Items.Count -gt 0){ $cbModel.SelectedIndex=0 }
+$btnScan= New-Object Windows.Forms.Button; $btnScan.Text="재검색"; $btnScan.Dock='Fill'
+$cbDev  = New-Object Windows.Forms.ComboBox; $cbDev.Dock='Fill'; @("NPU","AUTO","GPU","CPU") | % { [void]$cbDev.Items.Add($_) }; $cbDev.SelectedIndex=0
+$lblTok = New-Object Windows.Forms.Label; $lblTok.Text="토큰"; $lblTok.TextAlign='MiddleRight'; $lblTok.Dock='Fill'
+$nudTok = New-Object Windows.Forms.NumericUpDown; $nudTok.Dock='Fill'; $nudTok.Minimum=16; $nudTok.Maximum=2048; $nudTok.Value=128
+$tbl.Controls.Add($lblM,0,0); $tbl.Controls.Add($cbModel,1,0); $tbl.Controls.Add($btnScan,2,0); $tbl.Controls.Add($lblTok,3,0); $tbl.Controls.Add($nudTok,4,0)
+
+# 2행: 프롬프트(멀티라인)
+$lblP = New-Object Windows.Forms.Label; $lblP.Text="프롬프트"; $lblP.TextAlign='MiddleRight'; $lblP.Dock='Fill'
+$txtP = New-Object Windows.Forms.TextBox; $txtP.Dock='Fill'; $txtP.Multiline=$true
+$txtP.Text = Get-Content (Join-Path $ROOT "ai\prompts\design_master.txt") -Raw
+$tbl.Controls.Add($lblP,0,1); $tbl.Controls.Add($txtP,1,1); $tbl.SetColumnSpan($txtP,4)
+
+# 3행: 버튼들
+$btnDiag = New-Object Windows.Forms.Button; $btnDiag.Text="진단"; $btnDiag.Dock='Fill'
+$btnGen  = New-Object Windows.Forms.Button; $btnGen.Text="제너레이터 시작"; $btnGen.Dock='Fill'
+$btnStop = New-Object Windows.Forms.Button; $btnStop.Text="중지"; $btnStop.Dock='Fill'; $btnStop.Enabled=$false
+$tbl.Controls.Add($btnDiag,2,2); $tbl.Controls.Add($btnGen,3,2); $tbl.Controls.Add($btnStop,4,2)
+
+# 로그/상태
+$pb = New-Object Windows.Forms.ProgressBar; $pb.Dock='Top'; $pb.Height=12; $pb.Minimum=0; $pb.Maximum=100
+$lbl = New-Object Windows.Forms.Label; $lbl.Dock='Top'; $lbl.Height=18; $lbl.TextAlign='MiddleLeft'; $lbl.Text="대기"
+$tb = New-Object Windows.Forms.TextBox; $tb.Dock='Fill'; $tb.Multiline=$true; $tb.ScrollBars='Vertical'
+$f.Controls.Add($tb); $f.Controls.Add($pb); $f.Controls.Add($lbl); $f.Controls.Add($tbl)
+$tb.BringToFront(); $tb.Dock='Fill'
+
+function Append([string]$s){
+  $null = $tb.BeginInvoke([Action]{ $ts=(Get-Date).ToString('HH:mm:ss'); $tb.AppendText("[$ts] $s`r`n"); $tb.SelectionStart=$tb.Text.Length; $tb.ScrollToCaret() })
+}
+$tmr = New-Object Windows.Forms.Timer; $tmr.Interval=300
+$sw  = New-Object System.Diagnostics.Stopwatch
+$script:curProc = $null
+
+$tmr.Add_Tick({ if($sw.IsRunning){ $lbl.Text = "실행 중... " + "{0:N1}s" -f $sw.Elapsed.TotalSeconds } })
+
+$btnScan.Add_Click({
+  $cbModel.Items.Clear()
+  (Get-ModelDirs) | ForEach-Object { [void]$cbModel.Items.Add($_) }
+  if($cbModel.Items.Count -gt 0){ $cbModel.SelectedIndex=0 }
+  Append "재검색 완료: $($cbModel.Items.Count)개"
+})
+
+$btnDiag.Add_Click({
+  try{
+    $tb.Clear(); Append "== 진단 시작 =="
+    $pb.Style='Marquee'; $lbl.Text="진단 중..."
+    & $PY -c "import openvino as ov, openvino_genai as genai, sys, os; print('OV :', ov.get_version()); print('GEN:', genai.__version__); print('PY :', sys.version.replace('\n',' ')); print('CWD:', os.getcwd())" 2>&1 | % { Append $_ }
+    Append "모델 탐색:"; (Get-ModelDirs) | % { Append (' - ' + $_) }
+    $pb.Style='Blocks'; $lbl.Text="진단 완료"
+    Append "== 진단 완료 =="
+  } catch { $pb.Style='Blocks'; $lbl.Text="진단 오류"; Append ('[진단 오류] ' + $_.Exception.Message) }
+})
+
+$btnGen.Add_Click({
+  $pb.Style='Marquee'; $pb.Value=0; $lbl.Text="시작 준비"
+  $dir=$cbModel.SelectedItem; if(-not $dir){ Append "모델 없음"; $pb.Style='Blocks'; return }
+  $dev=$cbDev.SelectedItem; $tok=[int]$nudTok.Value; $pr=$txtP.Text
+  $tb.Clear(); Append "== 생성 시작 =="; Append "모델=$dir"; Append "장치=$dev"; Append "토큰제한=$tok"
+  $args=@($CLI,"--model_dir",$dir,"--device",$dev,"--max_new_tokens",$tok,"--prompt",$pr) | % { Q $_ }
+  $psi=[Diagnostics.ProcessStartInfo]::new()
+  $psi.FileName=$PY; $psi.Arguments=($args -join " ")
+  $psi.UseShellExecute=$false; $psi.RedirectStandardOutput=$true; $psi.RedirectStandardError=$true; $psi.CreateNoWindow=$true
+
+  try{
+    $p=[Diagnostics.Process]::new(); $p.StartInfo=$psi; $p.EnableRaisingEvents=$true
+    $p.add_OutputDataReceived({ param($s,$e) if($e.Data){ Append $e.Data } })
+    $p.add_ErrorDataReceived( { param($s,$e) if($e.Data){ Append ("[ERR] " + $e.Data) } })
+    $p.add_Exited({
+      $sw.Stop(); $tmr.Stop()
+      $null = $f.BeginInvoke([Action]{ $pb.Style='Blocks'; $lbl.Text = "완료 (코드={0})" -f $p.ExitCode; $btnStop.Enabled=$false })
+      Append ("== 종료, 코드=" + $p.ExitCode)
+      $script:curProc = $null
+    })
+    [void]$p.Start()
+    $p.BeginOutputReadLine(); $p.BeginErrorReadLine()
+    $script:curProc = $p
+    $sw.Restart(); $tmr.Start(); $btnStop.Enabled=$true; $lbl.Text="실행 중..."
+  } catch {
+    $pb.Style='Blocks'; $lbl.Text="실행 오류"; Append ('[실행 오류] ' + $_.Exception.Message)
+  }
+})
+
+$btnStop.Add_Click({
+  if($script:curProc -and -not $script:curProc.HasExited){
+    try{ $script:curProc.Kill(); Append "사용자 중지"; } catch { Append "[중지 실패] " + $_.Exception.Message }
+  }
+})
+
+[void]$f.ShowDialog()
+) }
+    & $append ("== 진단 완료 ("+$p.ExitCode+") ==")
+  } catch {
+    & $append ("[진단 오류] " + $ErrorActionPreference="Stop"
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+[Windows.Forms.Application]::EnableVisualStyles()
+
+$AI   = Split-Path -Parent $PSScriptRoot
+$ROOT = Split-Path -Parent $AI
+$PY   = Join-Path $ROOT ".\.venv\Scripts\python.exe"
+$CLI  = Join-Path $ROOT "ai\cli\genai_run.py"
+
+function Get-ModelDirs {
+  $roots = @(
+    (Join-Path $ROOT "models\ov_npu_ready"),
+    (Join-Path $ROOT "models\ov_static")
+  ) | Where-Object { Test-Path $_ }
+
+  $list = New-Object System.Collections.ArrayList
+  foreach($r in $roots){
+    Get-ChildItem -Path $r -Directory -Recurse -EA SilentlyContinue | ForEach-Object {
+      $base = $_.FullName
+      $xml = Join-Path $base 'openvino_model.xml'
+      $tok = Join-Path $base 'openvino_tokenizer.xml'
+      $det = Join-Path $base 'openvino_detokenizer.xml'
+      if( (Test-Path $xml) -and (Test-Path $tok) -and (Test-Path $det) ){
+        [void]$list.Add($base)
+      }
+    }
+  }
+  return ($list | Sort-Object)
+}
+function Q([string]$s){ if($s -match '[\s"]'){ '"' + ($s -replace '"','\"') + '"' } else { $s } }
+
+# --- UI ---
+$f = New-Object Windows.Forms.Form
+$f.Text="NPU GenAI 제너레이터"
+$f.StartPosition="CenterScreen"
+$f.Width=980; $f.Height=720
+$f.Font=New-Object System.Drawing.Font('맑은 고딕',9)
+
+# 상단 레이아웃
+$tbl = New-Object Windows.Forms.TableLayoutPanel
+$tbl.Dock='Top'; $tbl.RowCount=3; $tbl.ColumnCount=5; $tbl.Height=140
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,15)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,40)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,12)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,8)))
+$tbl.ColumnStyles.Add((New-Object Windows.Forms.ColumnStyle([Windows.Forms.SizeType]::Percent,25)))
+$tbl.RowStyles.Add((New-Object Windows.Forms.RowStyle([Windows.Forms.SizeType]::Absolute,40)))
+$tbl.RowStyles.Add((New-Object Windows.Forms.RowStyle([Windows.Forms.SizeType]::Absolute,60)))
+$tbl.RowStyles.Add((New-Object Windows.Forms.RowStyle([Windows.Forms.SizeType]::Absolute,40)))
+
+# 1행: 모델
+$lblM   = New-Object Windows.Forms.Label; $lblM.Text="모델"; $lblM.TextAlign='MiddleRight'; $lblM.Dock='Fill'
+$cbModel= New-Object Windows.Forms.ComboBox; $cbModel.Dock='Fill'; $cbModel.DropDownStyle='DropDownList'
+(Get-ModelDirs) | ForEach-Object { [void]$cbModel.Items.Add($_) }; if($cbModel.Items.Count -gt 0){ $cbModel.SelectedIndex=0 }
+$btnScan= New-Object Windows.Forms.Button; $btnScan.Text="재검색"; $btnScan.Dock='Fill'
+$cbDev  = New-Object Windows.Forms.ComboBox; $cbDev.Dock='Fill'; @("NPU","AUTO","GPU","CPU") | % { [void]$cbDev.Items.Add($_) }; $cbDev.SelectedIndex=0
+$lblTok = New-Object Windows.Forms.Label; $lblTok.Text="토큰"; $lblTok.TextAlign='MiddleRight'; $lblTok.Dock='Fill'
+$nudTok = New-Object Windows.Forms.NumericUpDown; $nudTok.Dock='Fill'; $nudTok.Minimum=16; $nudTok.Maximum=2048; $nudTok.Value=128
+$tbl.Controls.Add($lblM,0,0); $tbl.Controls.Add($cbModel,1,0); $tbl.Controls.Add($btnScan,2,0); $tbl.Controls.Add($lblTok,3,0); $tbl.Controls.Add($nudTok,4,0)
+
+# 2행: 프롬프트(멀티라인)
+$lblP = New-Object Windows.Forms.Label; $lblP.Text="프롬프트"; $lblP.TextAlign='MiddleRight'; $lblP.Dock='Fill'
+$txtP = New-Object Windows.Forms.TextBox; $txtP.Dock='Fill'; $txtP.Multiline=$true
+$txtP.Text = Get-Content (Join-Path $ROOT "ai\prompts\design_master.txt") -Raw
+$tbl.Controls.Add($lblP,0,1); $tbl.Controls.Add($txtP,1,1); $tbl.SetColumnSpan($txtP,4)
+
+# 3행: 버튼들
+$btnDiag = New-Object Windows.Forms.Button; $btnDiag.Text="진단"; $btnDiag.Dock='Fill'
+$btnGen  = New-Object Windows.Forms.Button; $btnGen.Text="제너레이터 시작"; $btnGen.Dock='Fill'
+$btnStop = New-Object Windows.Forms.Button; $btnStop.Text="중지"; $btnStop.Dock='Fill'; $btnStop.Enabled=$false
+$tbl.Controls.Add($btnDiag,2,2); $tbl.Controls.Add($btnGen,3,2); $tbl.Controls.Add($btnStop,4,2)
+
+# 로그/상태
+$pb = New-Object Windows.Forms.ProgressBar; $pb.Dock='Top'; $pb.Height=12; $pb.Minimum=0; $pb.Maximum=100
+$lbl = New-Object Windows.Forms.Label; $lbl.Dock='Top'; $lbl.Height=18; $lbl.TextAlign='MiddleLeft'; $lbl.Text="대기"
+$tb = New-Object Windows.Forms.TextBox; $tb.Dock='Fill'; $tb.Multiline=$true; $tb.ScrollBars='Vertical'
+$f.Controls.Add($tb); $f.Controls.Add($pb); $f.Controls.Add($lbl); $f.Controls.Add($tbl)
+$tb.BringToFront(); $tb.Dock='Fill'
+
+function Append([string]$s){
+  $null = $tb.BeginInvoke([Action]{ $ts=(Get-Date).ToString('HH:mm:ss'); $tb.AppendText("[$ts] $s`r`n"); $tb.SelectionStart=$tb.Text.Length; $tb.ScrollToCaret() })
+}
+$tmr = New-Object Windows.Forms.Timer; $tmr.Interval=300
+$sw  = New-Object System.Diagnostics.Stopwatch
+$script:curProc = $null
+
+$tmr.Add_Tick({ if($sw.IsRunning){ $lbl.Text = "실행 중... " + "{0:N1}s" -f $sw.Elapsed.TotalSeconds } })
+
+$btnScan.Add_Click({
+  $cbModel.Items.Clear()
+  (Get-ModelDirs) | ForEach-Object { [void]$cbModel.Items.Add($_) }
+  if($cbModel.Items.Count -gt 0){ $cbModel.SelectedIndex=0 }
+  Append "재검색 완료: $($cbModel.Items.Count)개"
+})
+
+$btnDiag.Add_Click({
+  try{
+    $tb.Clear(); Append "== 진단 시작 =="
+    $pb.Style='Marquee'; $lbl.Text="진단 중..."
+    & $PY -c "import openvino as ov, openvino_genai as genai, sys, os; print('OV :', ov.get_version()); print('GEN:', genai.__version__); print('PY :', sys.version.replace('\n',' ')); print('CWD:', os.getcwd())" 2>&1 | % { Append $_ }
+    Append "모델 탐색:"; (Get-ModelDirs) | % { Append (' - ' + $_) }
+    $pb.Style='Blocks'; $lbl.Text="진단 완료"
+    Append "== 진단 완료 =="
+  } catch { $pb.Style='Blocks'; $lbl.Text="진단 오류"; Append ('[진단 오류] ' + $_.Exception.Message) }
+})
+
+$btnGen.Add_Click({
+  $pb.Style='Marquee'; $pb.Value=0; $lbl.Text="시작 준비"
+  $dir=$cbModel.SelectedItem; if(-not $dir){ Append "모델 없음"; $pb.Style='Blocks'; return }
+  $dev=$cbDev.SelectedItem; $tok=[int]$nudTok.Value; $pr=$txtP.Text
+  $tb.Clear(); Append "== 생성 시작 =="; Append "모델=$dir"; Append "장치=$dev"; Append "토큰제한=$tok"
+  $args=@($CLI,"--model_dir",$dir,"--device",$dev,"--max_new_tokens",$tok,"--prompt",$pr) | % { Q $_ }
+  $psi=[Diagnostics.ProcessStartInfo]::new()
+  $psi.FileName=$PY; $psi.Arguments=($args -join " ")
+  $psi.UseShellExecute=$false; $psi.RedirectStandardOutput=$true; $psi.RedirectStandardError=$true; $psi.CreateNoWindow=$true
+
+  try{
+    $p=[Diagnostics.Process]::new(); $p.StartInfo=$psi; $p.EnableRaisingEvents=$true
+    $p.add_OutputDataReceived({ param($s,$e) if($e.Data){ Append $e.Data } })
+    $p.add_ErrorDataReceived( { param($s,$e) if($e.Data){ Append ("[ERR] " + $e.Data) } })
+    $p.add_Exited({
+      $sw.Stop(); $tmr.Stop()
+      $null = $f.BeginInvoke([Action]{ $pb.Style='Blocks'; $lbl.Text = "완료 (코드={0})" -f $p.ExitCode; $btnStop.Enabled=$false })
+      Append ("== 종료, 코드=" + $p.ExitCode)
+      $script:curProc = $null
+    })
+    [void]$p.Start()
+    $p.BeginOutputReadLine(); $p.BeginErrorReadLine()
+    $script:curProc = $p
+    $sw.Restart(); $tmr.Start(); $btnStop.Enabled=$true; $lbl.Text="실행 중..."
+  } catch {
+    $pb.Style='Blocks'; $lbl.Text="실행 오류"; Append ('[실행 오류] ' + $_.Exception.Message)
+  }
+})
+
+$btnStop.Add_Click({
+  if($script:curProc -and -not $script:curProc.HasExited){
+    try{ $script:curProc.Kill(); Append "사용자 중지"; } catch { Append "[중지 실패] " + $_.Exception.Message }
+  }
+})
+
+[void]$f.ShowDialog()
+.Exception.Message)
+  }
+})
+
+$btnGen.Add_Click({
+  $pb.Style='Marquee'; $pb.Value=0; $lbl.Text="시작 준비"
+  $dir=$cbModel.SelectedItem; if(-not $dir){ Append "모델 없음"; $pb.Style='Blocks'; return }
+  $dev=$cbDev.SelectedItem; $tok=[int]$nudTok.Value; $pr=$txtP.Text
+  $tb.Clear(); Append "== 생성 시작 =="; Append "모델=$dir"; Append "장치=$dev"; Append "토큰제한=$tok"
+  $args=@($CLI,"--model_dir",$dir,"--device",$dev,"--max_new_tokens",$tok,"--prompt",$pr) | % { Q $_ }
+  $psi=[Diagnostics.ProcessStartInfo]::new()
+  $psi.FileName=$PY; $psi.Arguments=($args -join " ")
+  $psi.UseShellExecute=$false; $psi.RedirectStandardOutput=$true; $psi.RedirectStandardError=$true; $psi.CreateNoWindow=$true
+
+  try{
+    $p=[Diagnostics.Process]::new(); $p.StartInfo=$psi; $p.EnableRaisingEvents=$true
+    $p.add_OutputDataReceived({ param($s,$e) if($e.Data){ Append $e.Data } })
+    $p.add_ErrorDataReceived( { param($s,$e) if($e.Data){ Append ("[ERR] " + $e.Data) } })
+    $p.add_Exited({
+      $sw.Stop(); $tmr.Stop()
+      $null = $f.BeginInvoke([Action]{ $pb.Style='Blocks'; $lbl.Text = "완료 (코드={0})" -f $p.ExitCode; $btnStop.Enabled=$false })
+      Append ("== 종료, 코드=" + $p.ExitCode)
+      $script:curProc = $null
+    })
+    [void]$p.Start()
+    $p.BeginOutputReadLine(); $p.BeginErrorReadLine()
+    $script:curProc = $p
+    $sw.Restart(); $tmr.Start(); $btnStop.Enabled=$true; $lbl.Text="실행 중..."
+  } catch {
+    $pb.Style='Blocks'; $lbl.Text="실행 오류"; Append ('[실행 오류] ' + $_.Exception.Message)
+  }
+})
+
+$btnStop.Add_Click({
+  if($script:curProc -and -not $script:curProc.HasExited){
+    try{ $script:curProc.Kill(); Append "사용자 중지"; } catch { Append "[중지 실패] " + $_.Exception.Message }
+  }
+})
+
+[void]$f.ShowDialog()
+

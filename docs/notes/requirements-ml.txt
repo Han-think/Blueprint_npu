@@ -1,0 +1,4 @@
+﻿-r requirements.txt
+onnxruntime>=1.18
+
+

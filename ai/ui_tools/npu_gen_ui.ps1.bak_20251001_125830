@@ -1,0 +1,184 @@
+﻿# ---- Minimal Stable NPU UI (WinForms) ----
+$ErrorActionPreference='Stop'
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+[Console]::OutputEncoding=[Text.Encoding]::UTF8
+$P = $PSScriptRoot
+$Repo = (Split-Path $P -Parent) # ...\ai
+$Repo = Split-Path $Repo -Parent  # repo root
+$ModelsRoot = Join-Path $Repo 'models\ov_npu_ready'
+$GenCli = Join-Path $Repo 'ai\cli\genai_run.py'
+$AltCli = Join-Path $Repo 'ai\tools_used_device_llm.py'
+$UseAlt = -not (Test-Path $GenCli)
+$LogDir = Join-Path $P 'logs'
+New-Item $LogDir -ItemType Directory -Force | Out-Null
+$PY = @(
+  Join-Path $Repo '.\.venv\Scripts\python.exe'),
+  'python.exe','python' | Where-Object { Get-Command $_ -ErrorAction SilentlyContinue } | Select-Object -First 1
+if(-not $PY){ [System.Windows.Forms.MessageBox]::Show("Python 실행기 없음(.venv 권장)"); exit }
+
+function Test-OVDir([string]$d){
+  (Test-Path (Join-Path $d 'openvino_model.xml')) -and
+  (Test-Path (Join-Path $d 'openvino_tokenizer.xml')) -and
+  (Test-Path (Join-Path $d 'openvino_detokenizer.xml'))
+}
+$Models = @()
+if(Test-Path $ModelsRoot){
+  Get-ChildItem $ModelsRoot -Directory | ?{ Test-OVDir $_.FullName } | % { $Models += $_.FullName }
+}
+
+# ---- UI ----
+$f = New-Object Windows.Forms.Form
+$f.Text = "NPU GenAI UI"
+$f.Size = New-Object Drawing.Size(920,640)
+$f.StartPosition = "CenterScreen"
+
+$lblModel = New-Object Windows.Forms.Label
+$lblModel.Text = "Model Dir"
+$lblModel.Location = '12,15'
+$lblModel.AutoSize = $true
+$f.Controls.Add($lblModel)
+
+$cboModel = New-Object Windows.Forms.ComboBox
+$cboModel.Location = '90,12'
+$cboModel.Size = '700,24'
+$cboModel.DropDownStyle = 'DropDownList'
+$cboModel.Items.AddRange($Models)
+if($Models.Count -gt 0){ $cboModel.SelectedIndex = 0 }
+$f.Controls.Add($cboModel)
+
+$lblDev = New-Object Windows.Forms.Label
+$lblDev.Text = "Device"
+$lblDev.Location = '12,48'
+$lblDev.AutoSize = $true
+$f.Controls.Add($lblDev)
+
+$cboDev = New-Object Windows.Forms.ComboBox
+$cboDev.Location = '90,45'
+$cboDev.Size = '120,24'
+@('NPU','AUTO','CPU','GPU') | % { [void]$cboDev.Items.Add($_) }
+$cboDev.SelectedIndex = 0
+$f.Controls.Add($cboDev)
+
+$lblTok = New-Object Windows.Forms.Label
+$lblTok.Text = "Max New Tokens"
+$lblTok.Location = '230,48'
+$lblTok.AutoSize = $true
+$f.Controls.Add($lblTok)
+
+$numTok = New-Object Windows.Forms.NumericUpDown
+$numTok.Location = '340,45'
+$numTok.Minimum = 1; $numTok.Maximum = 4096; $numTok.Value = 256
+$f.Controls.Add($numTok)
+
+$txtPrompt = New-Object Windows.Forms.TextBox
+$txtPrompt.Multiline = $true
+$txtPrompt.ScrollBars = 'Both'
+$txtPrompt.Location = '12,80'
+$txtPrompt.Size = '880,140'
+$txtPrompt.Text = "NPU 확인 테스트"
+$f.Controls.Add($txtPrompt)
+
+$txtLog = New-Object Windows.Forms.TextBox
+$txtLog.Multiline = $true
+$txtLog.ScrollBars = 'Both'
+$txtLog.Location = '12,260'
+$txtLog.Size = '880,300'
+$txtLog.ReadOnly = $true
+$f.Controls.Add($txtLog)
+
+$btnRun = New-Object Windows.Forms.Button
+$btnRun.Text = "실행"
+$btnRun.Location = '560,45'
+$f.Controls.Add($btnRun)
+
+$btnStop = New-Object Windows.Forms.Button
+$btnStop.Text = "중지"
+$btnStop.Location = '640,45'
+$f.Controls.Add($btnStop)
+
+$btnLog = New-Object Windows.Forms.Button
+$btnLog.Text = "로그 폴더"
+$btnLog.Location = '720,45'
+$f.Controls.Add($btnLog)
+
+$btnExit = New-Object Windows.Forms.Button
+$btnExit.Text = "종료"
+$btnExit.Location = '800,45'
+$f.Controls.Add($btnExit)
+
+$global:proc = $null
+$logFile = Join-Path $LogDir ("ui_{0:yyyyMMdd_HHmmss}.log" -f (Get-Date))
+
+function Append-Log([string]$s){
+  if([string]::IsNullOrWhiteSpace($s)){ return }
+  $act = [System.Action[string]]{
+    param($t)
+    $txtLog.AppendText($t + "`r`n")
+  }
+  if($txtLog.InvokeRequired){
+    $null = $txtLog.Invoke($act, @($s))
+  } else {
+    $act.Invoke($s)
+  }
+  Add-Content -Path $logFile -Value $s -Encoding UTF8
+}
+  $f.Invoke({ param($t,$box) $box.AppendText($t + "`r`n") }, $s, $txtLog) | Out-Null
+  Add-Content -Path $logFile -Value $s -Encoding UTF8
+}
+
+$btnRun.Add_Click({
+  try{
+    if($global:proc -and -not $global:proc.HasExited){ Append-Log "이미 실행 중"; return }
+    $model = $cboModel.Text
+    if([string]::IsNullOrWhiteSpace($model)){ Append-Log "모델 없음: models\ov_npu_ready 확인"; return }
+    $device = $cboDev.Text
+    $maxTok = [int]$numTok.Value
+    $prompt = $txtPrompt.Text
+
+    $script = (if($UseAlt){ $AltCli } else { $GenCli })
+    $args = @('--model_dir', $model, '--device', $device, '--max_new_tokens', $maxTok, '--prompt', $prompt)
+
+    $psi = New-Object System.Diagnostics.ProcessStartInfo
+    $psi.FileName  = $PY
+    $psi.ArgumentList.AddRange($args)
+    $psi.UseShellExecute = $false
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError  = $true
+    $psi.CreateNoWindow = $true
+    $psi.WorkingDirectory = $Repo
+    $psi.EnvironmentVariables['PYTHONIOENCODING'] = 'utf-8'
+    $psi.EnvironmentVariables['PYTHONUTF8'] = '1'
+    # python -m style 호출을 위해
+    if($UseAlt){ $psi.ArgumentList.Insert(0, $script) } else { $psi.ArgumentList.Insert(0, $script) }
+
+    Append-Log ("[RUN] {0} {1}" -f $psi.FileName, ($psi.ArgumentList -join ' '))
+    $global:proc = New-Object System.Diagnostics.Process
+    $global:proc.StartInfo = $psi
+    $global:proc.EnableRaisingEvents = $true
+    $global:proc.add_OutputDataReceived({ param($s,$e) if($e.Data){ Append-Log $e.Data } })
+    $global:proc.add_ErrorDataReceived({  param($s,$e) if($e.Data){ Append-Log $e.Data } })
+    [void]$global:proc.Start()
+    $global:proc.BeginOutputReadLine()
+    $global:proc.BeginErrorReadLine()
+  } catch {
+    Append-Log ("ERROR: " + $_.Exception.Message)
+  }
+})
+
+$btnStop.Add_Click({
+  try{
+    if($global:proc -and -not $global:proc.HasExited){
+      $global:proc.Kill()
+      Append-Log "[STOP] 프로세스 강제 종료"
+    } else { Append-Log "실행 중 아님" }
+  } catch { Append-Log ("ERROR: " + $_.Exception.Message) }
+})
+
+$btnLog.Add_Click({ Start-Process explorer.exe $LogDir })
+$btnExit.Add_Click({ $f.Close() })
+
+$f.Add_Shown({ $f.Activate() })
+[void]$f.ShowDialog()
+# ---- End UI ----
+

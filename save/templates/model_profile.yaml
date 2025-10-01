@@ -1,0 +1,15 @@
+﻿base_hf_model: models/hf_base/tinyllama_1.1b_chat
+xpu_merged_dir: models/hf_finetuned/xpu_run1/merged
+ov_dir: models/ov_npu_ready/llama32_1b_int4_npu_ov
+xpu:
+  device: xpu
+  dtype: fp32
+  max_new: 128
+npu:
+  device: NPU
+  max_new: 128
+prompts:
+  wrapper_file: save/templates/prompt_wrapper.txt
+run_count: 50
+cycle_fill: true
+offline_mode: auto

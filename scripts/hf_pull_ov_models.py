@@ -1,0 +1,22 @@
+﻿from huggingface_hub import snapshot_download
+from pathlib import Path
+ROOT = Path(r"C:\\Users\\Lenovo\\npu-main\\Blueprint_npu")
+REPOS = [
+  ("OpenVINO/Qwen2.5-7B-Instruct-int4-ov", "models/ov_npu_ready/qwen25_7b_int4_ov"),
+  ("OpenVINO/Phi-4-mini-instruct-int4-ov", "models/ov_npu_ready/phi4_mini_int4_ov"),
+  ("llmware/llama-3.2-1b-instruct-npu-ov", "models/ov_npu_ready/llama32_1b_int4_npu_ov"),
+]
+ALLOW = [
+  "openvino_model.xml","openvino_model.bin",
+  "openvino_tokenizer.xml","openvino_tokenizer.bin",
+  "openvino_detokenizer.xml","openvino_detokenizer.bin",
+  "tokenizer.json","tokenizer.model","*tokenizer*.json",
+  "vocab.json","merges.txt","generation_config.json","config.json"
+]
+for rid, out_rel in REPOS:
+    out_dir = ROOT / out_rel
+    out_dir.mkdir(parents=True, exist_ok=True)
+    print(f"## pull {rid} -> {out_dir}", flush=True)
+    snapshot_download(repo_id=rid, local_dir=out_dir.as_posix(),
+                      local_dir_use_symlinks=False, allow_patterns=ALLOW, tqdm_class=None)
+print("OK")

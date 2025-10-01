@@ -1,0 +1,52 @@
+﻿[PowerShell WinForms UI 반복 오류 체크리스트]
+
+1) WinForms는 반드시 STA
+   - 실행: powershell.exe -STA -NoProfile -ExecutionPolicy Bypass -File .\ai\ui_tools\npu_gen_ui.ps1
+
+2) 중첩 Here-String/인라인 파이썬 섞임
+   - 증상: 파일에 Python/PS 줄이 뒤섞임, 파이프(| & $PY -)가 망가짐
+   - 원인: PS here-string 안에 또 here-string/싱글쿼트 섞어서 붙여넣기
+   - 대안: 이벤트 핸들러 내부는 문자열 파이프 대신 Start-Process + ReadToEnd 사용
+
+3) 오타: $_..FullName (점 2개)
+   - 정답: $_.FullName
+
+4) Where-Object/ForEach-Object에 잘못된 매개변수
+   - "매개 변수 이름 'and'…" 에러는 스크립트가 깨졌다는 신호 ( -and 는 스크립트블록 안의 연산자이지 파라미터가 아님)
+   - 올바른 예:
+     Get-ChildItem -Recurse | Where-Object {
+       Test-Path (Join-Path $_.FullName 'openvino_model.xml') -and
+       Test-Path (Join-Path $_.FullName 'openvino_tokenizer.xml') -and
+       Test-Path (Join-Path $_.FullName 'openvino_detokenizer.xml')
+     }
+
+5) 중괄호/괄호 불일치
+   - 증상: "닫는 '}' 없음", "닫는 ')' 없음"
+   - 원인: -replace로 이벤트 블록 덮어쓸 때 일부가 잘림
+   - 점검: (Get-Content .\ai\ui_tools\npu_gen_ui.ps1 -Raw).ToCharArray() | % { … } 같은 균형검사 대신, 에디터에서 매칭/접기 확인
+
+6) 파이프에서 & 사용 위치 오류
+   - "파이프라인 요소의 '&' 뒤…" 에러는 & 뒤에 스크립트블록/명령이 아닌 문자열이 온 경우
+   - 대안: 
+     $psi=[Diagnostics.ProcessStartInfo]::new()
+     … RedirectStandardOutput/RedirectStandardError=true
+     $p=[Diagnostics.Process]::Start($psi)
+     $out=$p.StandardOutput.ReadToEnd(); $err=$p.StandardError.ReadToEnd()
+
+7) 모델 스캔 조건
+   - 필수 파일 3개:
+     openvino_model.xml / openvino_tokenizer.xml / openvino_detokenizer.xml
+   - 누락 시 UI 목록 비어 보임 → 모델 다시 다운 필요
+
+8) “3초 내 종료/응답없음”
+   - STA 미사용, 폼 스레드가 블로킹 I/O 대기하는 경우
+   - 해결: 긴 작업은 프로세스 외부 실행 + ReadLine 루프 또는 ReadToEnd 후 AppendText
+   - 버튼 핸들러 끝에서 예외 반드시 catch { Append }
+
+9) 안전한 진단 핸들러 패턴(요지)
+   - Start-Process(Python -c "print 버전들") → ReadToEnd → Append
+   - 모델 경로는 Get-ChildItem + Where-Object ( -and 연산자 ) 로 한 번에 나열
+
+10) 붙여넣기 시 깨짐 방지
+   - 한 번에 너무 큰 블록 <— 붙여넣다가 중간 일부만 들어가는 경우 발생
+   - 권장: 파일 생성은 Set-Content로, 실행은 별도 -File 로 호출

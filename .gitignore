@@ -1,0 +1,12 @@
+﻿.venv/
+models/
+data/geometry/cad/exports/
+__pycache__/
+logs/
+*.bin
+*.xml
+*.safetensors
+*.pt
+*.onnx
+*.glb
+*.stl

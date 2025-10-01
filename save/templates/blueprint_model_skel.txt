@@ -1,0 +1,25 @@
+﻿## A. Model Profile
+- base_hf_model : <TinyLlama-1.1B-Chat or etc.>
+- merged_dir    : models\hf_finetuned\<run>\merged
+- ov_model_dir  : models\ov_npu_ready\<model>_ov
+- device/dtype  : XPU(fp32|bf16)|CPU(fp32) + NPU(OpenVINO)
+- token limits  : max_new=128 (override per experiment)
+
+## B. Prompt Wrapper (system)
+(load from: save\templates\prompt_wrapper.txt)
+
+## C. BLUEPRINT package (authoring)
+[part_tree]
+{
+  "id":"ASM-001","name":"Assembly","qty":1,"material":"Inconel 718","process":"L-PBF",
+  "children":[
+    {"id":"C-001","name":"Cowl","qty":1,"material":"Inconel 718","process":"L-PBF","children":[]},
+    {"id":"HX-001","name":"Heat-Exchanger","qty":1,"material":"CuCrZr","process":"L-PBF","children":[]}
+  ]
+}
+[/part_tree]
+- Interfaces & tolerances: mates, seals, fits (H7/g6); sealing faces Ra≤1.6 µm.
+- Geometry notes: key diameters/angles; walls 0.6–1.2 mm; channels ≥1.2 mm radius; overhang ≤45°.
+- Manufacturing: build orientation, supports, HIP/HT, machining datums A/B/C.
+- Test Plan: sequence; sensors (PT/TC/LL/ACC/mic); acceptance criteria.
+- Top-5 risks & probes.

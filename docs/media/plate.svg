@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="220.0mm" height="220.0mm" viewBox="0 0 220.0 220.0">
+<rect x="0" y="0" width="220.0" height="220.0" fill="none" stroke="black" stroke-width="0.2"/>
+<rect x="6.00" y="6.00" width="43.19" height="43.19" fill="none" stroke="black" stroke-width="0.2"/>
+<text x="7.50" y="10.00" font-size="3">fan_rotor_L.stl</text>
+<text x="7.50" y="47.69" font-size="3">43.2×43.2mm</text>
+<rect x="55.19" y="6.00" width="57.60" height="57.60" fill="none" stroke="black" stroke-width="0.2"/>
+<text x="56.69" y="10.00" font-size="3">fan_stator_L.stl</text>
+<text x="56.69" y="62.10" font-size="3">57.6×57.6mm</text>
+<rect x="118.79" y="6.00" width="40.89" height="41.14" fill="none" stroke="black" stroke-width="0.2"/>
+<text x="120.29" y="10.00" font-size="3">comp_rotor_L.stl</text>
+<text x="120.29" y="45.64" font-size="3">40.9×41.1mm</text>
+<rect x="6.00" y="69.60" width="55.80" height="55.80" fill="none" stroke="black" stroke-width="0.2"/>
+<text x="7.50" y="73.60" font-size="3">comp_stator_L.stl</text>
+<text x="7.50" y="123.90" font-size="3">55.8×55.8mm</text>
+<rect x="67.80" y="69.60" width="39.78" height="39.78" fill="none" stroke="black" stroke-width="0.2"/>
+<text x="69.30" y="73.60" font-size="3">turb_rotor_L.stl</text>
+<text x="69.30" y="107.88" font-size="3">39.8×39.8mm</text>
+<rect x="113.58" y="69.60" width="53.40" height="53.40" fill="none" stroke="black" stroke-width="0.2"/>
+<text x="115.08" y="73.60" font-size="3">turb_stator_L.stl</text>
+<text x="115.08" y="121.50" font-size="3">53.4×53.4mm</text>
+<rect x="172.98" y="69.60" width="16.20" height="16.20" fill="none" stroke="black" stroke-width="0.2"/>
+<text x="174.48" y="73.60" font-size="3">seat_fan_L.stl</text>
+<text x="174.48" y="84.30" font-size="3">16.2×16.2mm</text>
+<rect x="195.18" y="69.60" width="14.40" height="14.40" fill="none" stroke="black" stroke-width="0.2"/>
+<text x="196.68" y="73.60" font-size="3">seat_comp_L.stl</text>
+<text x="196.68" y="82.50" font-size="3">14.4×14.4mm</text>
+<rect x="6.00" y="131.40" width="15.60" height="15.60" fill="none" stroke="black" stroke-width="0.2"/>
+<text x="7.50" y="135.40" font-size="3">seat_turb_L.stl</text>
+<text x="7.50" y="145.50" font-size="3">15.6×15.6mm</text>
+<rect x="27.60" y="131.40" width="24.30" height="24.30" fill="none" stroke="black" stroke-width="0.2"/>
+<text x="29.10" y="135.40" font-size="3">bearing_holder_L_L.stl</text>
+<text x="29.10" y="154.20" font-size="3">24.3×24.3mm</text>
+<rect x="57.90" y="131.40" width="24.30" height="24.30" fill="none" stroke="black" stroke-width="0.2"/>
+<text x="59.40" y="135.40" font-size="3">bearing_holder_R_L.stl</text>
+<text x="59.40" y="154.20" font-size="3">24.3×24.3mm</text>
+<rect x="88.20" y="131.40" width="56.70" height="56.70" fill="none" stroke="black" stroke-width="0.2"/>
+<text x="89.70" y="135.40" font-size="3">bearing_rail_L_L.stl</text>
+<text x="89.70" y="186.60" font-size="3">56.7×56.7mm</text>
+<rect x="150.90" y="131.40" width="56.70" height="56.70" fill="none" stroke="black" stroke-width="0.2"/>
+<text x="152.40" y="135.40" font-size="3">bearing_rail_R_L.stl</text>
+<text x="152.40" y="186.60" font-size="3">56.7×56.7mm</text>
+<rect x="6.00" y="194.10" width="16.00" height="16.00" fill="none" stroke="black" stroke-width="0.2"/>
+<text x="7.50" y="198.10" font-size="3">spacer_1_L.stl</text>
+<text x="7.50" y="208.60" font-size="3">16.0×16.0mm</text>
+<rect x="28.00" y="194.10" width="16.00" height="16.00" fill="none" stroke="black" stroke-width="0.2"/>
+<text x="29.50" y="198.10" font-size="3">spacer_2_L.stl</text>
+<text x="29.50" y="208.60" font-size="3">16.0×16.0mm</text>
+<rect x="50.00" y="194.10" width="16.00" height="16.00" fill="none" stroke="black" stroke-width="0.2"/>
+<text x="51.50" y="198.10" font-size="3">spacer_3_L.stl</text>
+<text x="51.50" y="208.60" font-size="3">16.0×16.0mm</text>
+<rect x="72.00" y="194.10" width="16.00" height="16.00" fill="none" stroke="black" stroke-width="0.2"/>
+<text x="73.50" y="198.10" font-size="3">spacer_4_L.stl</text>
+<text x="73.50" y="208.60" font-size="3">16.0×16.0mm</text>
+<rect x="94.00" y="194.10" width="16.00" height="16.00" fill="none" stroke="black" stroke-width="0.2"/>
+<text x="95.50" y="198.10" font-size="3">spacer_5_L.stl</text>
+<text x="95.50" y="208.60" font-size="3">16.0×16.0mm</text>
+<rect x="116.00" y="194.10" width="16.00" height="16.00" fill="none" stroke="black" stroke-width="0.2"/>
+<text x="117.50" y="198.10" font-size="3">spacer_6_L.stl</text>
+<text x="117.50" y="208.60" font-size="3">16.0×16.0mm</text>
+</svg>

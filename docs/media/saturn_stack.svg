@@ -1,0 +1,67 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='900' height='1231' viewBox='0 0 900 1231'>
+<rect width='100%' height='100%' fill='#0c1e35'/>
+<rect x='16' y='16' width='868' height='1199' fill='none' stroke='#274a79' stroke-width='2'/>
+<rect x='150' y='60' width='121' height='10' fill='none' stroke='#caa9ff' stroke-width='1.2' stroke-dasharray='6 4'/>
+<text x='283' y='74' fill='#caa9ff' font-size='12' text-anchor='start'>INSTRUMENT UNIT</text>
+<rect x='150' y='85' width='121' height='213' fill='none' stroke='#ffffff' stroke-width='1.6'/>
+<rect x='156' y='91' width='109' height='48' fill='none' stroke='#9fd3ff' stroke-width='1.4'/>
+<text x='160' y='103' fill='#9fd3ff' font-size='12' text-anchor='start'>LOX</text>
+<rect x='156' y='148' width='109' height='139' fill='none' stroke='#ffd39f' stroke-width='1.4'/>
+<text x='160' y='164' fill='#ffd39f' font-size='12' text-anchor='start'>LH2</text>
+<path d='M 210.5 265.0 L 196.5 295.0 L 224.5 295.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1' opacity='0.9'/>
+<text x='283' y='191' fill='#9cd0ff' font-size='12' text-anchor='start'>S-IVB — J-2 x1</text>
+<rect x='150' y='313' width='121' height='298' fill='none' stroke='#ffffff' stroke-width='1.6'/>
+<rect x='156' y='319' width='109' height='96' fill='none' stroke='#9fd3ff' stroke-width='1.4'/>
+<text x='160' y='331' fill='#9fd3ff' font-size='12' text-anchor='start'>LOX</text>
+<rect x='156' y='424' width='109' height='171' fill='none' stroke='#ffd39f' stroke-width='1.4'/>
+<text x='160' y='440' fill='#ffd39f' font-size='12' text-anchor='start'>LH2</text>
+<path d='M 174.2 579.0 L 162.2 605.0 L 186.2 605.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1' opacity='0.9'/>
+<path d='M 192.35 579.0 L 180.35 605.0 L 204.35 605.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1' opacity='0.9'/>
+<path d='M 210.5 579.0 L 198.5 605.0 L 222.5 605.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1' opacity='0.9'/>
+<path d='M 228.64999999999998 579.0 L 216.64999999999998 605.0 L 240.64999999999998 605.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1' opacity='0.9'/>
+<path d='M 246.8 579.0 L 234.8 605.0 L 258.8 605.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1' opacity='0.9'/>
+<text x='283' y='462' fill='#9cd0ff' font-size='12' text-anchor='start'>S-II — J-2 x5</text>
+<rect x='150' y='626' width='121' height='505' fill='none' stroke='#ffffff' stroke-width='1.8'/>
+<rect x='156' y='632' width='109' height='204' fill='none' stroke='#9fd3ff' stroke-width='1.6'/>
+<text x='160' y='644' fill='#9fd3ff' font-size='12' text-anchor='start'>LOX</text>
+<rect x='154' y='838' width='113' height='10' fill='none' stroke='#89ffa8' stroke-width='1.2' stroke-dasharray='8 4'/>
+<text x='283' y='850' fill='#89ffa8' font-size='12' text-anchor='start'>INTERTANK</text>
+<rect x='156' y='848' width='109' height='265' fill='none' stroke='#ffd39f' stroke-width='1.6'/>
+<text x='160' y='864' fill='#ffd39f' font-size='12' text-anchor='start'>RP-1</text>
+<path d='M 168.15 1095.0 L 155.15 1123.0 L 181.15 1123.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1' opacity='0.9'/>
+<path d='M 188.72 1095.0 L 175.72 1123.0 L 201.72 1123.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1' opacity='0.9'/>
+<path d='M 209.29 1095.0 L 196.29 1123.0 L 222.29 1123.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1' opacity='0.9'/>
+<path d='M 229.86 1095.0 L 216.86 1123.0 L 242.86 1123.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1' opacity='0.9'/>
+<path d='M 250.43 1095.0 L 237.43 1123.0 L 263.43 1123.0 Z' fill='#1f6aa8' stroke='#9cd0ff' stroke-width='1' opacity='0.9'/>
+<text x='283' y='878' fill='#9cd0ff' font-size='12' text-anchor='start'>S-IC — F-1 x5</text>
+<line x1='130' y1='60' x2='130' y2='70' stroke='white' stroke-width='1'/>
+<line x1='124' y1='60' x2='136' y2='60' stroke='white' stroke-width='1'/>
+<line x1='124' y1='70' x2='136' y2='70' stroke='white' stroke-width='1'/>
+<text x='122' y='65' fill='white' font-size='12' text-anchor='end' dominant-baseline='middle'>IU 0.9 m</text>
+<line x1='110' y1='85' x2='110' y2='298' stroke='white' stroke-width='1'/>
+<line x1='104' y1='85' x2='116' y2='85' stroke='white' stroke-width='1'/>
+<line x1='104' y1='298' x2='116' y2='298' stroke='white' stroke-width='1'/>
+<text x='102' y='191' fill='white' font-size='12' text-anchor='end' dominant-baseline='middle'>S-IVB 17.8 m</text>
+<line x1='90' y1='313' x2='90' y2='612' stroke='white' stroke-width='1'/>
+<line x1='84' y1='313' x2='96' y2='313' stroke='white' stroke-width='1'/>
+<line x1='84' y1='612' x2='96' y2='612' stroke='white' stroke-width='1'/>
+<text x='82' y='462' fill='white' font-size='12' text-anchor='end' dominant-baseline='middle'>S-II 24.9 m</text>
+<line x1='70' y1='626' x2='70' y2='1131' stroke='white' stroke-width='1'/>
+<line x1='64' y1='626' x2='76' y2='626' stroke='white' stroke-width='1'/>
+<line x1='64' y1='1131' x2='76' y2='1131' stroke='white' stroke-width='1'/>
+<text x='62' y='878' fill='white' font-size='12' text-anchor='end' dominant-baseline='middle'>S-IC 42.1 m</text>
+<line x1='150' y1='1171' x2='271' y2='1171' stroke='white' stroke-width='1'/>
+<line x1='150' y1='1165' x2='150' y2='1177' stroke='white' stroke-width='1'/>
+<line x1='271' y1='1165' x2='271' y2='1177' stroke='white' stroke-width='1'/>
+<text x='210' y='1163' fill='white' font-size='12' text-anchor='middle'>D ≈ 10.10 m  (scale 12.0 mm/m)</text>
+<rect x='610' y='28' width='260' height='86' fill='none' stroke='#fff' stroke-width='1'/>
+<rect x='620' y='34' width='18' height='12' fill='none' stroke='#9fd3ff' stroke-width='2'/>
+<text x='646' y='44' fill='#fff' font-size='12' text-anchor='start'>LOX tank</text>
+<rect x='620' y='52' width='18' height='12' fill='none' stroke='#ffd39f' stroke-width='2'/>
+<text x='646' y='62' fill='#fff' font-size='12' text-anchor='start'>LH2 / RP-1 tank</text>
+<rect x='620' y='70' width='18' height='12' fill='none' stroke='#89ffa8' stroke-width='2'/>
+<text x='646' y='80' fill='#fff' font-size='12' text-anchor='start'>Intertank / interstage</text>
+<rect x='620' y='88' width='18' height='12' fill='none' stroke='#9cd0ff' stroke-width='2'/>
+<text x='646' y='98' fill='#fff' font-size='12' text-anchor='start'>Engine schematics</text>
+<text x='150' y='36' fill='#ffffff' font-size='14' text-anchor='start'>SATURN V — VERTICAL STACK (Educational Blueprint)</text>
+</svg>

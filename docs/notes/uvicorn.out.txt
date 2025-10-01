@@ -1,0 +1,52 @@
+﻿loaded: j58_v23
+loaded: j58_plate
+loaded: j58_blueprint
+loaded: j58_ai
+loaded: saturn_s1c
+loaded: saturn_stack
+loaded: saturn_detail
+loaded: saturn_cad
+loaded: saturn_overview
+loaded: saturn_stage_cad
+loaded: saturn_assembly
+loaded: j58_engine_cad
+loaded: glb_tools
+loaded: glb_pack_named
+loaded: saturn_s1c
+loaded: saturn_stack
+loaded: saturn_s1c
+loaded: saturn_stack
+loaded: print_coupler
+loaded: s1c_v2
+loaded: saturn_cad
+loaded: glb_pack_named
+warn: router not loaded: s2_v1 unexpected indent (s2_v1.py, line 16)
+loaded: s4b_v1
+loaded: s2_v2
+loaded: s4b_v2
+warn: router not loaded: s1c_v3 unexpected character after line continuation character (s1c_v3.py, line 99)
+loaded: s2_v3
+loaded: stack_print_v1
+loaded: stack_full_v2
+loaded: stack_parts_v1
+loaded: s4b_v3
+loaded: s2_v4
+loaded: s4b_v4
+loaded: infra_v1
+warn: router not loaded: s1c_v5 cannot use assignment expressions with expression (s1c_v5.py, line 130)
+loaded: s2_v5
+loaded: s4b_v5
+loaded: infra_v2
+INFO:     127.0.0.1:6210 - "GET /wb/health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:6210 - "GET /openapi.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:6210 - "POST /wb/cad/s1c_build_v5 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:6210 - "POST /wb/cad/s2_build_v5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:6210 - "POST /wb/cad/s4b_build_v5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:6210 - "POST /wb/cad/infra_build_v2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:6210 - "POST /wb/cad/pack_dir_glb_hier HTTP/1.1" 200 OK
+INFO:     127.0.0.1:6210 - "POST /wb/cad/pack_dir_glb_hier HTTP/1.1" 200 OK
+INFO:     127.0.0.1:6210 - "POST /wb/cad/pack_dir_glb_hier HTTP/1.1" 200 OK
+INFO:     127.0.0.1:6210 - "POST /wb/cad/pack_dir_glb_hier HTTP/1.1" 200 OK
+INFO:     127.0.0.1:6210 - "POST /wb/cad/pack_dir_glb_hier HTTP/1.1" 200 OK
+
+

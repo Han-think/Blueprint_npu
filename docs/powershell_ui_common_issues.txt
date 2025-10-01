@@ -1,0 +1,50 @@
+﻿[PowerShell UI 반복 오류 체크리스트]
+
+1) here-string 중첩 깨짐
+   - 증상: 스크립트 일부가 잘리고 뒤에 문법오류 폭주.
+   - 원인: @'…'@ / @"… "@ 안에 다시 동일 구분자 삽입.
+   - 해결: 내부 문자열은 -c 인라인 파이썬 호출(ArgumentList)로 대체하거나,  조합 사용.
+
+2) ..FullName 오타(점 두 번)
+   - 증상: '..' 연산자 관련 파서 오류.
+   - 해결: .FullName 로 교정.
+
+3) Where-Object에서 -and 오용
+   - 증상: “매개 변수 이름 'and'…” 에러.
+   - 원인: 스크립트블록 밖에서 -and 사용 또는 줄바꿈 위치 오류.
+   - 해결: 반드시 { … -and … -and … } 블록 안에서만 사용.
+
+4) % / ForEach-Object 뒤에 라인브레이크 오동작
+   - 증상: ForEach-Object가 엉뚱한 토큰을 파라미터로 인식.
+   - 해결: 파이프라인 연속 라인에서 백틱() 또는 괄호로 안전하게 이어쓰기.
+
+5) &  - 파이프 실행 오용
+   - 증상: “파이프라인 요소의 '&' 뒤…” 에러.
+   - 해결: 표준입력 파이프로 넘기지 말고, -c 인라인 코드로 호출:
+     .ArgumentList.Add("-c"); .ArgumentList.Add('print("ok")')
+
+6) WinForms는 STA 필요
+   - 증상: 폼이 안 뜨거나 이상 종료.
+   - 해결: powershell.exe -STA -NoProfile -ExecutionPolicy Bypass -File .\npu_gen_ui.ps1
+
+7) 토크나이저/디토크나이저 IR 누락
+   - 증상: Tokenizer::encode/decode not available.
+   - 해결: openvino_tokenizer.xml/bin, openvino_detokenizer.xml/bin 포함된 스냅샷만 사용.
+
+8) LLMPipeline 인자명 사용
+   - 증상: incompatible constructor arguments.
+   - 해결: LLMPipeline(a.model_dir, a.device) ← 위치 인수만.
+
+9) 경로에 공백/따옴표
+   - 해결: 인자 빌드 시 항상 따옴표 래핑(Q 함수)로 보호.
+
+10) UI 로그 플러시 지연
+   - 해결: BeginInvoke + ReadLine 루프 유지, 진단은 별도 ProcessStartInfo로 즉시 출력.
+
+[모델 스캔 예시(정답 구문)]
+Get-ChildItem "C:\Users\Lenovo\npu-main\Blueprint_npu\models\ov_npu_ready" -Directory -Recurse -EA SilentlyContinue |
+  Where-Object {
+    Test-Path (Join-Path .FullName 'openvino_model.xml') -and
+    Test-Path (Join-Path .FullName 'openvino_tokenizer.xml') -and
+    Test-Path (Join-Path .FullName 'openvino_detokenizer.xml')
+  } | Select-Object -ExpandProperty FullName

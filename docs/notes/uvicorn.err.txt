@@ -1,0 +1,22 @@
+﻿INFO:     Started server process [18832]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:9035 (Press CTRL+C to quit)
+C:\Users\Lenovo\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\openapi\utils.py:207: UserWarning: Duplicate Operation ID send_file_wb_files__rel_path__get for function send_file at C:\Users\Lenovo\Blueprint_npu-main\Blueprint_npu\app\j58_plate.py
+  warnings.warn(message, stacklevel=1)
+C:\Users\Lenovo\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\openapi\utils.py:207: UserWarning: Duplicate Operation ID send_file_wb_files__rel_path__get for function send_file at C:\Users\Lenovo\Blueprint_npu-main\Blueprint_npu\app\j58_blueprint.py
+  warnings.warn(message, stacklevel=1)
+C:\Users\Lenovo\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\openapi\utils.py:207: UserWarning: Duplicate Operation ID send_file_wb_files__rel_path__get for function send_file at C:\Users\Lenovo\Blueprint_npu-main\Blueprint_npu\app\saturn_s1c.py
+  warnings.warn(message, stacklevel=1)
+C:\Users\Lenovo\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\openapi\utils.py:207: UserWarning: Duplicate Operation ID saturn_stack_blueprint_wb_cad_saturn_stack_blueprint_get for function saturn_stack_blueprint at C:\Users\Lenovo\Blueprint_npu-main\Blueprint_npu\app\saturn_stack.py
+  warnings.warn(message, stacklevel=1)
+C:\Users\Lenovo\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\openapi\utils.py:207: UserWarning: Duplicate Operation ID saturn_stack_blueprint_wb_cad_saturn_stack_blueprint_get for function saturn_stack_blueprint at C:\Users\Lenovo\Blueprint_npu-main\Blueprint_npu\app\saturn_s1c.py
+  warnings.warn(message, stacklevel=1)
+C:\Users\Lenovo\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\openapi\utils.py:207: UserWarning: Duplicate Operation ID saturn_s1c_blueprint_wb_cad_saturn_s1c_blueprint_get for function saturn_s1c_blueprint at C:\Users\Lenovo\Blueprint_npu-main\Blueprint_npu\app\saturn_s1c.py
+  warnings.warn(message, stacklevel=1)
+C:\Users\Lenovo\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\openapi\utils.py:207: UserWarning: Duplicate Operation ID saturn_cad_build_wb_cad_saturn_cad_build_post for function saturn_cad_build at C:\Users\Lenovo\Blueprint_npu-main\Blueprint_npu\app\saturn_cad.py
+  warnings.warn(message, stacklevel=1)
+C:\Users\Lenovo\AppData\Local\Programs\Python\Python311\Lib\site-packages\fastapi\openapi\utils.py:207: UserWarning: Duplicate Operation ID pack_dir_glb_hier_wb_cad_pack_dir_glb_hier_post for function pack_dir_glb_hier at C:\Users\Lenovo\Blueprint_npu-main\Blueprint_npu\app\glb_pack_named.py
+  warnings.warn(message, stacklevel=1)
+
+

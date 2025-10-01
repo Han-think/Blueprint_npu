@@ -1,0 +1,39 @@
+[AI Design Pipeline — NPU/GPU/CPU AUTO + OV INT4]
+1) 기본 구조
+   - models/config.json (active=phi | llama)
+   - ai/models/text_gen.py (OV + transformers/optimum-intel)
+   - ai/cli/chat.py (단건 프롬프트)
+   - ai/cli/autoloop.py (여러 후보 생성→스코어→best/worst 저장→prefs.jsonl 축적→(옵션)엔진적용)
+   - ai/cli/auto_cycle.ps1 (연속 사이클 실행기; Loops/대기 간격/온도/모델 선택)
+   - data/geometry/cad/exports/... (자산별 스냅샷, latest, 보존 5개)
+   - ai/runs/ (cand/best/worst/scores.json + cycle_logs + prefs.jsonl)
+
+2) 설치 핵심(venv 가정)
+   - pip: openvino, optimum-intel, transformers, huggingface_hub
+   - HF 로그인:  .\.venv\Scripts\huggingface-cli.exe login
+   - 모델(예): phi(OpenVINO INT4), llama(OV INT4) 로컬 폴더에 snapshot_download
+   - PYTHONPATH: 레포 루트를 등록(세션)  `$env:PYTHONPATH = "<repo_root>"`
+                영구화(권장) site-packages에 .pth 생성
+
+3) 실행
+   - 단발: .\.venv\Scripts\python.exe .\ai\cli\chat.py -p "프롬프트"
+           .\.venv\Scripts\python.exe .\ai\cli\chat.py --model llama -p "프롬프트"
+   - 오토루프(베스트 적용): .\.venv\Scripts\python.exe .\ai\cli\autoloop.py -p "<텍스트>" --apply --asset saturn_v --keep 5
+   - 연속 사이클:  .\ai\cli\auto_cycle.ps1 -Model phi -Asset saturn_v -PromptFile .\prompts\saturn_coupling_v1.txt -Loops 5 -SleepSec 15
+
+4) 스코어링(autoloop)
+   - JSON 계획 추출 성공(+5), ops 수(+1/개, 최대+10), verify 포함(+2), 길이보정(최대+3)
+   - best/worst 저장, prefs.jsonl에 (prompt, chosen, rejected) 축적 → 이후 DPO/ORPO 학습데이터로 활용 가능
+
+5) 프롬프트 팁(기계설계)
+   - 목표/제약/검증/출력형식(JSON) 블록 분리
+   - 단위 명시(mm, m), 공차/간섭 음수 금지, 안전 여유값
+   - “후속:”에 킷 스케일(예: 1:200)·파트 분해 규칙·파일명 규칙 포함
+
+6) 트러블슈팅
+   - JSON BOM 문제: 파일을 UTF-8(BOM 없음)으로 저장
+   - ModuleNotFoundError: ai → PYTHONPATH 지정 또는 .pth 영구 설정
+   - OpenVINO 디바이스: device="AUTO"로 NPU/GPU/CPU 자동 할당
+   - 추론 전용 모델: 튜닝은 PyTorch 원본→LoRA→OV로 내보내는 경로 권장
+
+(이 문서는 scripts로 자동 생성되었습니다)

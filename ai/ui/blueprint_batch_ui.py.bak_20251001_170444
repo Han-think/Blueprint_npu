@@ -1,0 +1,103 @@
+﻿import os, sys, subprocess
+from pathlib import Path
+import gradio as gr
+
+_tok=_model=None; _src=None; _dev="cpu"
+
+def _dtype(s):
+    import torch
+    return {"fp32":torch.float32,"bf16":torch.bfloat16,"f16":torch.float16}.get(str(s).lower(),torch.float32)
+
+def load_xpu(merged_dir, dtype, device):
+    global _tok,_model,_src,_dev
+    from transformers import AutoTokenizer, AutoModelForCausalLM
+    import torch
+    mdir=str(Path(merged_dir).resolve())
+    if _model is not None and _src==mdir and _dev==device: return "ok"
+    _tok   = AutoTokenizer.from_pretrained(mdir, use_fast=True, local_files_only=True)
+    _model = AutoModelForCausalLM.from_pretrained(mdir, torch_dtype=_dtype(dtype), local_files_only=True).eval()
+    if device.lower()=="xpu" and hasattr(torch,"xpu") and torch.xpu.is_available():
+        _model.to("xpu"); _dev="xpu"
+    else:
+        _dev="cpu"
+    _src=mdir
+    return "ok"
+
+def gen_xpu(prompt, max_new):
+    import torch
+    if _tok is None or _model is None: return "(XPU 미로드)"
+    x=_tok(prompt, return_tensors="pt")
+    if _dev=="xpu": x={k:v.to("xpu") for k,v in x.items()}
+    y=_model.generate(**x, max_new_tokens=int(max_new))
+    return _tok.decode(y[0], skip_special_tokens=True)
+
+def run_npu(gen_script, ov_dir, device, max_new, prompt, offline):
+    env=os.environ.copy()
+    def set_off(on):
+        for k in ["HF_HUB_OFFLINE","TRANSFORMERS_OFFLINE","HF_DATASETS_OFFLINE"]:
+            if on: env[k]="1"
+            elif k in env: env.pop(k)
+    if offline=="on": set_off(True)
+    elif offline=="off": set_off(False)
+    cmd=[sys.executable, gen_script, "--model_dir", ov_dir, "--device", device,
+         "--max_new_tokens", str(int(max_new)), "--prompt", prompt]
+    try:
+        r=subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=180, env=env)
+        txt=(r.stdout or "")+("\n"+r.stderr if r.stderr else "")
+    except Exception as e:
+        txt=f"(NPU 실행 오류) {e}"
+    return "\n".join([ln for ln in txt.splitlines() if not ln.startswith("[LOG]")]).strip()
+
+_WRAPPER = """당신은 추진/연소/유체/구조 통합 설계 엔지니어입니다.
+목표: 3D 금속 적층(슬리빙/내부 채널 포함) 기준으로, 시험가능·제작가능한 실무 수준 아이디어만 제안합니다.
+제약:
+- 수치: 추력/챔버압/혼합비/온도/마하/질량/열유속 등은 근사 범위로 표기
+- 제조: DfAM(채널 최소 반경/브리지 각도 등) 명시
+- 검증: 벤치 시퀀스/계측 포인트/리스크 포함
+출력형식: 소제목 + 불릿 3~5개(각 1~2문장, 근거 수치 포함)
+주제: {topic}
+"""
+
+def wrap_prompt(raw, use_wrapper):
+    raw=(raw or "").strip()
+    return _WRAPPER.format(topic=raw) if use_wrapper else raw
+
+def run_both(prompts_block, run_count,
+             gen_script, ov_dir, npu_dev, npu_max, npu_off,
+             merged_dir, xpu_dtype, xpu_dev, xpu_max,
+             use_wrap):
+    lines=[ln.strip() for ln in (prompts_block or "").splitlines() if ln.strip()][:max(1,min(int(run_count),5))]
+    try:
+        if merged_dir: load_xpu(merged_dir, xpu_dtype, xpu_dev)
+    except Exception: pass
+    out=[]
+    for i,topic in enumerate(lines,1):
+        p=wrap_prompt(topic,use_wrap)
+        npu = run_npu(gen_script, ov_dir, npu_dev, int(npu_max), p, npu_off) if gen_script and ov_dir else "(NPU 미설정)"
+        xpu = gen_xpu(p, int(xpu_max)) if merged_dir else "(XPU 미설정)"
+        out.append(f"### {i}. {topic}\n\n**NPU(OpenVINO)**\n{npu or '(출력 없음)'}\n\n**XPU(HF merged)**\n{xpu or '(출력 없음)'}")
+    return "\n\n---\n\n".join(out)
+
+with gr.Blocks(title="Blueprint NPU+XPU Batch Runner") as demo:
+    gr.Markdown("## NPU(OpenVINO) + XPU(HF merged) 배치 비교 (최대 5개)")
+    with gr.Row():
+        prompts = gr.Textbox(label="Prompts (1줄=1개, 최대 5개)", lines=12, value="로켓 효율 최적화 아이디어 3가지.\nLEAF71 연소 안정화 요점 3줄.\n드론 프로펠러 저소음 설계 핵심 3가지.\n램제트 인렛 변수 3개만.\n펜슬엔진 전환 로직 요약.")
+        run_count = gr.Slider(1,5, value=5, step=1, label="Run count (max 5)")
+    with gr.Accordion("NPU (OpenVINO runner)", open=True):
+        gen_script = gr.Textbox(label="Generator script (genai_run.py)", value="ai\\cli\\genai_run.py")
+        ov_dir     = gr.Textbox(label="OV model dir", value="models\\ov_npu_ready\\llama32_1b_int4_npu_ov")
+        npu_dev    = gr.Dropdown(["NPU","CPU","AUTO"], value="NPU", label="Device")
+        npu_max    = gr.Slider(16,512, value=128, step=16, label="Max new tokens")
+        npu_off    = gr.Dropdown(["auto","on","off"], value="auto", label="Offline mode")
+    with gr.Accordion("XPU (HF merged)", open=True):
+        merged_dir = gr.Textbox(label="Merged dir", value="models\\hf_finetuned\\xpu_run1\\merged")
+        xpu_dtype  = gr.Dropdown(["fp32","bf16","f16"], value="fp32", label="dtype")
+        xpu_dev    = gr.Dropdown(["cpu","xpu"], value="xpu", label="device")
+        xpu_max    = gr.Slider(16,512, value=128, step=16, label="Max new tokens")
+    use_wrap = gr.Checkbox(value=True, label="Prompt engineering wrapper 적용 (설계 지시/형식 강화)")
+    run_btn = gr.Button("Run Both", variant="primary")
+    out = gr.Markdown()
+    run_btn.click(run_both, [prompts,run_count,gen_script,ov_dir,npu_dev,npu_max,npu_off,merged_dir,xpu_dtype,xpu_dev,xpu_max,use_wrap], [out])
+
+demo.launch(server_name=os.environ.get("GRADIO_SERVER_NAME","127.0.0.1"),
+            server_port=int(os.environ.get("GRADIO_SERVER_PORT","7860")))

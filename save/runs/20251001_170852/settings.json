@@ -1,0 +1,24 @@
+{
+  "ts": "20251001_170852",
+  "npu": {
+    "gen_script": "ai\\cli\\genai_run.py",
+    "ov_dir": "models\\ov_npu_ready\\llama32_1b_int4_npu_ov",
+    "device": "NPU",
+    "max_new": 128,
+    "offline": "auto"
+  },
+  "xpu": {
+    "merged_dir": "models\\hf_finetuned\\xpu_run1\\merged",
+    "dtype": "fp32",
+    "device": "xpu",
+    "max_new": 128
+  },
+  "lang": "ko",
+  "topics": [
+    "First-stage rocket efficiency (reusable). Mission LEO 10–15 t. RP-1/LOX. Assumptions: Pc 10–25 MPa, MR 2.2–2.8. KPIs: higher T/W, lower Isp loss. DfAM: R≥0.7 mm, wall 1.2–1.6 mm, bridge≥35°. Validation: pump cold→combustor→nozzle wet w/ variable area.",
+    "LEAF71-style stability porting (1–5 kN methane/LOX). L* 0.8–1.2 m, swirl 0.4–0.8. Target: mode separation & pressure oscillation suppression. Include DfAM and sensor layout.",
+    "Low-noise propeller (8–12 inch, 4–6S, 2–3 kgf). Tip Mach ≤0.65, 55 dBA@1 m. Trade sweep/pitch/washout; AM hub integration.",
+    "Ramjet inlet, pick only 3 variables (Mach 2–4): external compression ratio, BL bleed rate, total pressure loss. Qualitative + rough quantitative trends.",
+    "“Pencil engine” booster→ramjet transition: state diagram (q, Mach, heat-release window), hysteresis/failsafe, HILS→ground transition tests."
+  ]
+}
